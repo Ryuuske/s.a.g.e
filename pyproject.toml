@@ -1,0 +1,192 @@
+[project]
+name = "s.a.g.e-mcp"
+version = "1.0.0"
+description = "Give your AI a memory — mine projects and conversations into a searchable nook. No API key required."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [
+    {name = "Ryuuske"},
+]
+keywords = [
+    "ai", "memory", "llm", "rag", "chromadb", "mcp",
+    "vector-database", "claude", "chatgpt", "embeddings",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Utilities",
+]
+dependencies = [
+    # CVE-2026-45829 (GHSA-f4j7-r4q5-qw2c): pre-auth server-RCE in chromadb
+    # 1.0.0–1.5.9; no patched release within <2 yet. Not reachable in sage
+    # (embedded PersistentClient only; no FastAPI/HttpClient/trust_remote_code).
+    # pip-audit ignore per ADR-0079. Revisit when a patched chromadb ships or
+    # a server-mode backend is added.
+    "chromadb>=1.5.4,<2",
+    "pyyaml>=6.0,<7",
+    # Multilingual embedding model deps. Onboarding now offers the
+    # embeddinggemma-300m ONNX model as the default for new installs, so
+    # these are required core deps (not optional extras). The 300 MB ONNX
+    # model itself is lazy-downloaded on first use, not at install time.
+    # Users who pick minilm during onboarding still get these installed
+    # but unused — small wheel-size cost in exchange for one fewer pip
+    # command in the multilingual setup path.
+    "huggingface_hub>=0.20",
+    "tokenizers>=0.15",
+    "numpy>=1.24",
+    # Tier 6a content-date extraction uses dateutil for natural-language
+    # date parsing (filename + content body branches). It happens to install
+    # transitively today via chromadb→kubernetes→python-dateutil, but that
+    # chain is not a contract — declared explicitly here to ensure
+    # _extract_content_date keeps working if the kubernetes dep chain
+    # drops it.
+    "python-dateutil>=2.8",
+    # Security pins overriding chromadb's transitive resolution. All in-runtime
+    # path via chromadb (orjson, idna via httpx) and chromadb→kubernetes→requests
+    # (urllib3, idna again). Drop these pins once chromadb's own constraints catch
+    # up. GHSA-hx9q-6w63-j58v (orjson recursion DoS, CVE-2025-67221);
+    # GHSA-qccp-gfcp-xxvc + GHSA-mf9v-mfxr-j63j (urllib3 sensitive-header
+    # forwarding + decompression-bomb bypass, CVE-2026-44431 + 44432);
+    # GHSA-65pc-fj4g-8rjx (idna.encode() bypass of the CVE-2024-3651 fix,
+    # CVE-2026-45409).
+    "orjson>=3.11.6",
+    "urllib3>=2.7.0",
+    "idna>=3.15",
+]
+
+[project.urls]
+Homepage = "https://github.com/Ryuuske/s.a.g.e"
+Repository = "https://github.com/Ryuuske/s.a.g.e"
+"Bug Tracker" = "https://github.com/Ryuuske/s.a.g.e/issues"
+
+[project.scripts]
+sage = "sage_mcp.cli:main"
+sage-mcp = "sage_mcp.mcp_server:main"
+
+[project.entry-points."sage.backends"]
+chroma = "sage.backends.chroma:ChromaBackend"
+
+# Source-adapter entry-point group. Core publishes no first-party
+# adapters under this group yet; ``miner.py`` and ``convo_miner.py`` migrate
+# onto ``BaseSourceAdapter`` in a follow-up. Third-party adapter packages
+# register here.
+[project.entry-points."sage.sources"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff==0.15.16",
+    "psutil>=5.9",
+    # Property-based testing — generates hundreds of random inputs per
+    # test to find counterexamples the hand-written positive tests miss.
+    # Used opt-in (sprinkle ``@given(...)`` on a test); zero runtime
+    # cost on tests that don't use it.
+    "hypothesis>=6.0",
+    # Pre-commit framework — gates every local ``git commit`` on the
+    # same ruff checks CI runs. Activate once per clone with
+    # ``pre-commit install``.
+    "pre-commit>=3.0",
+    # mypy — static type checker. Run ad-hoc with
+    # ``mypy src/sage_mcp/``; CI doesn't gate on it.
+    "mypy>=1.0",
+    # PyYAML type stubs — eliminates mypy import-untyped errors on
+    # sage.estate.adapter.workshop (which imports yaml directly).
+    "types-PyYAML>=6.0",
+    # Build frontend + this project's own backend — needed in-env so the
+    # estate schema-packaging test can build the real wheel OFFLINE
+    # (--no-isolation) and prove the schema ships inside the artifact.
+    "build>=1.0",
+    "hatchling>=1.0",
+]
+spellcheck = ["autocorrect>=2.0"]
+# Hardware acceleration for the ONNX embedding model. Install exactly one:
+#   uv pip install -e ".[gpu]"     — NVIDIA CUDA (local clone)
+#   uv pip install -e ".[dml]"     — DirectML (Windows AMD/Intel/NVIDIA)
+#   uv pip install -e ".[coreml]"  — macOS Neural Engine
+# After install, set SAGE_EMBEDDING_DEVICE=cuda|dml|coreml (or "auto").
+gpu = ["onnxruntime-gpu>=1.16"]
+dml = ["onnxruntime-directml>=1.16"]
+coreml = ["onnxruntime>=1.16"]
+# Multilingual extra kept as a no-op alias for back-compat with the
+# `[multilingual]` extra — these deps now ship in core.
+multilingual = []
+# Binary-format extraction for `sage mine --mode extract`. Per-format
+# transformer routing: striprtf for .rtf, MarkItDown for .pdf/.docx/.pptx/
+# .xlsx/.epub. MarkItDown requires Python ≥ 3.10 — satisfied everywhere at
+# the package floor (>=3.12).
+extract = [
+    "striprtf>=0.0.27",
+    # Per review: bare ``markitdown`` is enough to import
+    # but not enough to convert — actual PDF/DOCX/PPTX/XLSX extraction
+    # needs MarkItDown's per-format sub-extras, which pull pdfminer-six,
+    # mammoth, python-pptx, openpyxl, etc. EPUB is handled by base
+    # markitdown (EpubConverter uses beautifulsoup4, a base requirement),
+    # so no [epub] sub-extra is needed (and none exists in 0.1.5). RTF is
+    # covered by striprtf above.
+    "markitdown[docx,pdf,pptx,xlsx]>=0.1.5; python_version >= '3.10'",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff==0.15.16",
+    "psutil>=5.9",
+    "hypothesis>=6.0",
+    "pre-commit>=3.0",
+    "mypy>=1.0",
+    "types-PyYAML>=6.0",
+    "build>=1.0",
+    "hatchling>=1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sage_mcp"]
+# Ensure non-Python runtime assets ship in the wheel (the estate model schema is
+# loaded at runtime for validation; without this an installed user's estate build
+# fails — see ADR-0003 / PR #34 review).
+artifacts = ["src/sage_mcp/estate/*.schema.json"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C901"]
+ignore = ["E501"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 25
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "eval_baseline: baseline-capture tests that write tests/eval/tier0_baseline.json",
+    "eval: full non-regression eval harness (WI-7b); requires RUN_EVAL=1 or -m eval",
+    "integration: tests that shell out to bash or other external processes",
+]
+
+[tool.coverage.run]
+source = ["sage"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+exclude_lines = [
+    "if __name__",
+    "pragma: no cover",
+]

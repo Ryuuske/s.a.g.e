@@ -1,0 +1,166 @@
+{
+  "$schema-note": "Design grammar for the Sage Estate Dashboard. NOT a JSON Schema — a token document consumed by the renderer (layer 6 in plan §2). Authored once (frontend-design pass), reviewed, then revised rarely. Adding a key here for a NEW wing-type / hall / building kind is the estate-design-maintainer trigger (ADR-0002): the agent proposes the new visual grammar as a diff to this file. Volume changes never touch this file.",
+  "meta": {
+    "name": "Sage Estate — Nocturne Villa",
+    "version": "0.1.0-draft",
+    "concept": "A Roman villa read at dusk. Cool slate exterior and a dark verdant ground; warm interior light spills from rooms that are active. Each wing-type is a different MATERIAL so the estate reads at a glance before any label loads. Memory that has decayed shows as patina, cracks, and — at the slot-ledger gaps (ADR-0005) — open ruins where a drawer once stood. The whole estate is legible in one still frame; motion only confirms what the eye already grouped. In the 3D Roman renderer (Phase 2c), wing identity is expressed as: tinted wall (65% travertine + 35% wing wall-color for cohesion), colored roof + frieze + window light (full wing palette), and a base-course / pilaster accent strip in the pure wing wall-color (strongest identity cue at LOD 0). No token is voided — every wing reads distinctly against travertine-dominant walls.",
+    "direction": "refined / atmospheric — not maximalist. Restraint, precise spacing, material honesty. Light does the storytelling.",
+    "status": "first-draft visual grammar for review per plan §6"
+  },
+
+  "global": {
+    "background": {
+      "base": "#0a0d0b",
+      "atmosphere": "radial-gradient(120% 90% at 50% -10%, #14201a 0%, #0c1410 38%, #07090a 100%)",
+      "grain": { "opacity": 0.04, "blend": "overlay", "note": "fine film grain over the whole canvas for depth" },
+      "ground_grid": { "line": "#15291f", "cell_px": 40, "note": "the iso floor lattice from the locked site-plan diagram" }
+    },
+    "iso": {
+      "projection": "2:1 dimetric (classic isometric tile)",
+      "tile_ratio": 2.0,
+      "elevation_unit_px": 14,
+      "wall_height_units": 3,
+      "shadow": { "color": "#04060588", "blur_px": 18, "offset_units": 1 }
+    },
+    "panel": "#10161b",
+    "line": "#26323a",
+    "selection": { "ring": "#caa15f", "ring_width_px": 2, "halo": "#caa15f33" }
+  },
+
+  "typography": {
+    "nameplate": {
+      "family": "'Marcellus SC', 'Trajan Pro', serif",
+      "use": "building + wing nameplates — the inscription on the lintel. Roman capitals.",
+      "letter_spacing_em": 0.08,
+      "case": "uppercase"
+    },
+    "label": {
+      "family": "'Cardo', 'Spectral', serif",
+      "use": "room titles, detail-pane prose, glossary terms — a classicist body face."
+    },
+    "data": {
+      "family": "'Cascadia Code', 'JetBrains Mono', ui-monospace, monospace",
+      "use": "counts, ids, sizes, strengths, telemetry — every number and every machine token."
+    },
+    "scale_px": { "xs": 10.5, "sm": 12, "base": 14.5, "lg": 18, "xl": 23, "display": 36 }
+  },
+
+  "palette": {
+    "ink": { "primary": "#eef1f5", "secondary": "#aab2bf", "muted": "#6f7787" },
+    "accent": { "terracotta": "#d97757", "gold": "#caa15f", "verdigris": "#6fcaa0" },
+    "signal": { "ok": "#3fd07f", "info": "#54b6f0", "violet": "#a78bfa", "danger": "#fb6a5f", "warn": "#f5b13d" }
+  },
+
+  "wing_types": {
+    "_note": "One entry per value of the wing_type enum (ADR-0004): the 5 registered types + unknown. material + palette + roof + light + motif. The renderer picks by estate-model wing.type; an unmatched type is a hard error (it means sage grew a new wing-type and the design-maintainer must run). 3D Roman renderer identity contract: wall token → tinted wall (65% travertine + 35% wall color) + pilaster (pure wall color); roof → gable roof material; light → window emissive glow. No token is voided.",
+    "dev": {
+      "label": "Workshop slate",
+      "wall": "#2b3640", "wall_accent": "#3c4a57", "roof": "#1d2730", "roof_shape": "low-pitched slate",
+      "light": "#9fb4c4", "motif": "iron brackets, a worktable in each room",
+      "rationale": "dev wings are where code is shaped — cool, utilitarian, iron-and-slate."
+    },
+    "project": {
+      "label": "Terracotta brick",
+      "wall": "#9c5238", "wall_accent": "#c06a45", "roof": "#7a3d2b", "roof_shape": "warm clay tile",
+      "light": "#e8a589", "motif": "fired-brick courses, tiled gable",
+      "rationale": "project wings are lived-in working space — warm brick, the most 'house-like' wing."
+    },
+    "knowledge": {
+      "label": "Library travertine",
+      "wall": "#cbb896", "wall_accent": "#e3d4af", "roof": "#a8966f", "roof_shape": "tall clerestory",
+      "light": "#ffe9bd", "motif": "tall warm windows, stacked shelving visible at roof-off",
+      "rationale": "knowledge wings = the library — cream stone, warm reading light, the most luminous wing."
+    },
+    "ops": {
+      "label": "Gunmetal foundry",
+      "wall": "#23282c", "wall_accent": "#343c42", "roof": "#15191c", "roof_shape": "flat industrial",
+      "light": "#7fd0a0", "motif": "vents, gauges, a banked furnace glow",
+      "rationale": "ops wings are infrastructure — darkest, heaviest, a low green telemetry glow."
+    },
+    "meta": {
+      "label": "Verdigris bronze",
+      "wall": "#3a5a4e", "wall_accent": "#4f7a68", "roof": "#2e7d5b", "roof_shape": "patinated copper dome",
+      "light": "#6fcaa0", "motif": "bronze plaques, a self-referential mirror motif",
+      "rationale": "meta wings are the framework reflecting on itself — patinated bronze, the rarest material."
+    },
+    "personal": {
+      "label": "Private quarters — warm plaster",
+      "wall": "#7c4a38", "wall_accent": "#9c6248", "roof": "#5c3428", "roof_shape": "low-pitched terracotta, intimate gable",
+      "light": "#f0c090", "motif": "a hearth alcove, a small lararium niche, personal objects on windowsills",
+      "rationale": "personal wings are the user's own memory space — warm, domestic, distinct from project (fired brick) by being softer/lighter, closer to inhabited plaster than industrial clay."
+    },
+    "unknown": {
+      "label": "Unfinished ruin",
+      "wall": "#33383b", "wall_accent": "#44494d", "roof": "none", "roof_shape": "roofless / scaffolded",
+      "light": "#6f7787", "motif": "bare scaffold poles, a chalked '?' on the wall, no door",
+      "rationale": "the '?' bucket made visible (ADR-0004). A malformed/unregistered wing is a roofless ruin the eye is meant to flag. Never hidden — parity with dashboard.py."
+    }
+  },
+
+  "buildings": {
+    "_note": "Per-building art direction (plan §13 estate vocabulary).",
+    "nook_palace": {
+      "label": "The Nook — Palace",
+      "wall": "#10362a", "wall_accent": "#1a4d3a", "roof": "#9be7c2", "roof_shape": "grand verdigris-and-stone hall",
+      "accent": "#9be7c2", "grandeur": "highest — the jewel of the estate; footprint scales with wing count",
+      "rationale": "memory is identity — the Palace is the largest, most-lit, most-detailed structure."
+    },
+    "workshop": {
+      "label": "The Workshop (Fabrica)",
+      "wall": "#3a3018", "wall_accent": "#5a4a24", "roof": "#caa15f", "roof_shape": "long gold-lit fabrica",
+      "accent": "#ffd98a",
+      "rationale": "where the agents work — gold forge-light, one lit room per active agent."
+    },
+    "grounds": {
+      "label": "The Grounds (Peristylium)",
+      "ground": "#0f2a18", "plot": "#13361f", "plot_edge": "#3f8a52", "accent": "#7bd58f",
+      "rationale": "an open colonnaded courtyard, NOT a building — repo plots tile to fit; grows without bound."
+    },
+    "horrea": { "label": "Horrea — granary", "wall": "#161d24", "accent": "#54b6f0", "motif": "stacked stores, snapshot crates" },
+    "tablinum": { "label": "Tablinum — the study", "wall": "#161d24", "accent": "#a78bfa", "motif": "scrolls, live-editable config drawers" },
+    "gate": { "label": "The Gate — danger zone", "wall": "#1a1410", "accent": "#fb6a5f", "motif": "the single guarded door out; ember glow" }
+  },
+
+  "state_signals": {
+    "_note": "How estate-model fields become visible state. These map to schema fields directly so the renderer is data-driven, not hand-flagged.",
+    "active_agent": { "trigger": "agent recently filed / running", "visual": "room window lit warm (palette.accent.gold), soft pulse", "source": "diaries[].entries delta" },
+    "dirty_repo": { "trigger": "grounds.plots[].dirty == true", "visual": "scaffolding + sawhorses on the plot, dust haze", "source": "git status --porcelain" },
+    "decayed_memory": { "trigger": "drawer.strength low (approaching ADR-0043 floor 0.1)", "visual": "closet face fades + hairline cracks; opacity = lerp(strength, floor..1)", "source": "store_health.strength / drawer.strength" },
+    "ruin_gap": { "trigger": "slot-ledger gap — an id deleted, slot never reclaimed (ADR-0005)", "visual": "open foundation / broken closet where a drawer once stood; never repacked", "source": "layout ledger gap" },
+    "below_floor_corruption": { "trigger": "store_health.strength.below_floor > 0", "visual": "structure visibly broken, danger outline", "source": "collect_store_health" },
+    "unknown_bucket": { "trigger": "wing.type == unknown OR by_wing['?'] > 0", "visual": "the roofless-ruin material (wing_types.unknown)", "source": "the '?' bucket dashboard.py never hides" },
+    "danger_zone": { "trigger": "Gate hover / armed action", "visual": "the Gate glows red (signal.danger), ember particles" }
+  },
+
+  "zoom": {
+    "_note": "4-level semantic zoom (plan §7). LOD thresholds are camera-distance bands; cross a band → reveal/hide a layer. Roof-lift is the signature transition.",
+    "levels": [
+      { "level": 0, "name": "Estate", "shows": "all buildings + grounds, roofs ON, nameplates only", "lod_min_scale": 0.0 },
+      { "level": 1, "name": "Roof off", "shows": "enter a building → roof lifts → wings/zones + rooms inside", "lod_min_scale": 1.6 },
+      { "level": 2, "name": "Closer", "shows": "inside a room → closets group its contents", "lod_min_scale": 3.2 },
+      { "level": 3, "name": "Closest", "shows": "drawers (Nook) / agent.md (Workshop) / config settings (Tablinum) — KEEP THESE LEAF TYPES DISTINCT, do not flatten all to 'drawers'", "lod_min_scale": 6.0 }
+    ],
+    "leaf_distinction_note": "Locked vocabulary (HANDOFF §2): a drawer is a verbatim MEMORY unit only. At level 3 the Nook's leaf is a drawer, the Workshop's leaf is an agent.md file, the Tablinum's leaf is a config setting. The renderer + detail pane MUST label them by their true type — flattening all leaves to 'drawer' is a vocabulary regression.",
+    "transitions": {
+      "roof_lift": { "duration_ms": 460, "easing": "cubic-bezier(0.22, 1, 0.36, 1)", "note": "roof translates up + fades; interior staggers in 40ms per zone" },
+      "camera_fly": { "duration_ms": 620, "easing": "cubic-bezier(0.65, 0, 0.35, 1)", "note": "detail-pane select flies camera to target; two-way" },
+      "stagger_ms": 40
+    }
+  },
+
+  "detail_pane": {
+    "position": "right",
+    "background": "#10161b",
+    "border": "#26323a",
+    "mirrors": "current selection — wing stats / room drawers / agent.md / drawer metadata (body fetched lazily on open, loopback only — ADR-0003)",
+    "title_font": "nameplate",
+    "body_font": "label",
+    "data_font": "data"
+  },
+
+  "accessibility": {
+    "min_contrast": "WCAG AA on all text over its panel",
+    "non_color_state": "every state_signal carries a NON-color cue (cracks, scaffold, ruin geometry, icon) — never color alone, for color-blind legibility",
+    "motion": "respect prefers-reduced-motion: roof-lift + fly become instant cuts; pulses disabled"
+  }
+}

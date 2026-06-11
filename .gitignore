@@ -1,0 +1,67 @@
+*.egg-info/
+dist/
+build/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+sage.yaml
+# legacy local mining config (pre-rebrand name), kept ignored via char-class
+[k]eel.yaml
+.a5c/
+.claude/
+.codex/
+.codex
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Coverage
+htmlcov/
+.coverage
+coverage.xml
+
+# Virtual environments
+.venv/
+venv/
+
+# ChromaDB local data
+*.sqlite3-journal
+.envrc
+.review-logs
+
+# Working artifacts — stay LOCAL; never ship to public surface
+# Policy invariant established in docs/plans/active.md Inc H (2026-05-28 revision):
+# developer keeps ALL working files local; GitHub repo is a clean installable public release.
+# Full guardian-owned exclusion list lands when the deferred Inc H guardian build fires.
+docs/plans/
+docs/audits/
+docs/handoff/
+docs/in-flight/
+internal/
+# Relocated to internal/ at Master Run Stage 3 (ledger Entry 006); these
+# prefixes must never re-acquire tracked files (leak-guard enforces in CI).
+docs/decisions/
+docs/roadmap/
+docs/research/
+docs/recovery/
+docs/vision/
+docs/governance/
+*:Zone.Identifier
+
+# Estate dashboard TS workspace deps + build outputs
+src/sage_mcp/estate/web/node_modules/
+src/sage_mcp/estate/web/dist/
+src/sage_mcp/estate/web/dist-demo/

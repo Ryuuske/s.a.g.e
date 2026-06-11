@@ -1,0 +1,293 @@
+{
+  "version": 1,
+  "wing_types": {
+    "dev": {
+      "halls": [
+        "handoff",
+        "in-flight",
+        "audits",
+        "decisions",
+        "plans",
+        "facts"
+      ],
+      "l1": [
+        "handoff",
+        "in-flight"
+      ]
+    },
+    "project": {
+      "halls": [
+        "handoff",
+        "in-flight",
+        "plans",
+        "facts",
+        "milestones"
+      ],
+      "l1": [
+        "handoff",
+        "in-flight"
+      ]
+    },
+    "knowledge": {
+      "halls": [
+        "facts"
+      ],
+      "l1": []
+    },
+    "ops": {
+      "halls": [
+        "facts"
+      ],
+      "l1": []
+    },
+    "meta": {
+      "halls": [
+        "turns"
+      ],
+      "l1": []
+    },
+    "personal": {
+      "halls": [
+        "core",
+        "detail"
+      ],
+      "l1": [
+        "core"
+      ]
+    }
+  },
+  "wings": {
+    "sage": {
+      "type": "dev",
+      "path": "~/dev/github/Ryuuske/s.a.g.e"
+    },
+    "Acme-Addon": {
+      "type": "dev",
+      "path": "~/dev/github/example/Acme-Addon"
+    },
+    "Acme-Ops": {
+      "type": "dev",
+      "path": "~/dev/github/example/Acme-Ops"
+    },
+    "Acme-Ops.V3": {
+      "type": "dev",
+      "path": "~/dev/github/example/Acme-Ops.V3"
+    },
+    "Team-Wiki": {
+      "type": "dev",
+      "path": "~/dev/github/example/Team-Wiki",
+      "obsidian_aware": true
+    },
+    "Work": {
+      "type": "project",
+      "path": "~/dev/projects/Work"
+    },
+    "Budget-App": {
+      "type": "project",
+      "path": "~/dev/projects/example/Budget-App"
+    },
+    "Shop-Store": {
+      "type": "project",
+      "path": "~/dev/projects/example/Shop-Store"
+    },
+    "Art-Gen": {
+      "type": "project",
+      "path": "~/dev/projects/example/Art-Gen"
+    },
+    "ZiSaStudios": {
+      "type": "project",
+      "path": "~/dev/projects/ZiSaStudios"
+    },
+    "learning": {
+      "type": "knowledge",
+      "path": "~/dev/other/learning"
+    },
+    "reference": {
+      "type": "knowledge",
+      "path": "~/dev/other/reference"
+    },
+    "research": {
+      "type": "knowledge",
+      "path": "~/dev/other/research"
+    },
+    "archives": {
+      "type": "knowledge",
+      "path": "~/dev/other/archives"
+    },
+    "ops": {
+      "type": "ops",
+      "path": "~/dev/scripts"
+    },
+    "scratchpad": {
+      "type": "ops",
+      "path": "~/dev/other/scratch"
+    },
+    "a": {
+      "type": "ops"
+    },
+    "accumulate_smoke": {
+      "type": "ops"
+    },
+    "agent_keyed_smoke": {
+      "type": "ops"
+    },
+    "alpha": {
+      "type": "ops"
+    },
+    "b": {
+      "type": "ops"
+    },
+    "backend": {
+      "type": "ops"
+    },
+    "beta": {
+      "type": "ops"
+    },
+    "c": {
+      "type": "ops"
+    },
+    "code": {
+      "type": "ops"
+    },
+    "custom_wing_name": {
+      "type": "ops"
+    },
+    "demo": {
+      "type": "ops"
+    },
+    "design": {
+      "type": "ops"
+    },
+    "frontend": {
+      "type": "ops"
+    },
+    "interrupt_test": {
+      "type": "ops"
+    },
+    "miner_agents_smoke": {
+      "type": "ops"
+    },
+    "missing": {
+      "type": "ops"
+    },
+    "my-project": {
+      "type": "ops"
+    },
+    "my-wing": {
+      "type": "ops"
+    },
+    "my_cool_app": {
+      "type": "ops"
+    },
+    "my_custom_wing": {
+      "type": "ops"
+    },
+    "my_project": {
+      "type": "ops"
+    },
+    "my_research_corpus": {
+      "type": "ops"
+    },
+    "my_wing": {
+      "type": "ops"
+    },
+    "mywing": {
+      "type": "ops"
+    },
+    "new_wing": {
+      "type": "ops"
+    },
+    "notes": {
+      "type": "ops"
+    },
+    "ok": {
+      "type": "ops"
+    },
+    "other": {
+      "type": "ops"
+    },
+    "other-wing": {
+      "type": "ops"
+    },
+    "nook_public": {
+      "type": "ops"
+    },
+    "personal": {
+      "type": "ops"
+    },
+    "proj": {
+      "type": "ops"
+    },
+    "project": {
+      "type": "ops"
+    },
+    "project_x": {
+      "type": "ops"
+    },
+    "recovered": {
+      "type": "ops"
+    },
+    "sessions": {
+      "type": "ops"
+    },
+    "shop": {
+      "type": "ops"
+    },
+    "test": {
+      "type": "ops"
+    },
+    "test-wing": {
+      "type": "ops"
+    },
+    "test_convos": {
+      "type": "ops"
+    },
+    "test_proj": {
+      "type": "ops"
+    },
+    "test_project": {
+      "type": "ops"
+    },
+    "test_wing": {
+      "type": "ops"
+    },
+    "testwing": {
+      "type": "ops"
+    },
+    "unknown": {
+      "type": "ops"
+    },
+    "w": {
+      "type": "ops"
+    },
+    "w1": {
+      "type": "ops"
+    },
+    "w2": {
+      "type": "ops"
+    },
+    "work": {
+      "type": "ops"
+    },
+    "x": {
+      "type": "ops"
+    },
+    "your-project": {
+      "type": "ops"
+    },
+    "telemetry": {
+      "type": "meta",
+      "path": "~/.sage/telemetry"
+    },
+    "Personal": {
+      "type": "personal",
+      "path": "~/.sage/personal"
+    },
+    "eval_project": {
+      "type": "project"
+    },
+    "eval_notes": {
+      "type": "ops"
+    }
+  }
+}

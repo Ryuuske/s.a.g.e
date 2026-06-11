@@ -1,0 +1,29 @@
+sage
+Copyright (c) 2026 ZiSaStudios
+
+This product includes software and design patterns developed by third
+parties. Their copyright notices and license terms are retained below, as
+required by their respective MIT licenses. The full per-pattern attribution
+(what was adopted and why) lives in docs/concepts/third-party-patterns.md.
+
+------------------------------------------------------------------------------
+MemPalace
+------------------------------------------------------------------------------
+sage's verbatim memory store (the "Nook") derives from MemPalace, a
+single-operator verbatim memory system released under the MIT License.
+sage retains the MemPalace copyright in LICENSE ("Copyright (c) 2026
+MemPalace Contributors") and does not relicense or rewrite the upstream
+terms.
+
+    MIT License — Copyright (c) 2026 MemPalace Contributors
+
+------------------------------------------------------------------------------
+caveman — JuliusBrussee
+------------------------------------------------------------------------------
+The compressed inter-agent "output discipline" conventions used across
+agents/*.md and claude-md/CLAUDE.md are adapted (not copied verbatim) from
+the caveman pattern by JuliusBrussee, released under the MIT License.
+See docs/concepts/third-party-patterns.md for the verbatim license text.
+
+    MIT License — Copyright (c) JuliusBrussee
+    https://github.com/JuliusBrussee/caveman

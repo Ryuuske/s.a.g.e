@@ -1,0 +1,62 @@
+name: leak-guard
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  deny-listed-paths:
+    name: working-artifact deny-listed paths must not be tracked
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+
+      - name: fail if deny-listed working-artifact paths reappear
+        run: |
+          set -euo pipefail
+          deny_prefixes='^(docs/plans/|docs/audits/|docs/handoff/|docs/in-flight/|docs/decisions/|docs/roadmap/|docs/research/|docs/recovery/|docs/vision/|docs/governance/|internal/)'
+          offenders=$(git ls-files | grep -E "$deny_prefixes" || true)
+          if [ -n "$offenders" ]; then
+            echo "::error::Inc H' policy invariant violated: working-artifact paths are tracked in the repo."
+            echo "::error::Policy: working files stay local; GitHub repo is a clean installable public release."
+            echo "::error::Source: docs/plans/active.md, section 'Inc H execution split'."
+            echo "::error::Deny-listed prefixes: docs/plans/, docs/audits/, docs/handoff/, docs/in-flight/, docs/decisions/, docs/roadmap/, docs/research/, docs/recovery/, docs/vision/, docs/governance/, internal/."
+            echo "::error::These prefixes must remain ignored via .gitignore and must not be tracked."
+            echo "::error::Offending tracked paths:"
+            printf '::error::  %s\n' $offenders
+            exit 1
+          fi
+          echo "leak-guard: no deny-listed working-artifact paths tracked."
+
+  stray-work-items:
+    name: work items live only in internal/BACKLOG.md
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+
+      - name: fail on stray work-item markers or unchecked checkboxes
+        run: python3 scripts/gate_stray_work_items.py
+
+  doc-gates:
+    name: doc gates + regen-diff
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+
+      - name: link integrity, counts, banned terms, registry, stub budget
+        run: python3 scripts/gate_docs.py
+
+      - name: generated docs match regeneration
+        run: python3 scripts/gen_docs.py --check

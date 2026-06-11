@@ -1,0 +1,32 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Keep this rev in lock-step with the exact ruff pin in pyproject.toml
+    # ([project.optional-dependencies].dev / [dependency-groups].dev) and
+    # .github/workflows/ci.yml. A different ruff here produces different
+    # formatter output than CI and breaks `ruff format --check` in lint.
+    rev: v0.15.16
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: stray-work-items
+        name: work items live only in internal/BACKLOG.md
+        entry: python3 scripts/gate_stray_work_items.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: doc-gates
+        name: link integrity, counts, banned terms, registry, stub budget
+        entry: python3 scripts/gate_docs.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: regen-diff
+        name: generated docs match regeneration
+        entry: python3 scripts/gen_docs.py --check
+        language: system
+        pass_filenames: false
+        always_run: true

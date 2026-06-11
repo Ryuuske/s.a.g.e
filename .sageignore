@@ -1,0 +1,41 @@
+# Runtime configs — never mined as knowledge
+.claude/
+.obsidian/
+
+# Build outputs and runtime state
+.git/
+.venv/
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+.coverage
+.pytest_cache/
+
+# sage's own scratch
+/tmp/
+
+# Secret files — defense-in-depth: never mine obvious credential carriers.
+# The write-boundary scrub (ADR-0042 WI-8) catches any secrets that slip
+# through mined content, but these file types should never be ingested at all.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+id_ecdsa
+id_ecdsa.*
+id_dsa
+id_dsa.*
+credentials
+credentials.*
+secrets
+secrets.*
+.aws/
+.ssh/

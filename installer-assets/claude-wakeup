@@ -1,0 +1,356 @@
+#!/usr/bin/env python3
+"""claude-wakeup — fires a greeting message ~60s after each 5h budget reset
+to keep Claude Max budget windows running back-to-back.
+
+Designed to be invoked every minute by cron:
+
+    * * * * * "$HOME/.local/bin/claude-wakeup"
+
+The script is idempotent: it only fires when `state.next_fire_at` has passed.
+
+State files (under ~/.cache/claude-wakeup/):
+    state.json      — { next_fire_at, last_uuid, last_name, ... }
+    history.jsonl   — one row per fire (timestamp, uuid, name, resets_at, ...)
+    lock            — flock-based single-instance guard
+    wakeup.log      — stdout/stderr capture for debugging
+
+Each fire:
+  1. Spawns `claude --name auto-good-<ts> --session-id <uuid>` in a throw-away tmux
+  2. Sends a time-of-day greeting → consumes 1 message, starts a new 5h window
+  3. Kills the tmux session (cloud-side chat persists in claude.ai sidebar as archived)
+  4. Reads the refreshed ~/.cache/sage/claude.json for the new resets_at
+  5. Computes next_fire_at = resets_at + 60s
+  6. Deletes the local JSONL for this fire (no value, frees disk + cleans /resume picker)
+
+NOTE: claude.ai sidebar entries are NOT auto-deletable from WSL. The user
+must batch-delete `auto-good-*` entries from claude.ai manually.
+"""
+
+from __future__ import annotations
+
+import fcntl
+import json
+import os
+import shutil
+import subprocess
+import sys
+import time
+import uuid as _uuid
+from datetime import datetime
+from pathlib import Path
+
+HOME = Path.home()
+STATE_DIR = HOME / ".cache" / "claude-wakeup"
+STATE_FILE = STATE_DIR / "state.json"
+HISTORY = STATE_DIR / "history.jsonl"
+LOCK_FILE = STATE_DIR / "lock"
+LOG_FILE = STATE_DIR / "wakeup.log"
+CWD = HOME / "dev"
+# Derive the Claude Code project-slug from the actual CWD so cleanup works on
+# any machine regardless of username.  Claude Code builds the slug by replacing
+# all '/' with '-' and stripping a leading '-'.
+PROJECTS_DIR = HOME / ".claude" / "projects" / ("-" + str(CWD).replace("/", "-").lstrip("-"))
+BUDGET_CACHE = HOME / ".cache" / "sage" / "claude.json"
+
+# Timings (seconds)
+SPAWN_WAIT = 10           # wait for `claude` to attach (was 6 — tight under load)
+RESPONSE_WAIT = 25        # wait for greeting response + statusline render (was 18)
+POST_KILL_SETTLE = 4      # let claude flush its final JSONL writes after tmux kill
+REFRESH_POLL_LOOPS = 30   # after kill, poll claude.json for `updated_at` to advance
+REFRESH_POLL_INTERVAL = 1 # 30 * 1s = up to 30s extra waiting for the cache refresh
+JSONL_WAIT_LOOPS = 10     # poll for JSONL appearing
+JSONL_WAIT_INTERVAL = 0.5
+FALLBACK_WINDOW = 5 * 3600 + 60  # cap for persistent-failure retries (ADR-0032; reused by ADR-0033)
+RETRY_BACKOFF = 5 * 60           # short backoff for sub-cap partial failures (ADR-0033)
+MAX_PARTIAL_RETRIES = 3          # consecutive partials before escalating to FALLBACK_WINDOW (ADR-0033)
+
+
+def log(msg: str) -> None:
+    ts = datetime.now().isoformat(timespec="seconds")
+    with LOG_FILE.open("a") as f:
+        f.write(f"{ts}  {msg}\n")
+
+
+def read_state() -> dict:
+    try:
+        return json.loads(STATE_FILE.read_text())
+    except Exception:
+        return {}
+
+
+def _parse_streak(raw) -> int:
+    """Normalize partial_failure_streak from state.json (ADR-0033).
+
+    Defends fire() against pathological state.json inputs from manual edits or
+    corruption: non-int values (string, list, dict, None) and negative ints
+    both default to 0. Without this, `int("foo")` would raise ValueError mid-
+    fire() and stick the cron in a crash loop; a negative streak would walk
+    its way back to 0 over many fast retries instead of capping after
+    MAX_PARTIAL_RETRIES failures (D2 log-growth bound violated until the
+    walk-up completes).
+    """
+    try:
+        return max(0, int(raw))
+    except (TypeError, ValueError):
+        return 0
+
+
+def write_state(state: dict) -> None:
+    STATE_FILE.write_text(json.dumps(state, indent=2))
+
+
+def append_history(entry: dict) -> None:
+    with HISTORY.open("a") as f:
+        f.write(json.dumps(entry) + "\n")
+
+
+def time_of_day_greeting() -> str:
+    h = datetime.now().hour
+    if 4 <= h < 12:
+        return "Good morning"
+    if 12 <= h < 18:
+        return "Good afternoon"
+    if 18 <= h < 22:
+        return "Good evening"
+    return "Good night"
+
+
+def read_resets_at() -> int:
+    try:
+        cache = json.loads(BUDGET_CACHE.read_text())
+        return int(cache.get("primary", {}).get("resets_at", 0))
+    except Exception:
+        return 0
+
+
+def read_cache_updated_at() -> int:
+    try:
+        cache = json.loads(BUDGET_CACHE.read_text())
+        return int(cache.get("updated_at", 0))
+    except Exception:
+        return 0
+
+
+def wait_for_cache_refresh(after_ts: int) -> bool:
+    """Poll claude.json until updated_at > after_ts, up to REFRESH_POLL_LOOPS iterations.
+    Returns True if cache refreshed, False if timeout."""
+    for _ in range(REFRESH_POLL_LOOPS):
+        if read_cache_updated_at() > after_ts:
+            return True
+        time.sleep(REFRESH_POLL_INTERVAL)
+    return False
+
+
+def tmux(*args: str) -> subprocess.CompletedProcess:
+    # Wrap FileNotFoundError so callers see a CompletedProcess on every path —
+    # otherwise a missing `tmux` binary (cron's minimal PATH on a host where tmux
+    # is uninstalled) raises out of fire() before the F1 rc-check can log + abort.
+    # rc=127 mirrors shell's command-not-found convention.
+    try:
+        return subprocess.run(["tmux", *args], capture_output=True, text=True)
+    except FileNotFoundError:
+        return subprocess.CompletedProcess(
+            args=["tmux", *args],
+            returncode=127,
+            stdout="",
+            stderr="tmux: command not found",
+        )
+
+
+def fire() -> None:
+    """Spawn a fresh claude session, send greeting, capture next reset, clean up."""
+    now = int(time.time())
+    ts = datetime.now().strftime("%y-%m-%d_%H-%M-%S")
+    name = f"auto-good-{ts}"
+    session_uuid = str(_uuid.uuid4())
+    greeting = time_of_day_greeting()
+    sid = f"claude-wakeup-{os.getpid()}"
+
+    # Resolve the claude binary. Cron's minimal PATH (typically /usr/bin:/bin) does
+    # NOT include ~/.local/bin or nvm paths, so bare `claude` would not be found.
+    # install.sh bakes the absolute path into CLAUDE_BIN at install time (Mechanism 1);
+    # shutil.which() is the interactive-invocation fallback.
+    _env_bin = os.environ.get("CLAUDE_BIN")
+    if _env_bin and os.path.isfile(_env_bin) and os.access(_env_bin, os.X_OK):
+        claude_bin: str | None = _env_bin
+    else:
+        claude_bin = shutil.which("claude")
+    if not claude_bin:
+        _why = f"CLAUDE_BIN={_env_bin!r} not a valid executable" if _env_bin else "CLAUDE_BIN env unset and shutil.which('claude') returned None"
+        log(f"FIRE abort  claude binary not found: {_why} — check PATH or re-run install.sh")
+        return
+
+    log(f"FIRE start  name={name}  uuid={session_uuid}  greeting={greeting!r}  claude_bin={claude_bin!r}")
+
+    # Read partial-failure streak from prior state (ADR-0033 capped-retry). The
+    # streak persists across cron ticks via state.json and is incremented on
+    # every non-success outcome, reset on FIRE ok. _parse_streak() hardens against
+    # pathological values from manual state.json edits (non-int, negative, None).
+    prior_state = read_state()
+    if not isinstance(prior_state, dict):
+        prior_state = {}
+    partial_streak = _parse_streak(prior_state.get("partial_failure_streak", 0))
+
+    # Snapshot the cache's updated_at BEFORE the fire — we use this to detect
+    # whether the spawn-and-send actually triggered a statusline render.
+    cache_before = read_cache_updated_at()
+
+    # Spawn in throw-away tmux session (cwd matched to daemon so JSONL lands predictably).
+    # Capture rc + verify session attached before any state-write — a failed spawn that
+    # silently advances next_fire_at would suppress retries for the entire reset window
+    # (F1 in PR #4 adversarial audit).
+    spawn_cmd = f"cd {str(CWD)!r} && {claude_bin!r} --name {name} --session-id {session_uuid}"
+    spawn_proc = tmux("new-session", "-d", "-s", sid, "-x", "200", "-y", "50", spawn_cmd)
+    if spawn_proc.returncode != 0:
+        log(f"FIRE abort  tmux new-session failed  rc={spawn_proc.returncode}  stderr={spawn_proc.stderr.strip()!r}")
+        return
+    time.sleep(SPAWN_WAIT)
+    verify_proc = tmux("has-session", "-t", sid)
+    if verify_proc.returncode != 0:
+        log(f"FIRE abort  tmux session not established after spawn  sid={sid!r}  rc={verify_proc.returncode}  stderr={verify_proc.stderr.strip()!r}")
+        return
+
+    # Send greeting → consumes 1 message, starts the new 5h window. F2 (ADR-0033)
+    # captures send-keys rc — a failed send must NOT silently advance next_fire_at.
+    # Best-effort cleanup of the orphan session on abort.
+    send_proc = tmux("send-keys", "-t", sid, greeting, "Enter")
+    if send_proc.returncode != 0:
+        tmux("kill-session", "-t", sid)
+        log(f"FIRE abort  tmux send-keys failed  rc={send_proc.returncode}  stderr={send_proc.stderr.strip()!r}")
+        return
+    time.sleep(RESPONSE_WAIT)
+
+    # Kill the tmux session (terminates local client; cloud chat persists as archived).
+    # F2 (ADR-0033) captures kill-session rc as warn-not-abort: the message was
+    # delivered above, so the success-decision path still runs even on kill failure.
+    kill_proc = tmux("kill-session", "-t", sid)
+    if kill_proc.returncode != 0:
+        log(f"FIRE warn   tmux kill-session failed  rc={kill_proc.returncode}  stderr={kill_proc.stderr.strip()!r}; proceeding to success-decision")
+
+    # Let claude flush its final writes (the SIGHUP from kill-session isn't instant
+    # — claude can keep writing the response into its JSONL for a few seconds).
+    time.sleep(POST_KILL_SETTLE)
+
+    # Poll for cache refresh (covers cases where the spawn took longer than expected)
+    refreshed = wait_for_cache_refresh(cache_before)
+
+    # Read fresh resets_at from the cache the statusline just refreshed.
+    resets_at = read_resets_at()
+
+    # F2 success decision (ADR-0033 capped-retry). Success requires both a refreshed
+    # cache AND a future resets_at — the only proof the fire consumed a message.
+    # Non-success outcomes increment partial_failure_streak; the counter is reset
+    # only on FIRE ok. After MAX_PARTIAL_RETRIES consecutive non-successes, the
+    # next-fire backoff caps at FALLBACK_WINDOW (5h) instead of RETRY_BACKOFF (5m),
+    # bounding D2 log-growth on a persistently-failing host.
+    if refreshed and resets_at > now:
+        partial_streak = 0
+        next_fire_at = resets_at + 60
+        log(f"FIRE ok     streak=0  resets_at={resets_at}  next_fire_at={next_fire_at}")
+    else:
+        partial_streak += 1
+        if resets_at > now:
+            reason = f"cache did NOT refresh during fire (still updated_at={cache_before}); stale resets_at={resets_at}"
+        else:
+            reason = f"cache stale AND resets_at unreadable (got {resets_at})"
+        if partial_streak >= MAX_PARTIAL_RETRIES:
+            next_fire_at = now + FALLBACK_WINDOW
+            log(f"FIRE capped streak={partial_streak}  reason='{reason}'  next_fire_at={next_fire_at}")
+        else:
+            next_fire_at = now + RETRY_BACKOFF
+            log(f"FIRE retry  streak={partial_streak}  reason='{reason}'  next_fire_at={next_fire_at}")
+
+    # Persist state. F2 (ADR-0033) adds partial_failure_streak — schema gains
+    # one int key, backwards-compatible (default 0 on absence).
+    write_state({
+        "next_fire_at": next_fire_at,
+        "last_uuid": session_uuid,
+        "last_name": name,
+        "last_fire_at": now,
+        "last_resets_at": resets_at,
+        "last_greeting": greeting,
+        "partial_failure_streak": partial_streak,
+    })
+
+    # Append history row
+    append_history({
+        "timestamp": now,
+        "uuid": session_uuid,
+        "name": name,
+        "greeting": greeting,
+        "resets_at": resets_at,
+        "next_fire_at": next_fire_at,
+    })
+
+    # Auto-cleanup: delete this fire's local JSONL.
+    # The POST_KILL_SETTLE sleep above should give claude time to finish flushing.
+    # Wait briefly for the file to exist (if it doesn't already), then unlink in a
+    # short loop to defeat any lingering writes that could re-create it.
+    jsonl = PROJECTS_DIR / f"{session_uuid}.jsonl"
+    for _ in range(JSONL_WAIT_LOOPS):
+        if jsonl.exists():
+            break
+        time.sleep(JSONL_WAIT_INTERVAL)
+
+    deleted_count = 0
+    for attempt in range(3):
+        if jsonl.exists():
+            try:
+                jsonl.unlink()
+                deleted_count += 1
+            except FileNotFoundError:
+                pass
+        time.sleep(1)  # give any lingering writer time to recreate, then re-delete
+    if deleted_count:
+        # Final check — did our last unlink stick?
+        still_there = jsonl.exists()
+        log(f"FIRE cleanup deleted local JSONL  {jsonl.name}  (attempts={deleted_count}, still_present={still_there})")
+    else:
+        log(f"FIRE cleanup no local JSONL found at {jsonl}")
+
+    # Sweep: delete any older auto-good-* JSONLs whose UUIDs we know from history.
+    # This catches any leftovers from past runs where cleanup was missed.
+    try:
+        seen_uuids = set()
+        if HISTORY.exists():
+            with HISTORY.open() as f:
+                for line in f:
+                    try:
+                        seen_uuids.add(json.loads(line)["uuid"])
+                    except Exception:
+                        pass
+        for stale in PROJECTS_DIR.glob("*.jsonl"):
+            if stale.stem in seen_uuids and stale.exists():
+                stale.unlink()
+    except Exception as exc:
+        log(f"FIRE cleanup sweep error: {exc}")
+
+
+def main() -> int:
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Single-instance guard — prevents overlapping cron runs
+    lock_fd = open(LOCK_FILE, "w")
+    try:
+        fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        return 0  # another instance running, exit quietly
+
+    state = read_state()
+    if not isinstance(state, dict):
+        # state.json is valid JSON but not a dict (e.g. null, [], 42 after manual edit).
+        # Treat as missing — next_fire_at=0 so we fire immediately and rewrite a clean dict.
+        state = {}
+    next_fire_at = int(state.get("next_fire_at", 0))
+    now = int(time.time())
+
+    if now < next_fire_at:
+        return 0  # not time yet
+
+    # First-ever run OR computer was off OR previous reset has passed → fire now
+    fire()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

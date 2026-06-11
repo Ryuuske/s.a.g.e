@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "wing_types": {
+    "dev": {
+      "halls": [
+        "handoff",
+        "in-flight",
+        "audits",
+        "decisions",
+        "plans",
+        "facts"
+      ],
+      "l1": [
+        "handoff",
+        "in-flight"
+      ]
+    },
+    "project": {
+      "halls": [
+        "handoff",
+        "in-flight",
+        "plans",
+        "facts",
+        "milestones"
+      ],
+      "l1": [
+        "handoff",
+        "in-flight"
+      ]
+    },
+    "knowledge": {
+      "halls": [
+        "facts"
+      ],
+      "l1": []
+    },
+    "ops": {
+      "halls": [
+        "facts"
+      ],
+      "l1": []
+    },
+    "meta": {
+      "halls": [
+        "turns"
+      ],
+      "l1": []
+    },
+    "personal": {
+      "halls": [
+        "core",
+        "detail"
+      ],
+      "l1": [
+        "core"
+      ]
+    }
+  },
+  "wings": {
+    "telemetry": {
+      "type": "meta",
+      "path": "~/.sage/telemetry"
+    },
+    "Personal": {
+      "type": "personal",
+      "path": "~/.sage/personal"
+    }
+  }
+}

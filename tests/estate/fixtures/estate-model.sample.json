@@ -1,0 +1,213 @@
+{
+  "version": "1.0",
+  "revision": 42,
+  "captured_at": "2026-06-01T12:00:00Z",
+  "property": {
+    "name": "Sage",
+    "isolation": {
+      "windows_mounts": false,
+      "interop": false,
+      "systemd": false
+    },
+    "health": {
+      "governance": {
+        "total_rows": 120,
+        "audit_rows": 40,
+        "total_verdicts": 38,
+        "by_verdict": { "APPROVE": 30, "HOLD": 6, "ABORT": 2 },
+        "by_lane": {
+          "dev-code-reviewer": { "APPROVE": 15, "HOLD": 3 },
+          "sec-auditor": { "APPROVE": 15, "HOLD": 3, "ABORT": 2 }
+        },
+        "blocking_findings": 5,
+        "blocking_rate": 0.13,
+        "approve_rate": 0.79,
+        "paired_turns": 19,
+        "disagreements": 2
+      },
+      "store": {
+        "available": true,
+        "count": 87,
+        "by_room": {
+          "main": 50,
+          "archive": 30,
+          "?": 7
+        },
+        "by_wing": {
+          "wing:dev:sage": 60,
+          "wing:personal:Personal": 20,
+          "?": 7
+        },
+        "strength": {
+          "min": 0.05,
+          "max": 1.0,
+          "mean": 0.71,
+          "at_or_below_floor": 3,
+          "below_floor": 1
+        }
+      }
+    }
+  },
+  "buildings": [
+    {
+      "id": "nook",
+      "kind": "palace",
+      "title": "The Nook",
+      "wings": [
+        {
+          "id": "wing:dev:sage",
+          "type": "dev",
+          "title": "sage",
+          "slot": 0,
+          "rooms": [
+            {
+              "id": "room:dev:sage:main",
+              "title": "main",
+              "slot": 3,
+              "drawer_count": 5,
+              "size_bytes": 4096,
+              "drawers": [
+                {
+                  "id": "drawer:dev:sage:main:001",
+                  "hall": "handoff",
+                  "slot": 0,
+                  "agent": "dev-architect",
+                  "size_bytes": 512,
+                  "captured_at": "2026-05-30T09:00:00Z",
+                  "strength": 0.88
+                },
+                {
+                  "id": "drawer:dev:sage:main:002",
+                  "hall": "in-flight",
+                  "slot": 2,
+                  "agent": "dev-code-implementer",
+                  "size_bytes": 256,
+                  "captured_at": "2026-05-31T15:30:00Z",
+                  "strength": 0.05
+                }
+              ]
+            },
+            {
+              "id": "room:dev:sage:decisions",
+              "title": "decisions",
+              "slot": 4,
+              "drawer_count": 0,
+              "size_bytes": 0
+            }
+          ],
+          "hall_counts": {
+            "handoff": 3,
+            "in-flight": 2,
+            "audits": 1,
+            "decisions": 4,
+            "plans": 2,
+            "facts": 1
+          },
+          "drawer_total": 13
+        },
+        {
+          "id": "wing:personal:Personal",
+          "type": "personal",
+          "title": "Personal",
+          "slot": 1,
+          "rooms": [
+            {
+              "id": "room:personal:Personal:core",
+              "title": "core",
+              "slot": 5,
+              "drawer_count": 4,
+              "size_bytes": 2048
+            }
+          ],
+          "hall_counts": {
+            "core": 4,
+            "detail": 0
+          },
+          "drawer_total": 4
+        },
+        {
+          "id": "wing:unknown:orphan",
+          "type": "unknown",
+          "title": "orphan",
+          "slot": 2,
+          "rooms": [],
+          "hall_counts": {},
+          "drawer_total": 0
+        }
+      ],
+      "tunnels": [
+        {
+          "id": "tunnel:wing:dev:sage__wing:personal:Personal",
+          "name": "dev-personal-link",
+          "endpoints": ["wing:dev:sage", "wing:personal:Personal"]
+        }
+      ],
+      "closets": {
+        "consolidated": 12,
+        "decayed": 3
+      },
+      "kg": {
+        "entities": 45,
+        "relations": 78
+      }
+    },
+    {
+      "id": "workshop",
+      "kind": "workshop",
+      "title": "The Workshop",
+      "agents": [
+        {
+          "id": "dev-architect",
+          "family": "dev",
+          "model": "claude-opus-4",
+          "tools": ["Read", "Grep", "Glob"],
+          "description": "Architecture and design decisions",
+          "slot": 0
+        },
+        {
+          "id": "dev-code-implementer",
+          "family": "dev",
+          "model": "claude-sonnet-4-6",
+          "tools": ["Read", "Write", "Edit", "Bash"],
+          "description": "Code implementation from approved plans",
+          "slot": 1
+        }
+      ],
+      "armory": {
+        "skills": 7,
+        "rules": 3,
+        "hooks": 2,
+        "tools": 12
+      }
+    }
+  ],
+  "grounds": {
+    "plots": [
+      {
+        "id": "plot:sage",
+        "title": "sage",
+        "path": "dev/github/Ryuuske/s.a.g.e",
+        "files": 142,
+        "dirty": true,
+        "memory_wing": "wing:dev:sage",
+        "slot": 0
+      }
+    ]
+  },
+  "outbuildings": {
+    "horrea": {
+      "snapshots": []
+    },
+    "tablinum": {
+      "config": {
+        "permission_mode": "bypassPermissions",
+        "windows_mounts": false,
+        "interop": false,
+        "systemd": false
+      }
+    },
+    "gate": {
+      "danger_actions": ["reset --hard", "push --force"]
+    }
+  }
+}

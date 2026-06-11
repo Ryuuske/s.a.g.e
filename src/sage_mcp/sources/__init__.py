@@ -1,0 +1,74 @@
+"""Source adapter subsystem.
+
+Public surface:
+
+* :class:`BaseSourceAdapter` — per-source read-side contract.
+* Typed records: :class:`SourceRef`, :class:`SourceItemMetadata`,
+  :class:`DrawerRecord`, :class:`RouteHint`, :class:`SourceSummary`,
+  :class:`AdapterSchema`, :class:`FieldSpec`.
+* Error classes: :class:`SourceNotFoundError`, :class:`AuthRequiredError`,
+  :class:`AdapterClosedError`, :class:`TransformationViolationError`,
+  :class:`SchemaConformanceError`.
+* Registry: :func:`register`, :func:`get_adapter`, :func:`available_adapters`,
+  :func:`resolve_adapter_for_source`.
+* :class:`NookContext` — facade core passes to adapters during ``ingest``.
+* :mod:`transforms` — reference implementations of the reserved
+  transformations + :func:`get_transformation` resolver.
+"""
+
+from .base import (
+    AdapterClosedError,
+    AdapterSchema,
+    AuthRequiredError,
+    BaseSourceAdapter,
+    DrawerRecord,
+    FieldSpec,
+    IngestMode,
+    IngestResult,
+    RouteHint,
+    SchemaConformanceError,
+    SourceAdapterError,
+    SourceItemMetadata,
+    SourceNotFoundError,
+    SourceRef,
+    SourceSummary,
+    TransformationViolationError,
+)
+from .context import NookContext, ProgressHook
+from .registry import (
+    available_adapters,
+    get_adapter,
+    get_adapter_class,
+    register,
+    reset_adapters,
+    resolve_adapter_for_source,
+    unregister,
+)
+
+__all__ = [
+    "AdapterClosedError",
+    "AdapterSchema",
+    "AuthRequiredError",
+    "BaseSourceAdapter",
+    "DrawerRecord",
+    "FieldSpec",
+    "IngestMode",
+    "IngestResult",
+    "NookContext",
+    "ProgressHook",
+    "RouteHint",
+    "SchemaConformanceError",
+    "SourceAdapterError",
+    "SourceItemMetadata",
+    "SourceNotFoundError",
+    "SourceRef",
+    "SourceSummary",
+    "TransformationViolationError",
+    "available_adapters",
+    "get_adapter",
+    "get_adapter_class",
+    "register",
+    "reset_adapters",
+    "resolve_adapter_for_source",
+    "unregister",
+]

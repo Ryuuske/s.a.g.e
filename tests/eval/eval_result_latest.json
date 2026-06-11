@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "eval_timestamp": "2026-05-29T10:57:26.275398+00:00",
+  "k": 2,
+  "non_regression_tolerance": 0.0,
+  "baseline_pass_rate": 1.0,
+  "post_growth_pass_rate": 1.0,
+  "non_regression_passed": true,
+  "store_size_baseline": 4,
+  "store_size_post_growth": 10,
+  "decay_scenario": {
+    "reference_time": "2026-06-01T00:00:00+00:00",
+    "target_confidence": 1.0,
+    "noise_confidence": 0.0,
+    "target_filed_at": "2026-01-01",
+    "noise_filed_at": "2024-01-01",
+    "note": "target effective_rate~0.0025/day → strength~0.687 after 150d; noise effective_rate~0.05/day → floor after 880d"
+  },
+  "target_strengths_post_decay": {
+    "eval_drawer_auth": 0.6856,
+    "eval_drawer_db": 0.6856,
+    "eval_drawer_frontend": 0.6856,
+    "eval_drawer_sprint": 0.6856
+  },
+  "noise_strengths_post_decay": {
+    "eval_noise_auth_compete": 0.1,
+    "eval_noise_db_compete": 0.1,
+    "eval_noise_frontend_compete": 0.1,
+    "eval_noise_sprint_compete": 0.1,
+    "eval_noise_migrations_compete": 0.1
+  },
+  "consolidation_dup_demoted": true,
+  "consolidation_canonical_kept": true,
+  "decay_results_summary": {
+    "total": 10,
+    "skipped": 0,
+    "written": 10
+  },
+  "consolidation_results_summary": {
+    "total": 10,
+    "skipped": 0,
+    "written": 1
+  },
+  "q1_rank_after_decay_consolidation": 1,
+  "baseline_per_question": [
+    {
+      "id": "Q1",
+      "question": "How does the authentication module handle session tokens?",
+      "expected_substring": "HttpOnly",
+      "pass": true,
+      "top_k_snippets": [
+        "The authentication module uses JWT tokens for session management. Tokens expire after 24 hours. Refr",
+        "The React frontend uses TanStack Query for server state management. All API calls go through a centr"
+      ],
+      "matched_result_index": 1
+    },
+    {
+      "id": "Q2",
+      "question": "What database system is used for connection pooling with pgbouncer?",
+      "expected_substring": "Alembic",
+      "pass": true,
+      "top_k_snippets": [
+        "Database migrations are handled by Alembic. We use PostgreSQL 15 with connection pooling via pgbounc",
+        "The React frontend uses TanStack Query for server state management. All API calls go through a centr"
+      ],
+      "matched_result_index": 1
+    },
+    {
+      "id": "Q3",
+      "question": "What library does the frontend use for server state management?",
+      "expected_substring": "centralized fetch wrapper",
+      "pass": true,
+      "top_k_snippets": [
+        "The React frontend uses TanStack Query for server state management. All API calls go through a centr",
+        "The authentication module uses JWT tokens for session management. Tokens expire after 24 hours. Refr"
+      ],
+      "matched_result_index": 1
+    },
+    {
+      "id": "Q4",
+      "question": "What authentication method is planned for Q3 sprint migration?",
+      "expected_substring": "ChromaDB alternatives",
+      "pass": true,
+      "top_k_snippets": [
+        "Sprint planning: migrate auth to passkeys by Q3. Evaluate ChromaDB alternatives for vector search."
+      ],
+      "matched_result_index": 1
+    },
+    {
+      "id": "Q5",
+      "question": "How are Alembic database migrations handled in the project?",
+      "expected_substring": "pgbouncer",
+      "pass": true,
+      "top_k_snippets": [
+        "Database migrations are handled by Alembic. We use PostgreSQL 15 with connection pooling via pgbounc",
+        "The authentication module uses JWT tokens for session management. Tokens expire after 24 hours. Refr"
+      ],
+      "matched_result_index": 1
+    }
+  ],
+  "post_growth_per_question": [
+    {
+      "id": "Q1",
+      "question": "How does the authentication module handle session tokens?",
+      "expected_substring": "HttpOnly",
+      "pass": true,
+      "top_k_snippets": [
+        "The authentication module uses JWT tokens for session management. Tokens expire after 24 hours. Refr",
+        "The auth module uses JWT tokens for session management. Tokens expire in 24 hours and refresh tokens"
+      ],
+      "matched_result_index": 1
+    },
+    {
+      "id": "Q2",
+      "question": "What database system is used for connection pooling with pgbouncer?",
+      "expected_substring": "Alembic",
+      "pass": true,
+      "top_k_snippets": [
+        "Database migrations are handled by Alembic. We use PostgreSQL 15 with connection pooling via pgbounc",
+        "Database connection pooling uses pgbouncer as the PostgreSQL pooler. Connection limits and pool sizi"
+      ],
+      "matched_result_index": 1
+    },
+    {
+      "id": "Q3",
+      "question": "What library does the frontend use for server state management?",
+      "expected_substring": "centralized fetch wrapper",
+      "pass": true,
+      "top_k_snippets": [
+        "The React frontend uses TanStack Query for server state management. All API calls go through a centr",
+        "The frontend originally used TanStack Query for server state management before the team evaluated SW"
+      ],
+      "matched_result_index": 1
+    },
+    {
+      "id": "Q4",
+      "question": "What authentication method is planned for Q3 sprint migration?",
+      "expected_substring": "ChromaDB alternatives",
+      "pass": true,
+      "top_k_snippets": [
+        "Sprint planning: migrate auth to passkeys by Q3. Evaluate ChromaDB alternatives for vector search.",
+        "Q3 sprint: passkeys evaluation for admin login, security audit for OAuth2 flows, review of token rot"
+      ],
+      "matched_result_index": 1
+    },
+    {
+      "id": "Q5",
+      "question": "How are Alembic database migrations handled in the project?",
+      "expected_substring": "pgbouncer",
+      "pass": true,
+      "top_k_snippets": [
+        "Database migrations are handled by Alembic. We use PostgreSQL 15 with connection pooling via pgbounc",
+        "Database migrations are tracked in the migrations/ directory. Each migration file is prefixed with a"
+      ],
+      "matched_result_index": 1
+    }
+  ]
+}

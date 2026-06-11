@@ -1,0 +1,395 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ryuuske/s.a.g.e/docs/projects/sage-estate-dashboard/estate-model.schema.json",
+  "title": "Sage Estate Model",
+  "version": "1.0",
+  "description": "Normalized, render-agnostic snapshot of the live Sage estate. The SINGLE CONTRACT between the read adapter (producer) and the layout engine + renderer (consumers). Traces field-by-field to sage's real domain model (docs/concepts/mission.md; internal/archive/specs/sage-nook-integration-spec.md (frozen design doc)). SECURITY CONTRACT: this object carries COUNTS, SIZES, IDS, and STRUCTURAL METADATA ONLY. It MUST NOT carry verbatim drawer bodies, full config files, secrets, tokens, or absolute home paths. Drawer bodies are fetched out-of-band on open (see read-only-v1 ADR) and never persisted into this snapshot. Every object sets additionalProperties:false so an accidental body/secret field is a validation failure, not a silent leak.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "revision", "captured_at", "property", "buildings", "grounds", "outbuildings"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Schema version of this contract. Bump on any breaking shape change."
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Monotonic change counter the adapter bumps on ANY change. Live-refresh (renderer §7) compares revision, NOT captured_at. Wall-clock is not a reliable change signal (clock skew, identical-second re-emits). Resolves architect F11."
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 stamp at the moment the adapter captured this snapshot. Stamped at capture ONLY — never minted inside the layout/render code (keeps render pure + testable)."
+    },
+    "property": { "$ref": "#/$defs/property" },
+    "buildings": {
+      "type": "array",
+      "description": "EXACTLY two buildings in v1: the Nook (id 'nook') and the Workshop (id 'workshop'). The minItems/maxItems + the two `contains` constraints make a missing core building, an empty array, or a duplicate fail source-side validation before the renderer ever sees an unusable model. Resolves PR-28 review.",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": { "$ref": "#/$defs/building" },
+      "allOf": [
+        { "contains": { "type": "object", "properties": { "id": { "const": "nook" } }, "required": ["id"] } },
+        { "contains": { "type": "object", "properties": { "id": { "const": "workshop" } }, "required": ["id"] } }
+      ]
+    },
+    "grounds": { "$ref": "#/$defs/grounds" },
+    "outbuildings": { "$ref": "#/$defs/outbuildings" }
+  },
+
+  "$defs": {
+
+    "hall_name": {
+      "type": "string",
+      "description": "Reference list of KNOWN halls, sourced from the live `wing_config.json` (union across all wing-types). Halls are cross-wing memory TYPES, not per-room children and not free tags. The set is config-driven and wing-type-scoped (e.g. `meta` uses `turns`, `project` adds `milestones`, `personal` uses `core`/`detail`) — it is NOT the design-time 'canonical 6'. A hall not in this list is the `estate-design-maintainer` trigger (ADR-0002), surfaced by the adapter, not a hard schema reject — so a normal `wing_config.json` hall addition does not break the contract. Resolves architect F1 + PR-28 review (hall set is richer than 6).",
+      "examples": ["handoff", "in-flight", "audits", "decisions", "plans", "facts", "turns", "milestones", "core", "detail"]
+    },
+
+    "wing_type": {
+      "type": "string",
+      "enum": ["dev", "project", "knowledge", "ops", "meta", "personal", "unknown"],
+      "description": "The registered wing types, SYNCED to `wing_config.json` (dev, project, knowledge, ops, meta, personal), PLUS an explicit `unknown` member. `unknown` is where the adapter routes malformed / unregistered wings — it MUST exist because dashboard.py:170 deliberately never hides the `?` bucket. Keep this enum in sync with `wing_config.json`; a CI test should assert parity (a new registered wing-type that is missing here would mislabel a real wing as `unknown`). Resolves architect F3/F6 + PR-28 review (added `personal`)."
+    },
+
+    "hall_counts": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 },
+      "description": "Per-wing drawer count keyed by hall name (an OPEN map — keys SHOULD be in `hall_name`, but the set is config-driven so the map is open to avoid re-breaking on every `wing_config.json` hall addition; mirrors the open `by_room`/`by_wing` maps). A drawer's hall membership is `drawer.hall`. Absent key = zero drawers in that hall. Replaces the mis-modeled per-room `halls[]` string array (the structural fix: halls are wing-level, not room children). Resolves architect F1."
+    },
+
+    "slot": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Stable layout slot assigned at FIRST-SIGHT of this node's id and persisted in the layout ledger (slot-ledger-determinism ADR). A deleted id leaves a GAP (rendered as a ruin / empty-closet glyph) and its slot is NEVER reclaimed or repacked — this is what makes 'append, don't reflow' true under ADR-0043 decay/deletion + consolidation. The layout engine reads slot; it never sorts-by-id at render time. Resolves architect F2."
+    },
+
+    "bucket": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional grouping for large rosters/stores (family wings, paginated drawers). A bucket is itself slot-stable: assigned a slot by a stable bucket-key (e.g. agent.family or wing family), members fill the current bucket then open the next, never reflowing prior buckets. Defined at contract level (Phase 0), not as later layout tuning. Resolves architect F8. PRODUCER-SIDE METADATA: bucket.slot is emitted by the adapter and schema-typed, but the renderer derives family placement independently (via a synthetic family:<name> ledger slot) and does not read agent.bucket.slot at render time. The divergent slot bases are intentional — recorded here so the gap reads as design, not silent drift (findings estate-contract-parity 30/22).",
+      "required": ["key", "slot"],
+      "properties": {
+        "key":  { "type": "string", "description": "Stable bucket key (e.g. 'dev', 'aidev'). Drives slot assignment." },
+        "slot": { "$ref": "#/$defs/slot" },
+        "page_size": { "type": "integer", "minimum": 1, "description": "Members per page before the next bucket opens." }
+      }
+    },
+
+    "property": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "isolation", "health"],
+      "properties": {
+        "name": { "type": "string", "description": "Display name of the property. 'Sage'." },
+        "isolation": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Sealed-distro isolation flags. Booleans only — never the underlying config file.",
+          "properties": {
+            "windows_mounts": { "type": "boolean" },
+            "interop":        { "type": "boolean" },
+            "systemd":        { "type": "boolean" }
+          }
+        },
+        "health": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Pinned to the EXACT return shapes of sage.dashboard.collect_governance + collect_store_health (re-implemented, not imported, per plan §4). A fixture-parity test asserts these field sets match the live collectors. Resolves architect F6.",
+          "required": ["governance", "store"],
+          "properties": {
+            "governance": { "$ref": "#/$defs/governance_health" },
+            "store":      { "$ref": "#/$defs/store_health" }
+          }
+        }
+      }
+    },
+
+    "governance_health": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Mirror of collect_governance() return (dashboard.py:88-99). Rates are nullable (None when no verdicts).",
+      "properties": {
+        "total_rows":      { "type": "integer", "minimum": 0 },
+        "audit_rows":      { "type": "integer", "minimum": 0 },
+        "total_verdicts":  { "type": "integer", "minimum": 0 },
+        "by_verdict":      { "type": "object", "additionalProperties": { "type": "integer" } },
+        "by_lane":         { "type": "object", "additionalProperties": { "type": "object", "additionalProperties": { "type": "integer" } } },
+        "blocking_findings": { "type": "integer", "minimum": 0 },
+        "blocking_rate":   { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "approve_rate":    { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "paired_turns":    { "type": "integer", "minimum": 0 },
+        "disagreements":   { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "store_health": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Mirror of collect_store_health() return (dashboard.py:166-174). `available:false` degrades gracefully (governance half still renders). When `available:true`, the sizing fields are REQUIRED (the `if/then` below) so an incomplete health payload fails source-side validation before the renderer tries to size the Palace from missing counts (PR-28 review). by_room/by_wing INCLUDE the '?' unknown/malformed bucket and are never truncated (dashboard.py:170-172).",
+      "required": ["available"],
+      "if": { "properties": { "available": { "const": true } } },
+      "then": { "required": ["count", "by_room", "by_wing", "strength"] },
+      "properties": {
+        "available": { "type": "boolean" },
+        "reason":    { "type": "string", "description": "Present only when available:false." },
+        "count":     { "type": "integer", "minimum": 0 },
+        "by_room":   { "type": "object", "additionalProperties": { "type": "integer" }, "description": "Room->count; the '?' key is the unknown bucket and MUST be carried, never hidden." },
+        "by_wing":   { "type": "object", "additionalProperties": { "type": "integer" }, "description": "Wing->count; '?' key carried." },
+        "strength": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "description": "ADR-0043 decay-strength stats (null when the store has no strength rows yet — collect_store_health returns None). `at_or_below_floor` (healthy, decayed-to-floor) is distinct from `below_floor` (corruption signal) — both surfaced.",
+          "properties": {
+            "min":  { "type": "number" },
+            "max":  { "type": "number" },
+            "mean": { "type": "number" },
+            "at_or_below_floor": { "type": "integer", "minimum": 0 },
+            "below_floor":       { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+
+    "building": {
+      "oneOf": [
+        { "$ref": "#/$defs/nook_building" },
+        { "$ref": "#/$defs/workshop_building" }
+      ]
+    },
+
+    "nook_building": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "title", "wings", "tunnels", "closets", "kg"],
+      "properties": {
+        "id":    { "type": "string", "const": "nook" },
+        "kind":  { "type": "string", "const": "palace" },
+        "title": { "type": "string" },
+        "wings": { "type": "array", "items": { "$ref": "#/$defs/wing" } },
+        "tunnels": {
+          "type": "array",
+          "description": "Cross-wing links modeled as named, directional EDGES at the building level (a cross-wing edge belongs to neither single wing). Resolves architect F4.",
+          "items": { "$ref": "#/$defs/tunnel" }
+        },
+        "closets": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Consolidated/decayed memory summary (the closet layer).",
+          "properties": {
+            "consolidated": { "type": "integer", "minimum": 0 },
+            "decayed":      { "type": "integer", "minimum": 0 }
+          }
+        },
+        "kg": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Knowledge-graph stats (mirror nook_kg_stats). Traces cleanly to the spec.",
+          "properties": {
+            "entities":  { "type": "integer", "minimum": 0 },
+            "relations": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "diaries": {
+          "type": "array",
+          "description": "Per-agent diary counts, keyed by agent_name (nook_diary_read). There is NO nook_list_agents tool — the adapter derives the agent set from the Workshop file scan, then probes nook_diary_read per name. Diary entries are verbatim drawers subject to the same no-body rule. Resolves architect F5.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["agent", "entries"],
+            "properties": {
+              "agent":   { "type": "string" },
+              "entries": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+
+    "workshop_building": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "title", "agents", "armory"],
+      "properties": {
+        "id":    { "type": "string", "const": "workshop" },
+        "kind":  { "type": "string", "const": "workshop" },
+        "title": { "type": "string" },
+        "agents": { "type": "array", "items": { "$ref": "#/$defs/agent" } },
+        "armory": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Rules/skills/tools/hooks counts (file scan of ~/.claude).",
+          "properties": {
+            "skills": { "type": "integer", "minimum": 0 },
+            "rules":  { "type": "integer", "minimum": 0 },
+            "hooks":  { "type": "integer", "minimum": 0 },
+            "tools":  { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+
+    "wing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "title", "slot", "rooms", "hall_counts", "drawer_total"],
+      "properties": {
+        "id":    { "type": "string", "description": "Stable wing id (e.g. 'wing:dev:owner/name'). Drives the slot ledger + spatial memory." },
+        "type":  { "$ref": "#/$defs/wing_type" },
+        "title": { "type": "string", "description": "REDACTED display label. The adapter MUST run titles through the secret/home-path redactor before emission — titles/ids are verbatim-derived (from source_file/content) and can carry secrets. Resolves sec F3." },
+        "slot":  { "$ref": "#/$defs/slot" },
+        "bucket": { "$ref": "#/$defs/bucket" },
+        "rooms": { "type": "array", "items": { "$ref": "#/$defs/room" } },
+        "hall_counts": { "$ref": "#/$defs/hall_counts" },
+        "drawer_total": { "type": "integer", "minimum": 0, "description": "Total drawers in this wing (carried so the layout engine never re-queries)." }
+      }
+    },
+
+    "room": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A room groups drawers by session/topic. At zoom levels 0–1 a room carries COUNTS + SIZE only. At levels 2–3 the adapter MAY also populate `drawers` with per-drawer METADATA (never bodies). The per-room `halls[]` string array from the original plan is REMOVED (halls are wing-level types — see hall_counts).",
+      "required": ["id", "title", "slot", "drawer_count"],
+      "properties": {
+        "id":           { "type": "string" },
+        "title":        { "type": "string", "description": "REDACTED display label (see wing.title)." },
+        "slot":         { "$ref": "#/$defs/slot" },
+        "drawer_count": { "type": "integer", "minimum": 0 },
+        "size_bytes":   { "type": "integer", "minimum": 0 },
+        "drawers":      { "type": "array", "items": { "$ref": "#/$defs/drawer" }, "description": "Per-drawer metadata, present only at zoom level 2–3 (`sage estate --json --level 2|3`). Omitted at level 0–1. References $defs.drawer (which is otherwise unused). Resolves PR-28 review (level-3 drawer list had nowhere valid to go)." }
+      }
+    },
+
+    "drawer": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Drawer METADATA only — emitted only when a room is enumerated at zoom level 3. There is DELIBERATELY NO `content`/`body`/`text` field: the verbatim body is fetched out-of-band on open via a loopback-only endpoint and NEVER persisted into this snapshot (read-only-v1 ADR; sec F3). additionalProperties:false makes a leaked body a validation failure.",
+      "required": ["id", "hall", "slot"],
+      "properties": {
+        "id":          { "type": "string" },
+        "hall":        { "type": "string", "description": "Hall name (see $defs/hall_name for the known set). A string, not a strict enum, so a config-driven new hall does not crash level-3 enumeration; an unknown value is the design-maintainer trigger surfaced by the adapter." },
+        "slot":        { "$ref": "#/$defs/slot" },
+        "agent":       { "type": "string", "description": "Agent that filed the drawer (agent-keyed metadata)." },
+        "size_bytes":  { "type": "integer", "minimum": 0 },
+        "captured_at": { "type": "string", "format": "date-time" },
+        "strength":    { "type": "number", "description": "ADR-0043 decay strength; drives the decayed-glyph signal." }
+      }
+    },
+
+    "tunnel": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "An UNDIRECTED named cross-wing link. Verified against the live implementation: `nook_graph.py:_canonical_tunnel_id` sorts the two endpoints before hashing, so `create_tunnel(A,B)` and `create_tunnel(B,A)` are the same tunnel — tunnels are symmetric. The model therefore carries an unordered endpoint pair and NO direction flag; the renderer always draws a two-way passage. Resolves architect F4 + PR-28 review (the earlier `directed` flag could not be represented by the Nook).",
+      "required": ["id", "endpoints"],
+      "properties": {
+        "id":       { "type": "string", "description": "Canonical (endpoint-sorted) tunnel id, mirroring _canonical_tunnel_id." },
+        "name":     { "type": "string", "description": "REDACTED tunnel name." },
+        "endpoints": {
+          "type": "array",
+          "description": "The two wing/room ids this tunnel connects. UNORDERED (canonical-sorted); presence, not order, is meaningful.",
+          "items": { "type": "string" },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+
+    "agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A Workshop agent = one room. Bucketed by `family` (slot-stable) when the roster is large.",
+      "required": ["id", "family", "slot"],
+      "properties": {
+        "id":          { "type": "string", "description": "Agent name (e.g. 'dev-architect')." },
+        "family":      { "type": "string", "description": "Agent family (dev/aidev/biz/data/fin/...). The stable bucket key for the roster." },
+        "model":       { "type": "string" },
+        "tools":       { "type": "array", "items": { "type": "string" } },
+        "description": { "type": "string", "description": "REDACTED one-line agent description (from frontmatter)." },
+        "slot":        { "$ref": "#/$defs/slot" },
+        "bucket":      { "$ref": "#/$defs/bucket" }
+      }
+    },
+
+    "grounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The Grounds (Peristylium) — the courtyard of working repo plots. A working courtyard, NOT a building.",
+      "required": ["plots"],
+      "properties": {
+        "plots": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "title", "slot"],
+            "properties": {
+              "id":    { "type": "string" },
+              "title": { "type": "string", "description": "Repo display name (basename only — never the absolute home path; sec F2)." },
+              "path":  { "type": "string", "not": { "pattern": "^(/|~|[A-Za-z]:[\\\\/])|/home/|[\\\\/]Users[\\\\/]" }, "description": "RELATIVIZED or basenamed path ONLY. The `not`-pattern REJECTS absolute Unix paths (leading /), home (~), Windows drive letters (C:\\), and any `/home/` or `\\Users\\` segment — so a real repo scan that forgets to relativize fails source-side validation instead of leaking operator identity (sec F2 + PR-28 review). Optional; prefer omitting over leaking." },
+              "files": { "type": "integer", "minimum": 0 },
+              "dirty": { "type": "boolean", "description": "From `git -C <path> status --porcelain --` (arg-array, never shell=True; sec F4)." },
+              "memory_wing": { "type": "string", "description": "Id of the Nook wing that archives this repo's memory (cross-reference for camera linking)." },
+              "slot":  { "$ref": "#/$defs/slot" }
+            }
+          }
+        }
+      }
+    },
+
+    "outbuildings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["horrea", "tablinum", "gate"],
+      "properties": {
+        "horrea": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Snapshots + logs (the granary). v1 stubs snapshots (distro packaging is a separate plan) — surface 'none yet'.",
+          "properties": {
+            "snapshots": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id"],
+                "properties": {
+                  "id":       { "type": "string" },
+                  "taken_at": { "type": "string", "format": "date-time" },
+                  "reason":   { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "tablinum": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Config + controls (the study). SECURITY: `config` carries an ALLOWLISTED set of non-sensitive keys ONLY — never the raw config file. Any value matching key|token|secret|password|auth is dropped/masked at the source even if allowlisted by mistake (sec F2).",
+          "properties": {
+            "config": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Allowlisted config keys ONLY. Extend this allowlist deliberately in-schema; an un-allowlisted key reaching here is a validation failure.",
+              "properties": {
+                "permission_mode": { "type": "string" },
+                "windows_mounts":  { "type": "boolean" },
+                "interop":         { "type": "boolean" },
+                "systemd":         { "type": "boolean" }
+              }
+            }
+          }
+        },
+        "gate": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "The single guarded door out; danger zone.",
+          "properties": {
+            "danger_actions": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    }
+  }
+}

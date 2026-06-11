@@ -1,0 +1,19 @@
+{
+  "name": "sage",
+  "version": "1.0.0",
+  "description": "A single-user verbatim memory store with agent-keyed drawer metadata.",
+  "author": {
+    "name": "Ryuuske"
+  },
+  "license": "MIT",
+  "keywords": [
+    "memory",
+    "ai",
+    "rag",
+    "mcp",
+    "chromadb",
+    "nook",
+    "search"
+  ],
+  "repository": "https://github.com/Ryuuske/s.a.g.e"
+}

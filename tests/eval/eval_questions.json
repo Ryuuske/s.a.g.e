@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "description": "Fixed question set for WI-7b non-regression eval harness (ADR-0040).\nEach entry defines a question the nook should answer, the wing/hall it should\nretrieve from, and an expected_substring that must appear in at least one top-k\nresult's text to count as a PASS.\n\nIMPORTANT: These questions target the FIXTURE nook seeded by\ntests/eval/test_nonregression_eval.py — NOT the live ~/.sage.\nDrawer content is seeded in the test's `_SEED_DRAWERS` / `_NOISE_DRAWERS` helpers;\nquestion/expected pairs must stay in sync with that seed.\n\nCLOSE-RELEVANCE REGIME (k=2, rank-sensitive):\nFor each question there exists at least one competitor noise drawer in\n`_NOISE_DRAWERS` that shares HIGH-IDF terms with the question AND whose base\nvector+BM25 score is WITHIN ~0.1 of the target's score.  The expected_substring\nis NOT present in any competitor drawer.  With CORRECT decay, the target's\nstrength advantage (strength ≈ 0.687 vs noise ≈ 0.1) shifts it to rank-1.\nWith UNIFORM/NEUTERED decay (all strength equal), the noise competitor wins on\npure BM25+vector and the rank-sensitive assertion for Q1 fires.",
+  "k": 2,
+  "non_regression_tolerance": 0.0,
+  "questions": [
+    {
+      "id": "Q1",
+      "question": "How does the authentication module handle session tokens?",
+      "wing": "eval_project",
+      "hall": null,
+      "expected_substring": "HttpOnly",
+      "seed_drawer_id": "eval_drawer_auth",
+      "competitor_drawer_id": "eval_noise_auth_compete",
+      "note": "CLOSE-RELEVANCE: competitor shares auth/module/session/token terms. Base gap ≈ -0.062 (competitor wins without strength). Target answer contains 'HttpOnly'; competitor does NOT. Rank-sensitive: with real decay target must be rank-1."
+    },
+    {
+      "id": "Q2",
+      "question": "What database system is used for connection pooling with pgbouncer?",
+      "wing": "eval_project",
+      "hall": null,
+      "expected_substring": "Alembic",
+      "seed_drawer_id": "eval_drawer_db",
+      "competitor_drawer_id": "eval_noise_db_compete",
+      "note": "Competitor shares PostgreSQL/pgbouncer/connection-pooling terms. 'Alembic' is NOT in the competitor. Target answer contains 'Alembic'."
+    },
+    {
+      "id": "Q3",
+      "question": "What library does the frontend use for server state management?",
+      "wing": "eval_project",
+      "hall": null,
+      "expected_substring": "centralized fetch wrapper",
+      "seed_drawer_id": "eval_drawer_frontend",
+      "competitor_drawer_id": "eval_noise_frontend_compete",
+      "note": "Competitor shares TanStack/server-state/frontend terms. 'centralized fetch wrapper' is NOT in the competitor."
+    },
+    {
+      "id": "Q4",
+      "question": "What authentication method is planned for Q3 sprint migration?",
+      "wing": "eval_notes",
+      "hall": null,
+      "expected_substring": "ChromaDB alternatives",
+      "seed_drawer_id": "eval_drawer_sprint",
+      "competitor_drawer_id": "eval_noise_sprint_compete",
+      "note": "CLOSE-RELEVANCE: competitor shares passkeys/Q3/sprint terms. Base gap ≈ -0.041 (competitor wins without strength). Target answer contains 'ChromaDB alternatives'; competitor does NOT."
+    },
+    {
+      "id": "Q5",
+      "question": "How are Alembic database migrations handled in the project?",
+      "wing": "eval_project",
+      "hall": null,
+      "expected_substring": "pgbouncer",
+      "seed_drawer_id": "eval_drawer_db",
+      "competitor_drawer_id": "eval_noise_migrations_compete",
+      "note": "Competitor shares Alembic/migration terms. 'pgbouncer' is NOT in the competitor. Target answer contains 'pgbouncer'."
+    }
+  ]
+}
