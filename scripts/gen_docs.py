@@ -33,6 +33,7 @@ FAMILIES = [
     ("dev-", "General Development"),
     ("gh-", "GitHub Project Mechanics"),
     ("data-", "Data Engineering"),
+    (("arch-", "freecad-"), "Architecture"),
     ("fin-", "Finance Operations"),
     ("biz-", "Business Operations"),
     ("doc-", "Documentation"),
@@ -65,6 +66,7 @@ def agents() -> list[dict[str, str]]:
         fm = frontmatter(f.read_text(encoding="utf-8"))
         name = fm.get("name", f.stem)
         fam = next((label for pre, label in FAMILIES if name.startswith(pre)), "Other")
+        # str.startswith accepts a tuple natively, so tuple prefixes work above.
         out.append(
             {
                 "name": name,
@@ -95,7 +97,8 @@ def gen_roster(rows: list[dict[str, str]]) -> str:
     for pre, label in FAMILIES:
         n = len(by_fam.get(label, []))
         total += n
-        lines.append(f"| {label} | `{pre}` | {n} |\n")
+        pre_str = "/".join(f"`{p}`" for p in pre) if isinstance(pre, tuple) else f"`{pre}`"
+        lines.append(f"| {label} | {pre_str} | {n} |\n")
     other = len(by_fam.get("Other", []))
     if other:
         total += other

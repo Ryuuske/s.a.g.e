@@ -15,6 +15,7 @@ classification, shareability principle) lives at
 | General Development | `dev-` | 31 |
 | GitHub Project Mechanics | `gh-` | 6 |
 | Data Engineering | `data-` | 5 |
+| Architecture | `arch-`/`freecad-` | 11 |
 | Finance Operations | `fin-` | 7 |
 | Business Operations | `biz-` | 4 |
 | Documentation | `doc-` | 3 |
@@ -22,7 +23,7 @@ classification, shareability principle) lives at
 | Operations | `ops-` | 2 |
 | Research | `research-` | 2 |
 | Test / E2E Validation | `test-` | 5 |
-| **Total** | — | **83** |
+| **Total** | — | **94** |
 
 ## Family: AI Development
 
@@ -321,6 +322,63 @@ classification, shareability principle) lives at
 
 - **Description**: Use to author VBA — the procedural BASIC-family language embedded in Office documents — as .bas standard modules, .cls class modules, and .frm form modules per an approved brief. Triggers when a brief requests new or refactored VBA procedures, error-handling rewrites, performance-wrap additions, or object-reference cleanup in a .bas/.cls/.frm module. Do not use for VBA diff audit (route to dev-vba-reviewer), M language authoring (route to data-power-query-developer), general-purpose code implementation in other languages, workbook structure design, or AI-dev artifact authoring.
 - **Model**: opus · **Tools**: Read, Write, Edit, Grep, Glob, Bash
+
+## Family: Architecture
+
+### `arch-concept-designer`
+
+- **Description**: Use to generate 2–N distinct concept/schematic massing-and-layout option schemes from a brief + site constraints, compare their tradeoffs, and emit a read-only concept-options document for client/orchestrator choice before detailed BIM. Never mutates the model. Do not use for: detailed BIM/IFC authoring (→ freecad-architect), structural design (→ arch-structural-engineer), MEP (→ arch-mep-engineer), materials/RAL (→ arch-spec-writer), framing (→ arch-visionary), planning (→ arch-planner), 3D render (→ arch-visualizer), code/norm compliance (→ research-fact-checker), cost/QTO (→ fin-*).
+- **Model**: opus · **Tools**: Read, Grep, Glob, Bash, Write
+
+### `arch-documenter`
+
+- **Description**: Use to assemble the issued sheet set — the client-deliverable documentation PDF — from existing model views (IfcConvert SVG/plan output, produced sections/elevations) and schedules, applying titleblocks, sheet numbering, and layout. Never mutates the model. Do not use for BIM model edits (→ freecad-architect), 3D/photoreal render (→ arch-visualizer), PDF dim extraction (→ arch-pdf-extractor), material/finish/RAL spec (→ arch-spec-writer), or model-vs-drawing audit (→ freecad-model-auditor).
+- **Model**: opus · **Tools**: Read, Write, Bash, Grep, Glob
+
+### `arch-mep-engineer`
+
+- **Description**: Use to derive MEP system layouts — electrical/water/drainage/heating routes and vent/chimney shafts — for a parametric IFC BIM model, emitting a structured MEP spec and change-order for freecad-architect. Read-only on the model. Do not use for model mutation (→ freecad-architect), structural design (→ arch-structural-engineer), cost/QTO (→ fin-* family), code/norm compliance (→ research-fact-checker), model-vs-drawing audit (→ freecad-model-auditor), or PDF dim extraction (→ arch-pdf-extractor).
+- **Model**: opus · **Tools**: Read, Grep, Glob, Bash
+
+### `arch-pdf-extractor`
+
+- **Description**: Use to perform rotation-corrected dimension extraction from architectural PDF drawings — produces structured, verifiable dimension data (sills, heads, openings, levels, grid spacing) from vector content, read-only. Triggers when extracting dimensions from a rotated architectural PDF, calibrating scale from grid or face-pair, or producing a verifiable table for downstream model audit. Do not use for model edits or IFC/BIM authoring (→ freecad-architect) or model-vs-drawing audit verdict (→ freecad-model-auditor).
+- **Model**: opus · **Tools**: Read, Grep, Glob, Bash
+
+### `arch-planner`
+
+- **Description**: Use to convert a sharpened architecture vision (or concrete client request) into a binding plan at docs/plans/active.md, sequencing the project by discipline dependency and routing work items to the arch-* family. Architecture scope only. Triggers when a vision is settled but no plan exists, or 'what would it take to take this house/dwelling from brief to issued documentation'. Do not use for AI-dev/software/finance/business-ops planning, framing (→ arch-visionary), tech selection (→ dev-architect), or model edits (→ freecad-architect).
+- **Model**: opus · **Tools**: Read, Grep, Glob, Write
+
+### `arch-spec-writer`
+
+- **Description**: Use to select and derive material/finish/RAL-colour assignments for a parametric IFC BIM model, emit a material change-order (IfcMaterial/IfcMaterialLayerSet/IfcSurfaceStyle/RAL→colour) for freecad-architect, and author the materials/finishes schedule and BOM document. Read-only on model geometry. Do not use for applying materials/IFC writes (→ freecad-architect), cost/QTO pricing (→ fin-* family), model-vs-drawing audit (→ freecad-model-auditor), PDF extraction (→ arch-pdf-extractor), material-property facts (→ research-fact-checker), or AI-dev files (→ aidev-code-implementer).
+- **Model**: opus · **Tools**: Read, Grep, Glob, Write
+
+### `arch-structural-engineer`
+
+- **Description**: Use to derive the structural design for a parametric IFC BIM model — foundation-system selection (piles/grillage/plinth/precast slab), framing layout, lintel scheduling — and emit a structural spec + change-order for freecad-architect. Read-only on the model. Do not use for model edits (→ freecad-architect), model-vs-drawing audit (→ freecad-model-auditor), PDF extraction (→ arch-pdf-extractor), code-compliance verdicts (→ research-fact-checker), cost/QTO (→ fin-* family), or AI-dev framework files (→ aidev-code-implementer).
+- **Model**: opus · **Tools**: Read, Grep, Glob, Bash, Write
+
+### `arch-visionary`
+
+- **Description**: Use for the earliest framing step on architectural projects — house/dwelling/extension/renovation — when the User describes intent in fuzzy terms and you need a one-screen problem statement, success criteria, and refusal scope before any planning or design. Scoped to architecture/built-environment work only. Do not use for AI-dev/software/finance/business-ops framing, tech/tool selection, or once a plan already exists (→ arch-planner).
+- **Model**: sonnet · **Tools**: Read, Grep, Glob
+
+### `arch-visualizer`
+
+- **Description**: Use to drive the render pipeline — export an IFC model to a renderable scene, bind materials/cameras/lighting from the brief, and produce client-facing 3D/photoreal image artifacts + a render manifest. Never mutates the model or authors the authoritative material spec. Do not use for: BIM model edits/IFC regen (→ freecad-architect), 2D issued sheet-set assembly (→ arch-documenter), authoritative material/RAL spec (→ arch-spec-writer), PDF dim extraction (→ arch-pdf-extractor), model-vs-drawing verdict (→ freecad-model-auditor), concept/massing design (→ arch-concept-designer).
+- **Model**: opus · **Tools**: Read, Write, Bash, Grep, Glob
+
+### `freecad-architect`
+
+- **Description**: Use to execute an approved change-order against a parametric IFC BIM model — edits the parametric spec, make/verify/render scripts, and builder modules; regenerates the IFC; runs the BUILD→VERIFY→render loop. The single actor that mutates the model. Do not use for PDF dimension extraction (arch-pdf-extractor), model-vs-drawing audit (freecad-model-auditor), cost/QTO (fin-* family), code-compliance checking (research-fact-checker), general application code (dev-code-implementer), or AI-dev framework-file authoring (aidev-code-implementer).
+- **Model**: opus · **Tools**: Read, Edit, Write, Bash, Grep, Glob
+
+### `freecad-model-auditor`
+
+- **Description**: Use to audit a BIM model change before acceptance — drives FreeCAD 1.0 headless from WSL via NativeIFC, independently re-derives dimensions from the authoritative drawing, runs a round-trip fidelity pass, and emits a scored model-vs-drawing verdict. Read-only; never edits the model. Triggers when a BIM model change needs an audit gate, an IFC round-trip must be proven lossless, or a dimension must be independently re-derived. Do not use for BIM model edits (→ freecad-architect) or primary PDF dimension extraction (→ arch-pdf-extractor).
+- **Model**: opus · **Tools**: Read, Write, Grep, Glob, Bash
 
 ## Family: Finance Operations
 

@@ -28,7 +28,7 @@ Do NOT fire this skill for:
 - Writing a failing test for an M transform first → `test-driven-development`.
 - Claiming an M transform is done and verifying it → `verification-before-completion` (this skill contributes M-specific items to that check but does not replace it).
 - Designing an agent that writes M code → `agent-creation` via `aidev-agent-creator`.
-- Looking up the current M language reference URL or version → emit `PAUSE: need research-docs-lookup for <subject> reference lookup [scheduled-annotation: agent pending future session per agent-roster.md step 13]` and stop; do not WebFetch or WebSearch directly. (See "When this skill PAUSEs" below for the full broken-route history and orchestrator routing.)
+- Looking up the current M language reference URL or version → emit `PAUSE: need research-docs-lookup for <subject> reference lookup` and stop; do not WebFetch or WebSearch directly. (See "When this skill PAUSEs" below for orchestrator routing.)
 
 ## Decision tree 1 — Type-declaration completeness
 
@@ -144,18 +144,14 @@ If a step-naming finding is logged (informational) on a diff, and the next diff 
 Never guess an M standard-library function signature. If you are uncertain whether `Table.NestedJoin` takes the join-kind as the fifth or sixth argument, or whether `List.Accumulate` expects the seed before or after the accumulator function, emit:
 
 ```
-PAUSE: need research-docs-lookup for <subject> reference lookup [scheduled-annotation: agent pending future session per agent-roster.md step 13]
+PAUSE: need research-docs-lookup for <subject> reference lookup
 ```
 
 Stop there. Do not attempt the call with a guessed signature. The cost of a wrong signature is silent data corruption — a join on the wrong columns, an accumulate that ignores initial state — which is worse than a visible error.
 
 ### When this skill PAUSEs
 
-The PAUSE shape above is the ADR-0027 pattern. `research-docs-lookup` does not yet exist in the active roster. `aidev-claude-code-researcher` explicitly refuses M-language doc queries in its `forbidden_inputs` and `When NOT to use this agent` section — that was the broken route; it has been removed from this skill and is why `research-docs-lookup` is the named receiver.
-
-When the PAUSE fires, the orchestrator's established convention routes it to the User: the named agent's manifest absence triggers User-escalation fallback per the orchestrator's general dispatch behavior on unresolved agent names. ADR-0027 (this skill's binding source) cites ADR-0024 only as a directional precedent for the gap-naming-with-user-action-remediation pattern, not as the specific authority for PAUSE routing; the orchestrator routing itself is convention rather than ADR-codified. If a future ADR formalizes the unresolved-agent-name PAUSE routing rule, this subsection updates to cite it directly.
-
-When `research-docs-lookup` lands per agent-roster.md step 13, the scheduled-annotation resolves and the PAUSE routes directly to that agent. If research-docs-lookup ships with the PAUSE shape this skill emits today, no skill edit is required (same-shape resolution); if its design diverges, a follow-on ADR aligns shapes and this skill amends accordingly per ADR-0021 brief-correction discipline.
+The PAUSE shape above is the ADR-0027 pattern. `research-docs-lookup` is in the active roster. When the PAUSE fires, the orchestrator dispatches `research-docs-lookup` to resolve the M function signature. ADR-0027 cites ADR-0024 as directional precedent for the gap-naming-with-user-action-remediation pattern (per ADR-0104 landing reconciliation).
 
 ## Output blocks
 
@@ -218,12 +214,12 @@ Function-reference uncertainty surfaces as a standalone `PAUSE:` line before any
 - **Grep** — scan for `Table.TransformColumnTypes`, `Table.Buffer`, `List.Buffer`, `Table.NestedJoin`, `Table.SelectRows`, `try`, and the UI-generated step-name pattern (`#"Changed Type`, `#"Filtered Rows`, `#"Merged Queries`, `#"Expanded `, `#"Added Custom`, `#"Removed Columns`, `#"Reordered Columns`, `#"Renamed Columns`).
 - **Glob** — locate `.pq` files when the brief names a transform area without an exact path.
 - **No Write or Edit under this skill alone** — writes route through `aidev-code-implementer`.
-- **No WebFetch or WebSearch** — function-reference uncertainty emits a `PAUSE:` line only (ADR-0027 shape); the orchestrator routes to `research-docs-lookup` or to the User until that agent ships.
+- **No WebFetch or WebSearch** — function-reference uncertainty emits a `PAUSE:` line only (ADR-0027 shape); the orchestrator dispatches `research-docs-lookup`.
 
 ## When NOT to use this skill
 
 - General test-failure investigation on any transform → `systematic-debugging`.
 - Test-first design for any transform → `test-driven-development`.
 - General pre-completion verification → `verification-before-completion` (load this skill alongside it for the M-specific items, but `verification-before-completion` governs the overall procedure).
-- Looking up an M function signature → emit `PAUSE: need research-docs-lookup for <subject> reference lookup [scheduled-annotation: agent pending future session per agent-roster.md step 13]`; the orchestrator routes this to the User until `research-docs-lookup` ships (ADR-0027).
+- Looking up an M function signature → emit `PAUSE: need research-docs-lookup for <subject> reference lookup`; the orchestrator dispatches `research-docs-lookup` (ADR-0027).
 - Any language other than M.

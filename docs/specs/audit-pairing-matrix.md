@@ -48,6 +48,46 @@ Agents themselves return verdicts in the `@@VERDICT BEGIN…END` format without 
 | `release-gate` | Pre-merge to protected branch or pre-tag | `ops-release-readiness` | *(consults per-commit auditors via re-run)* | — | solo |
 | `ai-dev-infra-diff` | Change to the catalog, the audit matrix itself, or registry protocol | `aidev-code-reviewer` | `aidev-adversarial-auditor` | `aidev-state-reviewer` | parallel |
 | `propagation-batch` | `aidev-agent-creator` returns an `@@AGENT-PROPAGATE-BATCH` containing multiple embedded `@@AGENT-MODIFY` specs in response to an anti-patterns checklist update | `aidev-state-reviewer` | `aidev-state-adversarial-auditor` | `aidev-code-reviewer` | sequential: state-reviewer + state-adversarial-auditor audit the batch as a whole (parallel between them), then aidev-code-reviewer audits each embedded modify spec one-at-a-time as the orchestrator dispatches them through the normal modify-agent + audit chain |
+| `freecad-bim-diff` | Diff to a parametric-IFC BIM model or its build/verify/render script (landed change) | `freecad-model-auditor` | `dev-test-engineer` | — | parallel |
+| `arch-dim-extract-output` | Dimension table extracted from an architectural PDF (read-only extraction output) | `arch-pdf-extractor` | — | — | solo |
+| `arch-structural-spec-output` | Structural spec / change-order from arch-structural-engineer (read-only, consumed by freecad-architect) | `arch-structural-engineer` | — | — | solo |
+| `mep-spec-output` | MEP spec / change-order from arch-mep-engineer (read-only, consumed by freecad-architect) | `arch-mep-engineer` | — | — | solo |
+| `arch-spec-output` | Material/finish change-order + materials/BOM schedule deliverable from arch-spec-writer | `arch-spec-writer` | `doc-keeper` | — | parallel |
+| `arch-sheet-set-output` | Issued sheet-set PDF deliverable from arch-documenter | `arch-documenter` | `doc-keeper` | — | parallel |
+| `arch-concept-options-output` | Concept/schematic massing-and-layout options document from arch-concept-designer (read-only, drives a client choice; chosen concept developed downstream by freecad-architect) | `arch-concept-designer` | — | — | solo (note: downstream freecad-bim-diff is the build gate for the chosen concept) |
+| `arch-render-output` | 3D/photoreal render set + manifest deliverable from arch-visualizer | `arch-visualizer` | `doc-keeper` | — | parallel (note: doc-keeper scoped to the render-manifest completeness/format only; render image quality is self-passed by arch-visualizer's empty/black + completeness discipline) |
+
+#### `freecad-bim-diff`
+
+Primary `freecad-model-auditor` audits model-vs-drawing fidelity (round-trip losslessness, genuine-defect vs platform-limitation classification, overengineering check on the build script). Secondary `dev-test-engineer` covers gate/script test adequacy — a lane `freecad-model-auditor`'s Step 8 (REVIEWER_DISCIPLINE overengineering check) does not occupy. Mirrors the `data-pq-diff` and `data-vba-diff` rows. ADR-0098.
+
+#### `arch-dim-extract-output`
+
+Solo `arch-pdf-extractor` audits the extraction output. The mandatory independent-verification requirement (§16) is met internally: `arch-pdf-extractor`'s Tree-4 crosscheck re-derives rotation, calibration, and origin from a different anchor in a fully independent second pass, satisfying the re-derivation criterion without a separate code-reviewer pairing. ADR-0099.
+
+#### `arch-structural-spec-output`
+
+Solo `arch-structural-engineer` self-pass. The structural spec / change-order is a read-only artefact consumed by `freecad-architect`; the downstream `freecad-bim-diff` build audit (ADR-0098) is the independent §16 gate for the built result. Adding a second auditor at the spec stage would double-audit content that `freecad-model-auditor` will independently verify once built. ADR-0110 (Option C split).
+
+#### `mep-spec-output`
+
+Solo `arch-mep-engineer` self-pass. Same rationale as `arch-structural-spec-output`: the MEP spec / change-order is consumed by `freecad-architect` and independently verified by the `freecad-bim-diff` build gate (ADR-0098). ADR-0110.
+
+#### `arch-spec-output`
+
+`arch-spec-writer` self-pass for the spec-handoff facet (material/finish change-order routed to `freecad-architect`; covered by the `freecad-bim-diff` build gate per ADR-0098). `doc-keeper` secondary scoped **to the schedule/BOM deliverable artifact only** — format, citation completeness, and BOM coverage — not the spec-handoff facet. Shape mirrors `fin-statement-output` (producer self-pass + `doc-keeper` on a client deliverable), but the protocol is `parallel` per ADR-0110 Option C — not `sequential` like the fin rows. ADR-0110.
+
+#### `arch-sheet-set-output`
+
+`arch-documenter` self-pass + `doc-keeper` secondary. The issued sheet-set PDF is a client-facing deliverable that never feeds back into the model; `doc-keeper` covers deliverable format, completeness, and citation. Shape mirrors `fin-reconciliation-output` (producer self-pass + `doc-keeper` on a client deliverable), but the protocol is `parallel` per ADR-0110 Option C — not `sequential` like the fin rows. ADR-0110.
+
+#### `arch-concept-options-output`
+
+Solo `arch-concept-designer` self-pass. The concept-options document drives a client choice; the chosen concept is independently re-derived and developed downstream by `freecad-architect` and audited by the `freecad-bim-diff` build gate (ADR-0098), satisfying §16 via the downstream gate without a redundant second dispatch at the concept stage. Mirrors the precedent of `arch-dim-extract-output` (ADR-0099) and the P2 spec-producer rows (ADR-0110 Option C). ADR-0113.
+
+#### `arch-render-output`
+
+`arch-visualizer` self-pass + `doc-keeper` secondary (parallel). The render deliverable is client-facing with no downstream build gate. Render image quality (empty/black-render check, completeness discipline) is self-passed by `arch-visualizer` before delivery; `doc-keeper` is scoped strictly to the render-manifest completeness and format — NOT to image aesthetics or render parameters. Extends ADR-0110 Option C's client-deliverable pattern (established for `arch-sheet-set-output`) to the render deliverable. ADR-0113.
 
 ### Adding a new row
 
@@ -130,7 +170,7 @@ This matrix is **pairing policy only**. Everything else stays in its proper plac
 
 ## Maintenance
 
-`last_audited`: 2026-06-07
+`last_audited`: 2026-06-15
 
 When you change a row, update the date. The `audit-pairing-lookup` skill flags stale matrices (>90 days) so you know to re-verify it matches current agent capabilities.
 

@@ -32,7 +32,7 @@ Do NOT fire this skill for:
 - Claiming a VBA macro is done and verifying it → `verification-before-completion` (this skill contributes VBA-specific items to that check but does not replace it).
 - Designing an agent that writes VBA → `agent-creation` via `aidev-agent-creator`.
 - Reviewing a VBA diff for overall correctness → `dev-vba-reviewer` [scheduled-annotation: dev-vba-reviewer pending future session (agent defined at docs/reference/agent-roster.md line 414; data-vba-diff matrix row at docs/specs/audit-pairing-matrix.md line 34)].
-- Looking up the current VBA Object Browser member signature → emit `PAUSE: need research-docs-lookup for <subject> reference lookup [scheduled-annotation: agent pending future session per agent-roster.md step 13]` and stop; do not WebFetch or WebSearch directly. (See "When this skill PAUSEs" below for the full broken-route history and orchestrator routing.)
+- Looking up the current VBA Object Browser member signature → emit `PAUSE: need research-docs-lookup for <subject> reference lookup` and stop; do not WebFetch or WebSearch directly. (See "When this skill PAUSEs" below for orchestrator routing.)
 - Any Power Query M language decision → `m-language-discipline`.
 
 ## Decision tree 1 — Option Explicit and explicit Dim discipline
@@ -214,18 +214,14 @@ Surface single-cell-array-trap findings inline (one line per finding).
 Never guess a VBA Object Browser member signature. If you are uncertain whether a host-application method takes a particular argument order or whether an optional parameter is positional or named, emit:
 
 ```
-PAUSE: need research-docs-lookup for <subject> reference lookup [scheduled-annotation: agent pending future session per agent-roster.md step 13]
+PAUSE: need research-docs-lookup for <subject> reference lookup
 ```
 
 Stop there. Do not attempt the call with a guessed signature. A wrong argument order in a host-application call may silently pass the wrong value rather than raising a runtime error.
 
 ### When this skill PAUSEs
 
-The PAUSE shape above is the ADR-0027 pattern. `research-docs-lookup` does not yet exist in the active roster. `aidev-claude-code-researcher` explicitly refuses non-Anthropic documentation queries — that is the broken route; it has been excluded from this skill and is why `research-docs-lookup` is the named receiver.
-
-When the PAUSE fires, the orchestrator's established convention routes it to the User: the named agent's manifest absence triggers User-escalation fallback per the orchestrator's general dispatch behavior on unresolved agent names. ADR-0027 (this skill's binding source) cites ADR-0024 only as a directional precedent for the gap-naming-with-user-action-remediation pattern, not as the specific authority for PAUSE routing; the orchestrator routing itself is convention rather than ADR-codified. If a future ADR formalizes the unresolved-agent-name PAUSE routing rule, this subsection updates to cite it directly.
-
-When `research-docs-lookup` lands per agent-roster.md step 13, the scheduled-annotation resolves and the PAUSE routes directly to that agent. If research-docs-lookup ships with the PAUSE shape this skill emits today, no skill edit is required (same-shape resolution); if its design diverges, a follow-on ADR aligns shapes and this skill amends accordingly per ADR-0021 brief-correction discipline.
+The PAUSE shape above is the ADR-0027 pattern. `research-docs-lookup` is in the active roster. When the PAUSE fires, the orchestrator dispatches `research-docs-lookup` to resolve the Object Browser member signature. ADR-0027 cites ADR-0024 as directional precedent for the gap-naming-with-user-action-remediation pattern (per ADR-0104 landing reconciliation).
 
 ## Output blocks
 
@@ -308,14 +304,14 @@ Object Browser member-reference uncertainty surfaces as a standalone `PAUSE:` li
 - **Grep** — scan for: `Option Explicit`, `Dim ` (implicit-Variant check), `On Error `, `Set `, `= Nothing`, `Application.ScreenUpdating`, `Application.Calculation`, `Application.EnableEvents`, `Application.DisplayAlerts`, `& ` inside loop bodies (string-concat), `CreateObject(`, `.Value` on Range expressions.
 - **Glob** — locate .bas / .cls / .frm files when the brief names a module area without an exact path.
 - **No Write or Edit under this skill alone** — writes route through `aidev-code-implementer`.
-- **No WebFetch or WebSearch** — Object Browser member-reference uncertainty emits a `PAUSE:` line only (ADR-0027 shape); the orchestrator routes to `research-docs-lookup` or to the User until that agent ships.
+- **No WebFetch or WebSearch** — Object Browser member-reference uncertainty emits a `PAUSE:` line only (ADR-0027 shape); the orchestrator dispatches `research-docs-lookup`.
 
 ## When NOT to use this skill
 
 - General test-failure investigation on any VBA procedure → `systematic-debugging`.
 - Test-first design for any VBA Sub or Function → `test-driven-development`.
 - General pre-completion verification → `verification-before-completion` (load this skill alongside it for the VBA-specific items, but `verification-before-completion` governs the overall procedure).
-- Looking up a VBA Object Browser member signature → emit `PAUSE: need research-docs-lookup for <subject> reference lookup [scheduled-annotation: agent pending future session per agent-roster.md step 13]`; the orchestrator routes this to the User until `research-docs-lookup` ships (ADR-0027).
+- Looking up a VBA Object Browser member signature → emit `PAUSE: need research-docs-lookup for <subject> reference lookup`; the orchestrator dispatches `research-docs-lookup` (ADR-0027).
 - Reviewing a VBA diff for overall correctness → `dev-vba-reviewer` [scheduled-annotation: dev-vba-reviewer pending future session (agent defined at docs/reference/agent-roster.md line 414; data-vba-diff matrix row at docs/specs/audit-pairing-matrix.md line 34)].
 - Any language other than VBA.
 - Any Power Query M language decision → `m-language-discipline`.
