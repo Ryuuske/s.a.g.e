@@ -50,6 +50,9 @@ docs/plans/
 docs/audits/
 docs/handoff/
 docs/in-flight/
+docs/agents/
+docs/aidev/
+docs/persona/
 internal/
 # Relocated to internal/ at Master Run Stage 3 (ledger Entry 006); these
 # prefixes must never re-acquire tracked files (leak-guard enforces in CI).
