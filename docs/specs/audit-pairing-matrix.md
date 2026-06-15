@@ -59,7 +59,9 @@ Agents themselves return verdicts in the `@@VERDICT BEGIN…END` format without 
 
 #### `freecad-bim-diff`
 
-Primary `freecad-model-auditor` audits model-vs-drawing fidelity (round-trip losslessness, genuine-defect vs platform-limitation classification, overengineering check on the build script). Secondary `dev-test-engineer` covers gate/script test adequacy — a lane `freecad-model-auditor`'s Step 8 (REVIEWER_DISCIPLINE overengineering check) does not occupy. Mirrors the `data-pq-diff` and `data-vba-diff` rows. ADR-0098.
+Primary `freecad-model-auditor` audits model-vs-drawing fidelity (round-trip losslessness, genuine-defect vs platform-limitation classification, overengineering check on the build script). Secondary `dev-test-engineer` covers gate/script test adequacy — a lane `freecad-model-auditor`'s Step 9 (REVIEWER_DISCIPLINE overengineering check) does not occupy. Mirrors the `data-pq-diff` and `data-vba-diff` rows. ADR-0098.
+
+As of ADR-0114, the primary `freecad-model-auditor`'s expected output now INCLUDES a grounded `@@FREECAD-VISUAL-REVIEW` block (multi-angle form-correctness gate, fail-closed). APPROVE is not available on a `freecad-bim-diff` audit without it: a missing block, any unread panel, any panel that is blank/zero-dimension/wrong-count/unreadable/occluded/ambiguous, or the absence of a render path in the brief all cap the verdict at REQUEST_CHANGES regardless of round-trip and element-count results. This annotation is descriptive; enforcement lives in the agent's gating language and orchestrator verification (ADR-0011 toolkit-not-enforcer), not in a parser.
 
 #### `arch-dim-extract-output`
 

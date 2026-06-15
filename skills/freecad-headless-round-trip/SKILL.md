@@ -97,6 +97,8 @@ element class | authoritative value (independently derived) | post-round-trip st
 
 ## Invocation rules
 
+> **REFERENCE:** Temp-cwd isolation, WSL-only %TEMP% path translation, and the fail-closed no-new-untracked-files assertion are governed by `freecad-wsl-invocation-hygiene` (single source of truth) — do NOT duplicate those rules here.
+
 **FreeCADCmd path from WSL:**
 
 ```bash
