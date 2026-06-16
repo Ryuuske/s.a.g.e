@@ -41,6 +41,7 @@ FAMILIES = [
     ("ops-", "Operations"),
     ("research-", "Research"),
     ("test-", "Test / E2E Validation"),
+    ("media-", "Media"),
 ]
 
 

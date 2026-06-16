@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "segments.schema.json",
+  "title": "Segment",
+  "description": "One transcript segment line in segments.jsonl",
+  "type": "object",
+  "required": ["id", "t_start", "t_end", "text", "no_speech_prob"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^s[0-9]{4}$",
+      "description": "Segment ID: s + 4 digits"
+    },
+    "t_start": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Start time in seconds"
+    },
+    "t_end": {
+      "type": "number",
+      "minimum": 0,
+      "description": "End time in seconds"
+    },
+    "text": {
+      "type": "string",
+      "description": "Transcribed text for this segment"
+    },
+    "no_speech_prob": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Probability that the segment contains no speech"
+    }
+  }
+}

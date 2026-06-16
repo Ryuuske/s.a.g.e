@@ -61,6 +61,10 @@ SHIP_DIRS: tuple[str, ...] = (
     # public artifact (docs/concepts/sage-persona.md) ships, via SHIP_FILES. The
     # raw sage-profile.{md,docx,txt} carry the unbuilt voice/TTS/mode-router
     # spec and stay private.
+    # The media pipeline ships whole (agents/media-*.md + skills/media-to-manual/
+    # reference scripts/media/run.py and schema/*.json; omitting this dir would
+    # ship agents pointing at non-existent scripts — ADR-0071 blocker fix).
+    "scripts/media",
 )
 
 # Individual loose / root files shipped. Missing files are skipped with a warning

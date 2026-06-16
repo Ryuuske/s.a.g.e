@@ -68,3 +68,24 @@ docs/governance/
 src/sage_mcp/estate/web/node_modules/
 src/sage_mcp/estate/web/dist/
 src/sage_mcp/estate/web/dist-demo/
+
+# Media pipeline — never commit media files or job packages
+# Job output packages live at ~/dev/media-jobs/ (outside this repo by design)
+scripts/media/__pycache__/
+scripts/media/config/__pycache__/
+scripts/media/schema/__pycache__/
+*.mp4
+*.mov
+*.mkv
+*.mp3
+*.wav
+*.m4a
+*.webm
+# Frame images (committed golden test fixtures in tests/fixtures/ are the exception;
+# those are small text files, not actual .jpg media)
+# Do NOT add tests/fixtures/ here — golden text fixtures must be committed.
+frames/
+audio/
+transcript/raw.json
+# media venv (setup.sh creates ~/.venvs/media outside the repo)
+.venvs/

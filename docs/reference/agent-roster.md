@@ -23,7 +23,8 @@ classification, shareability principle) lives at
 | Operations | `ops-` | 2 |
 | Research | `research-` | 2 |
 | Test / E2E Validation | `test-` | 5 |
-| **Total** | — | **94** |
+| Media | `media-` | 4 |
+| **Total** | — | **98** |
 
 ## Family: AI Development
 
@@ -518,4 +519,26 @@ classification, shareability principle) lives at
 
 - **Description**: Use to build and PROVE an isolated sandbox for a S.A.G.E. end-to-end run, and to tear it down with proof the real environment is untouched. The only crew agent that constructs the jail (throwaway HOME, redirected CLAUDE_DIR/SAGE_NOOK_PATH/CLAUDE_CONFIG_DIR, fresh venv, crontab shim). Triggers: pre-install sandbox build, isolation proof gate, post-run teardown + real-state diff. Do not use to run install.sh (test-install-verifier), to mine/search the nook (test-nook-operator), or to assemble the report (test-evidence-reporter).
 - **Model**: sonnet · **Tools**: Bash, Read, Write
+
+## Family: Media
+
+### `media-indexer`
+
+- **Description**: Use to refine chapter boundaries, titles, summaries, and keywords — writing both index.md and manifest.json chapters[] (that array only) in one consistency-checked pass. The two files must agree; divergence is a blocking self-finding. Never re-runs the pipeline, touches segments[]/frames[]/job/stages, corrects transcript text, or authors documents. Do not use for pipeline re-run (→ media-transcriber), transcript correction (→ media-proofreader), manual authoring (→ media-manual-author), or sheet sets / doc-lifecycle (→ arch-documenter / doc-keeper).
+- **Model**: opus · **Tools**: Read, Write, Edit, Bash, Grep, Glob
+
+### `media-manual-author`
+
+- **Description**: Use to compose a quick-reference guide or full step-by-step manual from a media job package. Reads index.md first, matches chapter(s), loads only those segment ranges and frame_ids, reads the actual frame images, then renders via pandoc or the docgen toolkit (~/.venvs/docgen) to output/. Cites timecodes per step. Never re-processes media, edits transcript or index, or re-runs the pipeline. Do not use for pipeline re-run (→ media-transcriber), transcript correction (→ media-proofreader), chapter boundary/title refinement (→ media-indexer), or architectural sheet sets (→ arch-documenter).
+- **Model**: opus · **Tools**: Read, Write, Bash, Grep, Glob
+
+### `media-proofreader`
+
+- **Description**: Use to proofread a completed transcript — reading transcript/segments.jsonl and writing corrected text to transcript/proofed.md plus an append-only correction log at transcript/corrections.md. Handles mishears, product-name variants, and acronym normalization; flags uncertain terms. Never touches segments.jsonl, chapters, index.md, or any output document. Do not use for re-transcription or pipeline re-run (→ media-transcriber), chapter boundary/title refinement (→ media-indexer), manual authoring (→ media-manual-author), or verifying whether a claim is factually true (→ research-fact-checker).
+- **Model**: opus · **Tools**: Read, Write, Edit, Grep, Glob
+
+### `media-transcriber`
+
+- **Description**: Use to run the media pipeline via scripts/media/run.py through six stages (probe, audio, transcribe, frames, manifest, index) after a doctor preflight, verifying each stage non-empty, schema-valid output, every frame_id is on disk, every chapter frame_id/segment_id resolves to a top-level frames[]/segments[] entry, and index.md covers full duration. Never edits scripts or output. Do not use for transcript correction (→ media-proofreader), chapter title/boundary refinement (→ media-indexer), manual authoring (→ media-manual-author), or editing pipeline scripts (→ aidev-code-implementer).
+- **Model**: sonnet · **Tools**: Read, Bash, Grep, Glob
 

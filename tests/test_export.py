@@ -7,7 +7,10 @@ build on any operator PII / stale-vocab token.
 
 from __future__ import annotations
 
+import re
+import shutil
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -402,3 +405,231 @@ def test_export_excludes_zone_identifier(tmp_path):
     dest = tmp_path / "out"
     exp.export(repo, dest, out=lambda m: None)
     assert not (dest / "agents" / "x.md:Zone.Identifier").exists()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Script-reference integrity guard (ADR-0071 blocker fix).
+# Agents and skills may reference scripts/... paths; every such referenced
+# path must resolve within the shipped surface.  A future agent added that
+# points at an unshipped script becomes a red test here, not a broken release.
+# ─────────────────────────────────────────────────────────────────────────────
+
+_SCRIPT_REF_RE = re.compile(r"scripts/[A-Za-z0-9_./-]+")
+
+
+def _dangling_script_refs(dest: Path, shipped: list[str]) -> list[tuple[str, str]]:
+    """Return (agent/skill relative path, referenced script path) for every
+    scripts/... reference in shipped agents/ and skills/ files that does NOT
+    resolve to a shipped path (exact file match or a directory prefix match).
+
+    A reference like ``scripts/media/run.py`` must appear verbatim in
+    *shipped*.  A reference like ``scripts/media`` (a dir) passes if any
+    shipped path begins with ``scripts/media/``.
+
+    Three categories are excluded from the check because they produce
+    false positives against legitimate documentation content:
+
+    1. **Embedded-path references** — when the character immediately before
+       the ``scripts/`` token is ``/``, the match is part of a longer path
+       (e.g. ``hooks/scripts/stop.py``, ``$ROOT/scripts/foo.mjs``).  These
+       point into a different directory tree, not the framework root.
+
+    2. **WHERE-clause examples** — lines containing ``WHERE:`` are example
+       output fragments, not operational invocations.  A ``scripts/X.py``
+       that appears only in a WHERE example is documentation, not a ship
+       dependency.
+
+    3. **Bare-word category nouns** — a match of the form ``scripts/X``
+       (exactly one component after ``scripts/``, no file extension) with no
+       shipped descendants is treated as a prose category noun
+       (e.g. ``scripts/tools``) rather than a file reference.
+    """
+    shipped_set = set(shipped)
+    dangling = []
+    for subdir in ("agents", "skills"):
+        base = dest / subdir
+        if not base.is_dir():
+            continue
+        for fpath in sorted(base.rglob("*")):
+            if not fpath.is_file():
+                continue
+            try:
+                text = fpath.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            rel_file = str(fpath.relative_to(dest))
+            for line in text.splitlines():
+                # Exclude WHERE-clause example lines (rule 2).
+                if "WHERE:" in line:
+                    continue
+                for m in _SCRIPT_REF_RE.finditer(line):
+                    # Exclude embedded-path references (rule 1).
+                    start = m.start()
+                    if start > 0 and line[start - 1] == "/":
+                        continue
+                    ref = m.group().rstrip("/.,)`'\"")
+                    # Exclude bare-word category nouns (rule 3): ``scripts/X``
+                    # with no file extension and no shipped descendants.
+                    parts_after_scripts = ref[len("scripts/") :].split("/")
+                    is_single_bare_word = (
+                        len(parts_after_scripts) == 1 and "." not in parts_after_scripts[0]
+                    )
+                    if is_single_bare_word:
+                        prefix = ref + "/"
+                        if not any(s.startswith(prefix) for s in shipped_set):
+                            continue
+                    # Exact file match in shipped.
+                    if ref in shipped_set:
+                        continue
+                    # Directory prefix: any shipped path descends from ref/.
+                    prefix = ref.rstrip("/") + "/"
+                    if any(s.startswith(prefix) for s in shipped_set):
+                        continue
+                    dangling.append((rel_file, ref))
+    return dangling
+
+
+def test_agent_script_refs_resolve_to_shipped_fixture(tmp_path):
+    """Guard: an agent referencing a scripts/... path that is NOT in the
+    shipped surface is detected.  When the referenced dir IS shipped the
+    check passes.  This makes a future agent pointing at an unshipped script
+    a red test instead of a broken release."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _make_repo(repo)
+
+    # Add an agent that references a scripts/pipeline/ path.
+    (repo / "agents" / "pipeline-runner.md").write_text(
+        "Run via scripts/pipeline/run.py end-to-end.\n"
+    )
+
+    # ── Case 1: scripts/pipeline/ NOT shipped → dangling ref detected. ──
+    dest1 = tmp_path / "out1"
+    shipped1 = exp.export(repo, dest1, run_pii_gate=False, init_git=False, out=lambda m: None)
+    dangling1 = _dangling_script_refs(dest1, shipped1)
+    assert any(ref == "scripts/pipeline/run.py" for _, ref in dangling1), (
+        "expected dangling ref to scripts/pipeline/run.py when the dir is not shipped"
+    )
+
+    # ── Case 2: scripts/pipeline/ shipped → no dangling refs. ──
+    (repo / "scripts" / "pipeline").mkdir(parents=True)
+    (repo / "scripts" / "pipeline" / "run.py").write_text("# runner\n")
+    dest2 = tmp_path / "out2"
+    # Export with run_pii_gate=False so the fixture stays minimal; in
+    # production SHIP_DIRS controls what ships.  For this fixture test we
+    # check that the helper recognises the shipped file as satisfying the ref.
+    # We manually add the path to the shipped list to simulate it being in
+    # SHIP_DIRS (the real SHIP_DIRS is validated by the real-repo test below).
+    shipped2 = list(shipped1) + ["scripts/pipeline/run.py"]
+    # Also materialise the file in dest2 so rglob can find agents/.
+    shutil.copytree(dest1, dest2, dirs_exist_ok=True)
+    dangling2 = _dangling_script_refs(dest2, shipped2)
+    assert not any(ref == "scripts/pipeline/run.py" for _, ref in dangling2), (
+        "expected no dangling ref when scripts/pipeline/run.py is in the shipped surface"
+    )
+
+
+def test_dangling_script_refs_excludes_where_lines(tmp_path):
+    """Rule 2 (WHERE: exclusion): a scripts/ reference that appears ONLY on a
+    WHERE: line must not be flagged — WHERE: lines are example output fragments,
+    not operational invocations."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _make_repo(repo)
+    # The ONLY reference to scripts/nonexistent.py is on a WHERE: line.
+    (repo / "agents" / "example-agent.md").write_text(
+        "# example-agent\n"
+        "Run the tool and note the output:\n"
+        "WHERE: scripts/nonexistent.py :: main()\n"
+    )
+    dest = tmp_path / "out"
+    shipped = exp.export(repo, dest, run_pii_gate=False, init_git=False, out=lambda m: None)
+    dangling = _dangling_script_refs(dest, shipped)
+    assert not any(ref == "scripts/nonexistent.py" for _, ref in dangling), (
+        "WHERE: example line must not be flagged as a dangling script ref"
+    )
+
+
+def test_dangling_script_refs_excludes_embedded_paths(tmp_path):
+    """Rule 1 (embedded-path exclusion): a scripts/ token preceded by '/' is
+    part of a longer path (e.g. hooks/scripts/stop.py) and must not be flagged."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _make_repo(repo)
+    # The reference is hooks/scripts/stop.py — char before 'scripts/' is '/'.
+    (repo / "skills" / "example-skill.md").write_text(
+        "# example-skill\nThe hook lives at hooks/scripts/stop.py on the host machine.\n"
+    )
+    dest = tmp_path / "out"
+    shipped = exp.export(repo, dest, run_pii_gate=False, init_git=False, out=lambda m: None)
+    dangling = _dangling_script_refs(dest, shipped)
+    assert not any("scripts/stop.py" in ref for _, ref in dangling), (
+        "embedded path hooks/scripts/stop.py must not be flagged as a dangling ref"
+    )
+
+
+def test_dangling_script_refs_suppresses_bare_word_category_nouns(tmp_path):
+    """Rule 3 (bare-word suppression — known intentional blind spot): a reference
+    of the form ``scripts/X`` with a single bare component and no file extension
+    is treated as a prose category noun (e.g. ``scripts/tools``) rather than a
+    file reference, and is NOT reported even when no shipped descendant exists.
+
+    Intentional blind spot: a future author who adds a script at
+    ``scripts/setup`` (no extension) and documents it as ``scripts/setup`` in an
+    agent will NOT get a guard failure.  Use an extension (``scripts/setup.py``)
+    or a nested path (``scripts/setup/run.py``) to be protected by the guard.
+    """
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _make_repo(repo)
+    # Bare single-component reference with no extension and no shipped descendant.
+    (repo / "agents" / "setup-agent.md").write_text(
+        "# setup-agent\nAll bootstrap utilities live under scripts/setup.\n"
+    )
+    dest = tmp_path / "out"
+    shipped = exp.export(repo, dest, run_pii_gate=False, init_git=False, out=lambda m: None)
+    dangling = _dangling_script_refs(dest, shipped)
+    assert not any(ref == "scripts/setup" for _, ref in dangling), (
+        "bare-word category noun scripts/setup must not be flagged (known blind spot)"
+    )
+
+
+def test_dangling_script_refs_mixed_line_only_non_where_flagged(tmp_path):
+    """Mixed-line test: one genuine dangling ``scripts/foo/bar.py`` ref on a
+    normal line AND a separate WHERE: line with a dangling ref → only the
+    non-WHERE line is reported."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _make_repo(repo)
+    (repo / "agents" / "mixed-agent.md").write_text(
+        "# mixed-agent\n"
+        "Invoke scripts/foo/bar.py to run the job.\n"
+        "WHERE: scripts/only/in/where.py :: do_job()\n"
+    )
+    dest = tmp_path / "out"
+    shipped = exp.export(repo, dest, run_pii_gate=False, init_git=False, out=lambda m: None)
+    dangling = _dangling_script_refs(dest, shipped)
+    refs = [ref for _, ref in dangling if "mixed-agent" in _]
+    assert "scripts/foo/bar.py" in refs, "genuine dangling ref scripts/foo/bar.py must be reported"
+    assert "scripts/only/in/where.py" not in refs, (
+        "WHERE: example scripts/only/in/where.py must not be reported"
+    )
+
+
+def test_agent_script_refs_resolve_to_shipped_real_repo(tmp_path):
+    """Release gate: every scripts/... reference in the real repo's shipped
+    agents/ and skills/ resolves to a path in the shipped surface.
+
+    This test would have been RED when scripts/media/ was absent from
+    SHIP_DIRS (agents/media-*.md reference scripts/media/run.py).  Keeping
+    it green requires SHIP_DIRS / SHIP_FILES to cover every script the agents
+    actually invoke.
+    """
+    repo_root = Path(__file__).resolve().parents[1]
+    dest = tmp_path / "real-export"
+    shipped = exp.export(repo_root, dest, run_pii_gate=True, init_git=False, out=lambda m: None)
+    dangling = _dangling_script_refs(dest, shipped)
+    assert dangling == [], (
+        "shipped agents/skills reference scripts not in the ship surface:\n"
+        + "\n".join(f"  {f}: {r}" for f, r in dangling)
+    )

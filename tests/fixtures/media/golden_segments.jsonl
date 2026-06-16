@@ -1,0 +1,4 @@
+{"id":"s0001","t_start":0.0,"t_end":4.5,"text":"Welcome to the QuickBooks tutorial.","no_speech_prob":0.01}
+{"id":"s0002","t_start":4.5,"t_end":9.2,"text":"Open the chart of accounts.","no_speech_prob":0.02}
+{"id":"s0003","t_start":9.2,"t_end":15.8,"text":"Click on the accounts tab to see all entries.","no_speech_prob":0.03}
+{"id":"s0004","t_start":15.8,"t_end":22.0,"text":"You can navigate to any account by selecting it here.","no_speech_prob":0.01}
