@@ -80,10 +80,20 @@ def requires_entries(text: str) -> list[dict[str, str]]:
     the raw YAML block and parses it with ``yaml.safe_load`` when available,
     falling back to [] (no entries surfaced) when PyYAML is absent.
     """
-    if _yaml is None:
-        return []
     block = _frontmatter_block(text)
     if not block:
+        return []
+    if _yaml is None:
+        # Only a problem if this agent actually declares `requires`. Silently
+        # returning [] would drop real dependency rows and yield a false-clean
+        # regen-diff (the doc-gates CI step runs this without installing deps).
+        # Fail loudly so a missing parser surfaces instead of corrupting the registry.
+        if re.search(r"^\s*requires\s*:", block, re.MULTILINE):
+            raise RuntimeError(
+                "gen_docs: a `requires:` field is present but PyYAML is unavailable; "
+                "cannot parse it. Install pyyaml (e.g. `pip install pyyaml`) before "
+                "regenerating agent-dependencies.md."
+            )
         return []
     try:
         data = _yaml.safe_load(block)
