@@ -1,0 +1,43 @@
+# Media pipeline defaults
+# All values are overridable via CLI flags or a job-level config.yaml.
+
+pipeline_version: "1.0"
+
+audio:
+  sample_rate: 16000       # Hz — 16kHz mono is faster-whisper's native rate
+  channels: 1              # mono
+  normalize: true          # ffmpeg loudnorm filter
+
+transcription:
+  model: "base"            # faster-whisper model size: tiny, base, small, medium, large-v2
+  compute_type: "int8"     # CPU-friendly quantisation: int8, float16, float32
+  language: null           # null = auto-detect
+  word_timestamps: true
+  no_speech_threshold: 0.6 # flag segments above this as likely silence/music
+
+frames:
+  scene_threshold: 30.0    # PySceneDetect ContentDetector threshold (0–100)
+  fallback_interval_sec: 30 # interval frame every N seconds where no scene frame exists
+  phash_distance: 8        # max pHash hamming distance to consider "near-duplicate"
+  min_frame_height: 100    # reject frames shorter than this (blank/black guard)
+  jpeg_quality: 90         # JPEG quality for saved frames
+
+chapters:
+  target_count: 8          # target chapter count for auto-segmentation
+  min_duration_sec: 20     # minimum chapter duration
+  max_title_words: 6       # max words in a generated chapter title
+
+index:
+  max_summary_sentences: 2 # max sentences in a chapter summary
+
+ui_cue_keywords:
+  - "click"
+  - "open"
+  - "select"
+  - "now you'll see"
+  - "navigate"
+  - "go to"
+  - "type"
+  - "enter"
+  - "press"
+  - "choose"

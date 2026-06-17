@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "manifest.schema.json",
+  "title": "Manifest",
+  "description": "Machine-readable join document for a media-ingestion job package",
+  "type": "object",
+  "required": ["job", "stages", "segments", "frames", "chapters"],
+  "additionalProperties": false,
+  "properties": {
+    "job": {
+      "type": "object",
+      "required": [
+        "slug", "source_file", "source_type", "duration_sec",
+        "language", "media_sha256", "pipeline_version", "created_utc"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "slug":             {"type": "string"},
+        "source_file":      {"type": "string"},
+        "source_type":      {"type": "string", "enum": ["video", "audio"]},
+        "duration_sec":     {"type": "number", "minimum": 0},
+        "language":         {"type": "string"},
+        "media_sha256":     {"type": "string"},
+        "pipeline_version": {"type": "string"},
+        "created_utc":      {"type": "string"}
+      }
+    },
+    "stages": {
+      "type": "object",
+      "required": ["probe", "audio", "transcribe", "frames", "manifest", "index"],
+      "additionalProperties": false,
+      "properties": {
+        "probe":     {"type": "string", "enum": ["done", "pending", "skipped"]},
+        "audio":     {"type": "string", "enum": ["done", "pending", "skipped"]},
+        "transcribe":{"type": "string", "enum": ["done", "pending", "skipped"]},
+        "frames":    {"type": "string", "enum": ["done", "pending", "skipped"]},
+        "manifest":  {"type": "string", "enum": ["done", "pending", "skipped"]},
+        "index":     {"type": "string", "enum": ["done", "pending", "skipped"]},
+        "proofed":   {"type": "string", "enum": ["done", "pending", "skipped"]}
+      }
+    },
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "t_start", "t_end", "text", "frame_ids"],
+        "additionalProperties": false,
+        "properties": {
+          "id":            {"type": "string", "pattern": "^s[0-9]{4}$"},
+          "t_start":       {"type": "number", "minimum": 0},
+          "t_end":         {"type": "number", "minimum": 0},
+          "text":          {"type": "string"},
+          "no_speech_prob":{"type": "number", "minimum": 0, "maximum": 1},
+          "frame_ids":     {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "frames": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "t", "path", "reason", "phash"],
+        "additionalProperties": false,
+        "properties": {
+          "id":     {"type": "string", "pattern": "^f[0-9]{6}$"},
+          "t":      {"type": "number", "minimum": 0},
+          "path":   {"type": "string"},
+          "reason": {"type": "string", "enum": ["scene-change", "topic-midpoint", "ui-cue", "interval"]},
+          "phash":  {"type": "string"}
+        }
+      }
+    },
+    "chapters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "t_start", "t_end", "summary", "keywords", "segment_ids", "frame_ids"],
+        "additionalProperties": false,
+        "properties": {
+          "id":          {"type": "string", "pattern": "^c[0-9]{2}$"},
+          "title":       {"type": "string"},
+          "t_start":     {"type": "number", "minimum": 0},
+          "t_end":       {"type": "number", "minimum": 0},
+          "summary":     {"type": "string"},
+          "keywords":    {"type": "array", "items": {"type": "string"}},
+          "segment_ids": {"type": "array", "items": {"type": "string"}},
+          "frame_ids":   {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}
