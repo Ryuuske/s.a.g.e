@@ -81,7 +81,7 @@ chroma = "sage.backends.chroma:ChromaBackend"
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
-    "ruff==0.15.16",
+    "ruff==0.15.17",
     "psutil>=5.9",
     # Property-based testing — generates hundreds of random inputs per
     # test to find counterexamples the hand-written positive tests miss.
@@ -115,6 +115,19 @@ coreml = ["onnxruntime>=1.16"]
 # Multilingual extra kept as a no-op alias for back-compat with the
 # `[multilingual]` extra — these deps now ship in core.
 multilingual = []
+# Media ingestion pipeline — screen recordings, training videos, calls.
+# Install via setup.sh into a dedicated venv (NOT added to core install):
+#   bash scripts/media/setup.sh
+# Or manually: pip install "s.a.g.e-mcp[media]"
+# Core S.A.G.E. install (uv sync --extra dev) resolves zero of these deps.
+media = [
+    "faster-whisper>=1.0",
+    "scenedetect[opencv]>=0.6",
+    "Pillow>=10.0",
+    "imagehash>=4.3",
+    "pyyaml>=6.0",
+    "jsonschema>=4.0",
+]
 # Binary-format extraction for `sage mine --mode extract`. Per-format
 # transformer routing: striprtf for .rtf, MarkItDown for .pdf/.docx/.pptx/
 # .xlsx/.epub. MarkItDown requires Python ≥ 3.10 — satisfied everywhere at
@@ -135,7 +148,7 @@ extract = [
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
-    "ruff==0.15.16",
+    "ruff==0.15.17",
     "psutil>=5.9",
     "hypothesis>=6.0",
     "pre-commit>=3.0",

@@ -56,6 +56,8 @@ Agents themselves return verdicts in the `@@VERDICT BEGIN…END` format without 
 | `arch-sheet-set-output` | Issued sheet-set PDF deliverable from arch-documenter | `arch-documenter` | `doc-keeper` | — | parallel |
 | `arch-concept-options-output` | Concept/schematic massing-and-layout options document from arch-concept-designer (read-only, drives a client choice; chosen concept developed downstream by freecad-architect) | `arch-concept-designer` | — | — | solo (note: downstream freecad-bim-diff is the build gate for the chosen concept) |
 | `arch-render-output` | 3D/photoreal render set + manifest deliverable from arch-visualizer | `arch-visualizer` | `doc-keeper` | — | parallel (note: doc-keeper scoped to the render-manifest completeness/format only; render image quality is self-passed by arch-visualizer's empty/black + completeness discipline) |
+| `media-job-output` | Internal job-package artifacts produced and self-passed by the producing media agent (transcriber → job package; proofreader → proofed.md/corrections.md; indexer → index.md + manifest.chapters[]) | *(producing agent self-pass)* | — | — | solo |
+| `media-manual-output` | Client-facing rendered quick-reference guide or manual from media-manual-author | `media-manual-author` *(self-pass)* | `doc-keeper` *(scoped to format/timecode-citation coverage/frame-embedding completeness only — not content judgment)* | — | parallel |
 
 #### `freecad-bim-diff`
 
@@ -90,6 +92,14 @@ Solo `arch-concept-designer` self-pass. The concept-options document drives a cl
 #### `arch-render-output`
 
 `arch-visualizer` self-pass + `doc-keeper` secondary (parallel). The render deliverable is client-facing with no downstream build gate. Render image quality (empty/black-render check, completeness discipline) is self-passed by `arch-visualizer` before delivery; `doc-keeper` is scoped strictly to the render-manifest completeness and format — NOT to image aesthetics or render parameters. Extends ADR-0110 Option C's client-deliverable pattern (established for `arch-sheet-set-output`) to the render deliverable. ADR-0113.
+
+#### `media-job-output`
+
+Solo producing-agent self-pass. Each producing media agent self-passes its own output artifacts: `media-transcriber` self-passes the job package (manifest.json, segments.jsonl, index.md, frames/); `media-proofreader` self-passes proofed.md/corrections.md; `media-indexer` self-passes the refined index.md and manifest.chapters[]. The `auditor_primary` column names the producing agent generically — the orchestrator substitutes the actual producing agent for the job in question. The downstream `media-manual-author` composition step is the functional gate for the indexed and proofed content — adding a second auditor at the job-artifact stage would double-audit content the composition step already validates. Follows ADR-0110 Option C's solo-self-pass pattern for read-only / internally-consumed artifacts. ADR-0117.
+
+#### `media-manual-output`
+
+`media-manual-author` self-pass + `doc-keeper` secondary (parallel). The rendered quick-reference guide or manual is a client-facing deliverable with no downstream build gate. `doc-keeper` is scoped strictly to deliverable format, timecode-citation presence on every step, and frame-embedding completeness — NOT to narrative accuracy, transcript correctness, or content judgment. Follows ADR-0110 Option C's client-deliverable pattern (established for `arch-sheet-set-output`) and the `arch-render-output` shape (ADR-0113). ADR-0117.
 
 ### Adding a new row
 
