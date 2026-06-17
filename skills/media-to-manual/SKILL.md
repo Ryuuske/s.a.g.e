@@ -81,7 +81,7 @@ Decision rule: if the matched chapter(s) cover the topic, load only their segmen
 1. **Read `index.md` only** — identify chapters, timecode ranges, keywords.
 2. **Match topic** to chapter(s) via title/summary/keywords. Use the topic-match CoT chain (media-manual-author injection point): `topic → matched chapter id(s) → segment-range + frame_id set to load`.
 3. **Load only matched chapters'** segment ranges from `segments.jsonl` + their `frame_ids` from `manifest.json`. Full transcript only if topic spans most content.
-4. **Read actual frame images** for those IDs. Prefer `scene-change` / `ui-change` frames over `interval` frames. Use the frame-selection CoT chain: `action step → candidate frame_ids → chosen frame (reason)`.
+4. **Read actual frame images** for those IDs. Prefer `scene-change` / `ui-cue` frames over `interval` frames. Use the frame-selection CoT chain: `action step → candidate frame_ids → chosen frame (reason)`.
 5. **Compose** — quick-ref: condensed steps + key frames; full manual: numbered steps, one screenshot per meaningful action, narrative from proofed.md (timecoded headers, segment IDs).
 6. **Render** to requested format via pandoc / `~/.venvs/docgen`.
 7. **Cite timecodes** throughout. Every output references the timecode it draws from.
@@ -101,7 +101,7 @@ All job packages are at `~/dev/media-jobs/<slug>/`, outside the framework repo. 
 - **Whole-transcript default load.** When the topic maps to 1–2 chapters, loading the full transcript wastes context and violates the read-index-first design rule. Always check index.md first.
 - **Fabricating a timecode or frame_id.** Citing a frame_id or timecode not present in manifest.json, or referencing a frame file absent on disk, violates the no-fabrication rule (CLAUDE.md §4). Every citation is verified against the manifest.
 - **Time-folders instead of type-folders.** Organizing frames or transcript by time rather than by type makes the timecode join ambiguous. Use the canonical folder structure.
-- **Interval frames over scene/ui when alternatives exist.** Interval frames are fallback only. Always prefer `scene-change` or `ui-change` frames when they are available in the manifest.
+- **Interval frames over scene/ui when alternatives exist.** Interval frames are fallback only. Always prefer `scene-change` or `ui-cue` frames when they are available in the manifest.
 - **Silent proofread edits.** Every correction to proofed.md must be logged in corrections.md with timecode + reason-code. Editing without logging breaks the audit trail.
 - **Reimplementing pipeline logic in an agent.** Deterministic work (audio extraction, transcription, frame extraction, manifest/index generation) belongs in scripts/media/. Agents invoke those scripts; they do not reimplement them.
 - **Committing ~/dev/media-jobs/ content.** Job packages are local-only. A commit that includes media artifacts or job-package output is a publication-gate violation.

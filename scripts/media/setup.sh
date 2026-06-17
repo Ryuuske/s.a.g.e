@@ -17,14 +17,13 @@ set -euo pipefail
 VENV_DIR="${HOME}/.venvs/media"
 PYTHON="${PYTHON:-python3}"
 
-REQUIRED_PACKAGES=(
-    "faster-whisper"
-    "scenedetect[opencv]"
-    "Pillow"
-    "imagehash"
-    "pyyaml"
-    "jsonschema"
-)
+# Dependencies install from a hash-locked lockfile (pinned versions + sha256
+# hashes) — no floating-latest resolution. Top-level pins live in
+# requirements-media.in; regenerate the lock with:
+#   uv pip compile scripts/media/requirements-media.in --generate-hashes \
+#     -o scripts/media/requirements-media.txt
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REQ_FILE="$SCRIPT_DIR/requirements-media.txt"
 
 VERIFY_IMPORTS=(
     "faster_whisper"
@@ -69,8 +68,13 @@ fi
 # Install / re-install packages
 echo ""
 echo "  Installing packages (this may take several minutes on first run)..."
+if [[ ! -f "$REQ_FILE" ]]; then
+    echo "setup.sh: ERROR — lockfile not found: $REQ_FILE" >&2
+    exit 1
+fi
 "$VENV_DIR/bin/pip" install --upgrade pip --quiet
-"$VENV_DIR/bin/pip" install "${REQUIRED_PACKAGES[@]}" --quiet
+# --require-hashes: every package is pinned + hash-verified (no floating latest).
+"$VENV_DIR/bin/pip" install --require-hashes -r "$REQ_FILE" --quiet
 
 echo ""
 echo "  Verifying imports..."

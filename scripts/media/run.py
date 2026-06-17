@@ -176,15 +176,29 @@ def main() -> None:
     # Load stage markers
     stage_status = load_stages(job_dir)
 
-    # Force-reset a stage if requested
+    # Force-reset a stage AND every downstream stage: re-running an upstream
+    # stage invalidates the outputs of all stages that depend on it (e.g.
+    # forcing `transcribe` makes the existing frames/manifest/index stale, so
+    # they must re-run, not SKIP on their still-`done` markers).
     if args.force_stage:
-        stage_status[args.force_stage] = "pending"
-        # Save the cleared marker before we start
+        if args.force_stage not in STAGES:
+            print(
+                f"run: FATAL — unknown stage {args.force_stage!r}; "
+                f"valid: {', '.join(STAGES)}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        cascade = STAGES[STAGES.index(args.force_stage):]
+        for st in cascade:
+            stage_status[st] = "pending"
+        # Persist the cleared markers before we start
         manifest_path = job_dir / "manifest.json"
         if manifest_path.exists():
             with manifest_path.open() as fh:
                 manifest = json.load(fh)
-            manifest.setdefault("stages", {})[args.force_stage] = "pending"
+            stages_block = manifest.setdefault("stages", {})
+            for st in cascade:
+                stages_block[st] = "pending"
             with manifest_path.open("w") as fh:
                 json.dump(manifest, fh, indent=2)
 

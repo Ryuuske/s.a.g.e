@@ -97,11 +97,12 @@ is not a success criterion — verify content.
   `text`. Flag if mean `no_speech_prob` is high (silent or music-only recording).
 - **frames/**: file count > 0 (use `ls -1 <package-root>/frames/ | wc -l`); at least one
   `.jpg` file present.
-- **manifest.json**: file exists and is non-empty; every `frame_id` referenced in
-  `segments` or `chapters` resolves to a file on disk.
-- **index.md**: file exists; chapter set covers full duration (t_end of last chapter ≥
-  manifest job duration_sec); no obvious gap (a gap > 10 s between consecutive chapters
-  is a finding).
+- **manifest.json**: file exists and is non-empty; every `frame_id` in `manifest.json`
+  (the `frames` list and each chapter's frame IDs) resolves to a file on disk. Frame IDs
+  live in the manifest, not in `segments.jsonl` — the manifest is the timecode join.
+- **index.md**: file exists; the last chapter's `t_end` reaches the recording duration
+  (`manifest` job `duration_sec`) — a coarse "covers the recording" check. Strict
+  gap/overlap coverage is `media-indexer`'s lane, not this sanity pass.
 
 A single failing check is a finding in the `@@MEDIA-PIPELINE` block; stop and surface it
 before claiming the package is ready.

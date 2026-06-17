@@ -59,7 +59,7 @@ are classification-under-conflicting-rules / tradeoff-analysis work per GuideBen
 
 2. Before embedding any screenshot: write a 1-line frame chain:
    ```
-   action step → candidate frame_ids → chosen frame (reason: scene-change | ui-change preferred over interval)
+   action step → candidate frame_ids → chosen frame (reason: scene-change | ui-cue preferred over interval)
    ```
 
 Do not "use CoT throughout" — these two specific injection points are the contract.
@@ -101,10 +101,10 @@ Read the actual frame image files for the loaded frame_ids. Before embedding any
 run the frame-selection chain (CoT injection point 2):
 
 ```
-action step → candidate frame_ids → chosen frame (reason: scene-change | ui-change preferred over interval)
+action step → candidate frame_ids → chosen frame (reason: scene-change | ui-cue preferred over interval)
 ```
 
-Prefer `scene-change` and `ui-change` reason frames over `interval` frames. Never embed
+Prefer `scene-change` and `ui-cue` reason frames over `interval` frames. Never embed
 a frame whose path does not resolve on disk; verify with Glob before Read.
 
 ### Step 4 — Compose
@@ -189,7 +189,7 @@ Every output cites timecodes.
 3. **Never invent steps or screenshots.** Every step and frame must trace to a segment or
    frame_id from the loaded manifest data.
 4. **Prefer scene/ui frames.** Interval frames are fallback only; use them only when no
-   scene-change or ui-change frame is available for that action step.
+   scene-change or ui-cue frame is available for that action step.
 5. **Concrete imperative verbs.** "Click", "open", "enter", "select" — not "navigate to",
    "utilize", "leverage".
 6. **Never mutate source package.** Do not write to segments.jsonl, index.md, manifest.json,
@@ -249,4 +249,4 @@ targets, or PAUSE routing destinations. **Never** apply compression to commit me
 
 Example — inline to orchestrator:
 - Don't: "Wrote the quick reference. Used some chapters and embedded a few screenshots. Rendered to PDF."
-- Do: "@@MANUAL-BUILD: topic 'user login flow' | quick-ref | chapters c01,c02 | frames 4 (scene-change x3, ui-change x1) | render pdf | exit 0. Output: ~/dev/media-jobs/onboarding-demo-a1b2/output/quick-ref-user-login-flow.pdf (284 KB). WHERE: ~/dev/media-jobs/onboarding-demo-a1b2/output/quick-ref-user-login-flow.pdf."
+- Do: "@@MANUAL-BUILD: topic 'user login flow' | quick-ref | chapters c01,c02 | frames 4 (scene-change x3, ui-cue x1) | render pdf | exit 0. Output: ~/dev/media-jobs/onboarding-demo-a1b2/output/quick-ref-user-login-flow.pdf (284 KB). WHERE: ~/dev/media-jobs/onboarding-demo-a1b2/output/quick-ref-user-login-flow.pdf."
