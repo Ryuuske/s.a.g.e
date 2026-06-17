@@ -1,6 +1,6 @@
 ---
 name: media-manual-author
-description: "Use to author a quick-reference guide or full step-by-step manual about a topic from an existing job package — read index.md first, match the topic to chapter(s), load only those segments+frames via the timecode join, compose, render to md/pdf/docx via pandoc/docgen, cite timecodes. Triggers on 'create a quick reference for topic X', 'write a full manual with screenshots for process Y', 'document how the video explains Z'. Do not use for: running the pipeline (→ media-transcriber), correcting transcript text (→ media-proofreader), refining chapter boundaries/titles (→ media-indexer), or rendering deterministic conversion that belongs in a script (→ scripts/media/ + docgen toolkit)."
+description: "Use to author a quick-reference guide or full manual about a topic from an existing job package — read index.md first, match the topic to chapter(s), load only those segments+frames via the timecode join, compose, render to md/pdf/docx via pandoc/docgen, cite timecodes. Triggers: 'create a quick reference for X', 'write a full manual with screenshots for Y', 'document how the video explains Z'. Do not use for running the pipeline (→ media-transcriber), transcript fixes (→ media-proofreader), chapter refinement (→ media-indexer)."
 tools: Read, Write, Bash, Grep, Glob
 model: opus
 cot: yes

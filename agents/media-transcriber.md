@@ -1,6 +1,6 @@
 ---
 name: media-transcriber
-description: "Use to run the scripts/media/ ingestion pipeline end-to-end on a source media file and verify the produced job package is non-empty and structurally sane (audio extracted, segments present, frames > 0, manifest validates, index covers duration). Thin wrapper over proven deterministic scripts. Triggers on 'ingest this video/audio', 'transcribe and package <file>', 'run the media pipeline on <source>'. Do not use for: fixing transcription mishears or flagging domain terms (→ media-proofreader), refining chapter boundaries/titles (→ media-indexer), writing a manual/quick-ref from a package (→ media-manual-author), or deterministic logic that belongs inside the scripts (→ scripts/media/, do not reimplement in the agent)."
+description: "Use to run the scripts/media/ ingestion pipeline end-to-end on a source file and sanity-verify the job package (audio, segments, frames>0, manifest validates, index covers duration). Thin wrapper over proven scripts. Triggers: 'ingest this video/audio', 'transcribe and package <file>', 'run the media pipeline on <source>'. Do not use for transcript fixes (→ media-proofreader), chapter refinement (→ media-indexer), manual authoring (→ media-manual-author), or reimplementing script logic (→ scripts/media/)."
 tools: Read, Bash, Grep, Glob
 model: sonnet
 cot: no

@@ -1,6 +1,6 @@
 ---
 name: media-to-manual
-description: "Use when ingesting media or a recording into a job package, transcribing/proofreading/indexing a media package, creating a quick-ref or full manual from a video or screen recording, finding where a recording explains a topic (timecode lookup), or applying read-index-first / load-only-relevant-segments discipline. Triggers on 'ingest media / recording into a package', 'transcribe / proofread / index a media package', 'create a quick-ref or full manual from a video / screen recording', 'find where the recording explains X (timecode)', 'read the index first, load only relevant segments + frames'. Do not use for: skill/agent design (→ skill-creation / agent-creation); reimplementing or debugging scripts/media/ (→ general code lane / systematic-debugging); PDF dimension extraction (→ pdf-vector-extraction-discipline); SOP body auditing (→ biz-sop-discipline)."
+description: "Use when ingesting a media source into a job package or navigating one for manuals — the read-index-first + timecode-join discipline the media-* agents share (pipeline order, naming, manual generation). Triggers: 'ingest a recording', 'transcribe/proofread/index a media package', 'create a quick-ref or manual from a video', 'find where the recording explains X'. Not skill/agent design (→ skill-creation); not reimplementing scripts/media/."
 ---
 
 # Media-to-Manual Discipline

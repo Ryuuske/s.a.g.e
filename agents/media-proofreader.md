@@ -1,6 +1,6 @@
 ---
 name: media-proofreader
-description: "Use to proofread a transcribed job package — read segments.jsonl, fix likely transcription mishears, flag uncertain domain/product terms and acronyms, write transcript/proofed.md with timecoded headers and an append-only transcript/corrections.md audit log. Triggers on 'proofread the transcript', 'fix the mishears in <package>', 'clean up the transcription'. Do not use for: running the pipeline / re-transcribing (→ media-transcriber), refining chapter boundaries or titles in index.md (→ media-indexer), writing a manual/quick-ref (→ media-manual-author), or deterministic text normalization that belongs in transcribe.py (→ scripts/media/)."
+description: "Use to proofread a transcribed job package — read segments.jsonl, fix transcription mishears, flag uncertain domain terms/acronyms, write proofed.md (timecoded) plus an append-only corrections.md. Triggers: 'proofread the transcript', 'fix the mishears', 'clean up the transcription'. Do not use for running the pipeline / re-transcribing (→ media-transcriber), chapter refinement (→ media-indexer), manual authoring (→ media-manual-author), or deterministic normalization (→ scripts/media/)."
 tools: Read, Write, Edit, Grep, Glob
 model: opus
 cot: yes
