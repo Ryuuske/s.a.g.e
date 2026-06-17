@@ -18,8 +18,12 @@ briefing_template: "Author <quick-ref|full-manual> on topic '<topic>' as <md|pdf
 requires:
   - dep: pandoc
     kind: system
-    install: "apt-get install pandoc (or brew install pandoc); wkhtmltopdf for PDF rendering"
+    install: "apt-get install pandoc (or brew install pandoc)"
     why: "renders the composed markdown to pdf or docx; md output needs no render tool but pdf/docx steps call pandoc directly"
+  - dep: wkhtmltopdf
+    kind: system
+    install: "apt-get install wkhtmltopdf (or brew install wkhtmltopdf)"
+    why: "Step 5 renders PDF via `pandoc --pdf-engine=wkhtmltopdf`; required only for PDF output (md/docx need only pandoc)"
   - dep: "~/.venvs/docgen"
     kind: venv
     install: "~/.venvs/docgen/bin/pip install python-docx openpyxl (see docgen toolkit notes)"

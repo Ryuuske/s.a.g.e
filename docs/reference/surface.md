@@ -1,4 +1,4 @@
-<!-- GENERATED — DO NOT EDIT. Regenerate with `python3 scripts/gen_docs.py`. -->
+<!-- GENERATED — DO NOT EDIT. Regenerate with `uv run python scripts/gen_docs.py`. -->
 
 # Framework surface — reference
 

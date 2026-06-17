@@ -91,8 +91,11 @@ A clean failure from probe.py is the correct outcome for bad input.
 ### Step 4 — Run run.py (pipeline, honor resume markers)
 
 ```
-python3 scripts/media/run.py --source <source-path> --slug <job-slug> --root <package-root>
+python3 scripts/media/run.py <source-path> <package-root> --slug <job-slug>
 ```
+
+`source` and the job/package directory are positional; `--slug` is optional (defaults to the
+package-dir name). Optional flags: `--model`, `--language`, `--no-doctor`.
 
 `run.py` honors `stages` markers: any stage already marked `done` in manifest.json is
 skipped. Capture stdout and stderr verbatim for each stage.
@@ -104,8 +107,10 @@ is not a success criterion — verify content.
 
 - **segments.jsonl**: non-empty; each line parses as JSON with `id`, `t_start`, `t_end`,
   `text`. Flag if mean `no_speech_prob` is high (silent or music-only recording).
-- **frames/**: file count > 0 (use `ls -1 <package-root>/frames/ | wc -l`); at least one
-  `.jpg` file present.
+- **frames/** (video sources only): file count > 0 (`ls -1 <package-root>/frames/ | wc -l`),
+  at least one `.jpg` present. Skip this check when `manifest.json` `job.source_type` is
+  `audio` (probe.py sets it to `audio` when there is no video stream, regardless of container/
+  extension — an audio-only `.mp4` counts) — an empty or absent `frames/` is then correct, not a failure.
 - **manifest.json**: file exists and is non-empty; every `frame_id` in `manifest.json`
   (the `frames` list and each chapter's frame IDs) resolves to a file on disk. Frame IDs
   live in the manifest, not in `segments.jsonl` — the manifest is the timecode join.
