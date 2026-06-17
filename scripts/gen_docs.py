@@ -31,7 +31,9 @@ except ImportError:  # pragma: no cover
 
 REPO = Path(__file__).resolve().parent.parent
 
-BANNER = "<!-- GENERATED — DO NOT EDIT. Regenerate with `uv run python scripts/gen_docs.py`. -->\n\n"
+BANNER = (
+    "<!-- GENERATED — DO NOT EDIT. Regenerate with `uv run python scripts/gen_docs.py`. -->\n\n"
+)
 
 FAMILIES = [
     ("aidev-", "AI Development"),
