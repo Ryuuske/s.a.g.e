@@ -1,6 +1,6 @@
 <!-- GENERATED — DO NOT EDIT. AGENTS.md mirrors the root CLAUDE.md stub for
      non-Claude agent harnesses. Edit CLAUDE.md, then run
-     `python3 scripts/gen_docs.py`. -->
+     `uv run python scripts/gen_docs.py`. -->
 
 # AGENTS.md
 

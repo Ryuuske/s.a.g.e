@@ -13,7 +13,7 @@ Outputs (all carry a GENERATED banner; never hand-edit):
   docs/reference/surface.md        counts, hooks, wings, version facts
   AGENTS.md                        generated mirror of the root CLAUDE.md stub
 
-Run: python3 scripts/gen_docs.py [--check]
+Run: uv run python scripts/gen_docs.py [--check]   (the venv carries PyYAML)
 ``--check`` exits 1 if any output differs from regeneration (regen-diff gate).
 """
 
@@ -31,7 +31,7 @@ except ImportError:  # pragma: no cover
 
 REPO = Path(__file__).resolve().parent.parent
 
-BANNER = "<!-- GENERATED — DO NOT EDIT. Regenerate with `python3 scripts/gen_docs.py`. -->\n\n"
+BANNER = "<!-- GENERATED — DO NOT EDIT. Regenerate with `uv run python scripts/gen_docs.py`. -->\n\n"
 
 FAMILIES = [
     ("aidev-", "AI Development"),
@@ -91,8 +91,8 @@ def requires_entries(text: str) -> list[dict[str, str]]:
         if re.search(r"^\s*requires\s*:", block, re.MULTILINE):
             raise RuntimeError(
                 "gen_docs: a `requires:` field is present but PyYAML is unavailable; "
-                "cannot parse it. Install pyyaml (e.g. `pip install pyyaml`) before "
-                "regenerating agent-dependencies.md."
+                "cannot parse it. Run inside the project venv (which carries PyYAML): "
+                "`uv run python scripts/gen_docs.py` — not bare `python3`."
             )
         return []
     try:
@@ -269,7 +269,7 @@ def gen_agents_md() -> str:
     return (
         "<!-- GENERATED — DO NOT EDIT. AGENTS.md mirrors the root CLAUDE.md stub for\n"
         "     non-Claude agent harnesses. Edit CLAUDE.md, then run\n"
-        "     `python3 scripts/gen_docs.py`. -->\n\n"
+        "     `uv run python scripts/gen_docs.py`. -->\n\n"
         + stub.replace("# CLAUDE.md", "# AGENTS.md", 1)
     )
 
