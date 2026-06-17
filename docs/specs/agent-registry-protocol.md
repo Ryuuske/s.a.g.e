@@ -66,9 +66,7 @@ failed install.
 ---
 
 <!-- §2-§6 below: the live dispatch/registry protocol, merged 2026-06-10 from the
-     original design doc (R-14 single-home merge, Master Run Stage 3b). The original
-     full doc incl. its superseded §1 design schema is archived at
-     .development/archive/specs/agent-registry-protocol-original.md. -->
+     original design doc (R-14 single-home merge, Master Run Stage 3b). -->
 
 ## 2. Active roster schema — `<repo>/.claude/active-roster.json`
 

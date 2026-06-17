@@ -55,8 +55,7 @@ SHIP_DIRS: tuple[str, ...] = (
     ".github",
     ".devcontainer",
     # NB: docs/specs ships the CURRENT framework spec contracts via SHIP_FILES
-    # below. Frozen/design-phase specs were relocated to .development/archive/specs/
-    # at Master Run Stage 3 and are excluded by construction.
+    # below. Frozen/design-phase specs are not shipped — excluded by construction.
     # NB: the persona SOURCE files live at .development/persona/ — only the derived
     # public artifact (docs/concepts/sage-persona.md) ships, via SHIP_FILES. The
     # raw sage-profile.{md,docx,txt} carry the unbuilt voice/TTS/mode-router
@@ -121,7 +120,6 @@ DO_NOT_SHIP: tuple[str, ...] = (
     # persona sources (ADR-0117 — one ignore rule, leak-guard-denied)
     "CHANGELOG.md",  # carries historical prior-framework vocabulary
     "HISTORY.md",  # internal dev history
-    # (the pre-rebrand one-time migration tool was archived to .development/archive/tools/)
     "scripts/gen_adr_index.py",  # targets .development/decisions (dev repo only)
     "scripts/prune-plugin-cache.sh",  # operator cache tool, zero refs
     "docs/specs/framework-standards-charter.md",  # dev-repo governance contracts;

@@ -7,8 +7,7 @@ review-trigger: constraint change
 
 # Universal agent constraints and doctrine
 
-Extracted 2026-06-10 from the hand-maintained roster (Master Run Stage 3d;
-original archived at .development/archive/docs/agent-roster-handwritten.md).
+Extracted 2026-06-10 from the hand-maintained roster (Master Run Stage 3d).
 The roster itself is now GENERATED at docs/reference/agent-roster.md.
 
 ## Design principle: agent definitions are shareable, runtime context is not
