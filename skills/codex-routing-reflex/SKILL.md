@@ -76,6 +76,8 @@ Classify the brief surface:
 
   **Exception — §6 third-opinion:** if the brief is for a §6 third-opinion split-verdict resolution (per CLAUDE.md §6 step 2, which explicitly names `/codex:adversarial-review`), the AI-dev exclusion does NOT apply. Proceed to Element 3 with the brief classified as a third-opinion surface.
 
+  **Exception — §16 adversarial-audit lane (ADR-0123):** the adversarial-auditor slot of every AI-dev dual-auditor pairing (matrix rows `aidev-diff`, `aidev-state`, `ai-dev-infra-diff`, `propagation-batch`) is a Codex `/codex:adversarial-review` pass by default — the AI-dev exclusion does NOT apply to the adversarial lane, because a different model family giving the contrarian read is the entire point. Route the adversarial-auditor dispatch to Codex (Element 3); fall back to the Claude `aidev-adversarial-auditor` / `aidev-state-adversarial-auditor` only when Codex is unavailable. The reviewer-primary slot (`aidev-code-reviewer` / `aidev-state-reviewer`) stays CLAUDE-ONLY.
+
   **Exception — scoped terminal pass on high-risk surfaces (ADR-0086):** if the brief is the single whole-change terminal Codex pass (run once at the end of a multi-phase AI-dev build, on the full `main...HEAD` diff, before the PR opens) AND the build touches at least one high-risk surface (install scripts — `install.sh`, `install.ps1`, `installer-assets/`; hooks — `hooks/scripts/`; or security-sensitive framework code), the AI-dev hard-refusal does NOT apply for this terminal pass. This is a §6-style third-opinion lane (not a per-phase reviewer-primary dispatch); the one-touch rule applies to the terminal pass as a whole. Pure agent/skill-prose builds with no high-risk surface contact do not qualify and remain CLAUDE-ONLY. Emit:
 
   ```
