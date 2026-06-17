@@ -37,15 +37,11 @@ fi
 
 mkdir -p "$(dirname "$OUTPUT")"
 
-# Wall-clock cap: readable from defaults.yaml AUDIO_EXTRACT_TIMEOUT_SEC env var,
-# with a hardcoded fallback of 1800s (30 min) suitable for a single-operator tool.
-AUDIO_EXTRACT_TIMEOUT_SEC="${AUDIO_EXTRACT_TIMEOUT_SEC:-1800}"
-
-echo "extract_audio: extracting 16kHz mono WAV (timeout=${AUDIO_EXTRACT_TIMEOUT_SEC}s)..."
+echo "extract_audio: extracting 16kHz mono WAV..."
 echo "  source : $SOURCE"
 echo "  output : $OUTPUT"
 
-timeout "${AUDIO_EXTRACT_TIMEOUT_SEC}" "$FFMPEG" \
+"$FFMPEG" \
     -y \
     -i "$SOURCE" \
     -vn \
@@ -55,14 +51,6 @@ timeout "${AUDIO_EXTRACT_TIMEOUT_SEC}" "$FFMPEG" \
     -af loudnorm \
     "$OUTPUT" \
     2>&1
-FFMPEG_EXIT=$?
-if [[ $FFMPEG_EXIT -eq 124 ]]; then
-    echo "extract_audio: ERROR — ffmpeg timed out after ${AUDIO_EXTRACT_TIMEOUT_SEC}s. " \
-         "Set AUDIO_EXTRACT_TIMEOUT_SEC or check the source file." >&2
-    exit 1
-elif [[ $FFMPEG_EXIT -ne 0 ]]; then
-    exit $FFMPEG_EXIT
-fi
 
 if [[ ! -f "$OUTPUT" ]]; then
     echo "extract_audio: ERROR — output file not created" >&2

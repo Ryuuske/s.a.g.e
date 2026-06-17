@@ -20,7 +20,7 @@ Read before any work:
 
 1. The CO and brief in full — confirm every soil/load/span input is present (else `PAUSE: orchestrator must clarify <q>`).
 2. The current parametric spec JSON and any existing structural spec document (Read in full before any operation; §4 "view first" binds here).
-3. `docs/plans/active.md` if present — the active plan binds this work.
+3. `.development/plans/active.md` if present — the active plan binds this work.
 
 ## When invoked
 

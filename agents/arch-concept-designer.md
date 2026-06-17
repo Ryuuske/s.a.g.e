@@ -29,7 +29,7 @@ Read before any work:
 
 1. The brief, site/program inputs, and scheme-count N in full — confirm every envelope dimension, room schedule item, and orientation input is present (else `PAUSE: orchestrator must clarify <q>`).
 2. Any existing concept-state documents and the parametric spec (if present) — use Glob to locate; Read in full before any Bash derivation (§4 "view first" binds here).
-3. `docs/plans/active.md` if present — the active plan binds this work.
+3. `.development/plans/active.md` if present — the active plan binds this work.
 
 **CoT classification: YES.** Option comparison requires multi-axis reasoning (program-fit, adjacency, orientation/solar, envelope/GFA cap, site access) plus dominator analysis. The injection point is Step 5 (option-comparison) — the 4-beat chain (candidates → governing constraint → dominator analysis → ranked recommendation) is mandatory before any `@@CONCEPT-COMPARISON` row.
 

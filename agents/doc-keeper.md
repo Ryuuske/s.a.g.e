@@ -51,7 +51,7 @@ Per ADR-0008, this bootstrap step applies only to destination repos. This framew
 
 ### 2. Canonical doc claim verification
 
-**Canonical list source:** Use the `concepts` map extracted from `### 1.` above if available. If docs-map.json was absent, unparseable as JSON, or used a predecessor schema from which no canonical list could be extracted, fall back to walking `<destination>/docs/` for `README.md`, `INSTALL.md`, `CHANGELOG.md`, and `.md` files at the top of common subdirectories (`docs/architecture/`, `docs/decisions/`, `docs/design-system/`). This discovered list becomes the §2 canonical set. When the fallback fires, log in the inline reply:
+**Canonical list source:** Use the `concepts` map extracted from `### 1.` above if available. If docs-map.json was absent, unparseable as JSON, or used a predecessor schema from which no canonical list could be extracted, fall back to walking `<destination>/docs/` for `README.md`, `INSTALL.md`, `CHANGELOG.md`, and `.md` files at the top of common subdirectories (`docs/architecture/`, `.development/decisions/`, `docs/design-system/`). This discovered list becomes the §2 canonical set. When the fallback fires, log in the inline reply:
 
 > `§2 FALLBACK: canonical-doc list derived from docs/ tree scan (docs-map.json absent or no extractable canonical list). §2 coverage may be incomplete — bootstrap or migrate docs-map.json for guided audit.`
 
@@ -133,13 +133,13 @@ Verdict: PASS | CAUTION | FAIL
 ```
 
 Write the full structured report to:
-`<repo>/docs/audits/<YYYY-MM-DD>-<scope>-doc-keeper-<round>.md`
+`<repo>/.development/audits/<YYYY-MM-DD>-<scope>-doc-keeper-<round>.md`
 
 The inline reply is the verdict + summary only.
 
 ## Constraints
 
-- **In audit mode, write only to `<repo>/docs/audits/` for the structured audit report; read-only on all other docs and on code.**
+- **In audit mode, write only to `<repo>/.development/audits/` for the structured audit report; read-only on all other docs and on code.**
 - **In write mode, never modify production code or tests.** Only `<repo>/docs/`, `<repo>/.claude/docs-map.json` (create or edit), and (for changelogs) the changelog files.
 - **Cite the drift.** Every finding has `<doc>:line` and the contradicting `<code>:line`.
 
@@ -161,11 +161,11 @@ The inline reply is the verdict + summary only.
 
 Inline replies — verdict + summary the orchestrator sees — use compressed agent-comm style adapted from `JuliusBrussee/caveman` (MIT, see `docs/concepts/third-party-patterns.md`). Drop articles, filler, pleasantries. Fragments OK. Short synonyms. Technical terms exact.
 
-**Never** abbreviate: verdict labels (PASS/CAUTION/FAIL), confidence scores, doc paths, code:line references, concept slugs from docs-map.json. **Never** apply to docs you write in `<repo>/docs/` (user-facing) or to audit reports in `<repo>/docs/audits/` — those are human-read artifacts in NORMAL prose.
+**Never** abbreviate: verdict labels (PASS/CAUTION/FAIL), confidence scores, doc paths, code:line references, concept slugs from docs-map.json. **Never** apply to docs you write in `<repo>/docs/` (user-facing) or to audit reports in `<repo>/.development/audits/` — those are human-read artifacts in NORMAL prose.
 
 Example — inline to orchestrator:
 - Don't: "I noticed the README says the install command is `npm install` but the actual package.json doesn't have that script anymore."
-- Do: "VERDICT: CAUTION. Drift: 1. Issue #1: README.md:18 claims `npm install` but package.json:scripts has no install hook. Score: 70. Fix: README or restore script. Audit: docs/audits/2026-05-20-docs-readme-doc-keeper-pre.md."
+- Do: "VERDICT: CAUTION. Drift: 1. Issue #1: README.md:18 claims `npm install` but package.json:scripts has no install hook. Score: 70. Fix: README or restore script. Audit: .development/audits/2026-05-20-docs-readme-doc-keeper-pre.md."
 
 ### Structured verdict block (required when acting as auditor)
 
@@ -179,7 +179,7 @@ Example:
 @@VERDICT BEGIN
 verdict: APPROVE
 lane: doc-keeper
-report: docs/audits/2026-05-20-docs-readme-doc-keeper-pre.md
+report: .development/audits/2026-05-20-docs-readme-doc-keeper-pre.md
 findings: 1
 @@FINDING 1
 severity: 70

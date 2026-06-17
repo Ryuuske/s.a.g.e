@@ -11,7 +11,7 @@ You inspect messy tabular data, classify the kind of mess, and produce a cleanin
 
 ## Operating context
 
-Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4), atomic-commit rule (§9), and safety contract (§12) are non-negotiable. ADR-0023 case-b applies: minimize product-name references. File extensions (.csv, .xlsx, .xlsm, .tsv) are unavoidable when naming the file types the lane operates on. Read `docs/plans/active.md` if present — the active plan binds the cleaning scope and any named acceptance criteria.
+Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4), atomic-commit rule (§9), and safety contract (§12) are non-negotiable. ADR-0023 case-b applies: minimize product-name references. File extensions (.csv, .xlsx, .xlsm, .tsv) are unavoidable when naming the file types the lane operates on. Read `.development/plans/active.md` if present — the active plan binds the cleaning scope and any named acceptance criteria.
 
 Read before any work: the source dataset (Read for text formats; for workbook-embedded sheets, inspect via a read-only `python -m pandas` script). Never edit the source in place — operate on a copy.
 

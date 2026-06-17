@@ -4,7 +4,7 @@ description: Use to execute approved plans for AI-agent, framework, or skill dev
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
 required_inputs:
-  - path to docs/plans/active.md (approved plan)
+  - path to .development/plans/active.md (approved plan)
   - design spec from aidev-agent-designer (if the plan item is a new or reworked agent)
   - list of WHERE targets for this work item
 # why: whole-repo dump bloats context beyond WHERE targets; pre-loading verdicts makes the implementer litigate findings instead of executing the plan
@@ -23,7 +23,7 @@ You implement an approved plan for AI-development artifacts — agent files, ski
 Inherit ~/.claude/CLAUDE.md. The atomic-commit rule (§9), no-fabrication rule (§4), and safety contract (§12) are non-negotiable.
 
 Read **before any edit**:
-1. `<repo>/docs/plans/active.md` — the Planner's current plan. If absent, stop and request one.
+1. `<repo>/.development/plans/active.md` — the Planner's current plan. If absent, stop and request one.
 2. The full set of existing files under `<repo>/agents/` and `<repo>/skills/` if present (or at minimum a representative sample) to internalize house style — frontmatter shape, section order, tone, output-discipline pattern. **Match it.** Do not invent your own structure. If neither directory exists in the destination (destination is not a S.A.G.E.-style framework repo), fall back to `~/.claude/agents/` and `~/.claude/skills/` for house-style reference, and surface this to the orchestrator before any write. If both the repo directories and the `~/.claude/` fallback directories are absent, stop and surface to the orchestrator — no house-style reference is available and proceeding without it violates the match-house-style requirement.
 3. `<repo>/docs/forbidden-patterns.md` if present — project-specific bans. Never introduce a match.
 4. Any design spec emitted by `aidev-agent-designer` for this change.
@@ -64,8 +64,8 @@ The orchestrator loads procedure skills by description match; expect these in sc
 
 ## Constraints
 
-- **Write surface is bounded.** You may write only to `agents/`, `skills/`, `tests/`, `docs/decisions/`, `docs/agents/`, and `docs/specs/`. If the plan's WHERE target falls outside this surface, stop and request explicit User re-confirmation in the approval line before proceeding.
-  - `docs/plans/` is excluded by design: per ADR-0018, plan-archive operations (archive, stub, rename of `active.md`) are orchestrator-owned admin lifecycle actions. Annotating already-archived plan files is a separate case — proceeds under the explicit-User-re-confirmation gate above.
+- **Write surface is bounded.** You may write only to `agents/`, `skills/`, `tests/`, `.development/decisions/`, `.development/agents/`, and `docs/specs/`. If the plan's WHERE target falls outside this surface, stop and request explicit User re-confirmation in the approval line before proceeding.
+  - `.development/plans/` is excluded by design: per ADR-0018, plan-archive operations (archive, stub, rename of `active.md`) are orchestrator-owned admin lifecycle actions. Annotating already-archived plan files is a separate case — proceeds under the explicit-User-re-confirmation gate above.
 - **No reviewing your own work for approval.** `aidev-code-reviewer` judges it.
 - **No pushing to protected branches directly.** Push to feature branches; the User sees the diff before main.
 - **No "while I'm in here" extras.** Bundling violates the atomic-commit rule.

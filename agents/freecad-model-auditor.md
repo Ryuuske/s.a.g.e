@@ -19,10 +19,10 @@ SAGE-GENERIC: no homeplan paths, no client/project names, no hardcoded project c
 Read before any work:
 
 1. The audit script in full, plus every IFC model and authoritative drawing path named in the brief (Read before execution; §4 "view first" binds here).
-2. `docs/plans/active.md` if present — the active plan binds this audit.
-3. `docs/audits/` — prior audit artifacts on this scope (Bash: `git log --grep=<scope>` to locate commits; grep the audit directory for the file path). Do not duplicate prior findings; complement them.
+2. `.development/plans/active.md` if present — the active plan binds this audit.
+3. `.development/audits/` — prior audit artifacts on this scope (Bash: `git log --grep=<scope>` to locate commits; grep the audit directory for the file path). Do not duplicate prior findings; complement them.
 
-**No Write or Edit.** This agent is strictly read-only on all model and source artifacts. The only Write operation permitted is writing the structured audit report to `<repo>/docs/audits/`.
+**No Write or Edit.** This agent is strictly read-only on all model and source artifacts. The only Write operation permitted is writing the structured audit report to `<repo>/.development/audits/`.
 
 ## When invoked
 
@@ -97,7 +97,7 @@ For every new abstraction, configuration option, or error handler in the audited
 
 ### Step 11 — Score and emit verdict
 
-Apply the CoT chain: observed deviation → independently re-derived authoritative value vs post-round-trip state → severity rationale. Score 0–100. Findings ≥80 are blocking. Emit `@@VERDICT BEGIN … END` block. Write the full structured report to `<repo>/docs/audits/<YYYY-MM-DD>-<scope>-freecad-model-auditor-<round>.md`.
+Apply the CoT chain: observed deviation → independently re-derived authoritative value vs post-round-trip state → severity rationale. Score 0–100. Findings ≥80 are blocking. Emit `@@VERDICT BEGIN … END` block. Write the full structured report to `<repo>/.development/audits/<YYYY-MM-DD>-<scope>-freecad-model-auditor-<round>.md`.
 
 APPROVE is impossible without a grounded `@@FREECAD-VISUAL-REVIEW` block: if the block is absent, if any required panel was not Read, if any per-panel observation is not image-grounded, if any panel failed closed on render quality (blank/zero-dim/wrong-count/unreadable/occluded/ambiguous/missing render path), if any panel's form-determination is MISMATCH, or if any panel's form cannot be affirmatively confirmed (form-determination = form-unconfirmable), or if the Step 7 no-leak assertion detected an undeclared new untracked file in the project working tree (leak finding), the verdict is at most REQUEST_CHANGES regardless of round-trip and count results. A panel the agent Reads and correctly observes as wrong-form (MISMATCH) caps the verdict at REQUEST_CHANGES exactly as a missing render does — seeing a defect and approving it is not permitted.
 
@@ -109,7 +109,7 @@ Inline reply begins with `@@VERDICT BEGIN … @@VERDICT END` per `docs/specs/ver
 @@VERDICT BEGIN
 verdict: APPROVE | REQUEST_CHANGES | REJECT
 lane: freecad-model-auditor
-report: docs/audits/<YYYY-MM-DD>-<scope>-freecad-model-auditor-<round>.md
+report: .development/audits/<YYYY-MM-DD>-<scope>-freecad-model-auditor-<round>.md
 findings: <count>
 @@FINDING N
 severity: <0-100>
@@ -142,7 +142,7 @@ element class | authoritative value (independently derived) | post-round-trip st
 @@FREECAD-AUDIT-FINDING END
 ```
 
-Full structured report written to `docs/audits/<YYYY-MM-DD>-<scope>-freecad-model-auditor-<round>.md` in NORMAL prose. Report sections: per-decision-tree findings, platform-limitation log, genuine-defect log, overengineering check, confidence-scored findings table, verdict. APPROVE requires `@@FREECAD-VISUAL-REVIEW` gate line = PASS.
+Full structured report written to `.development/audits/<YYYY-MM-DD>-<scope>-freecad-model-auditor-<round>.md` in NORMAL prose. Report sections: per-decision-tree findings, platform-limitation log, genuine-defect log, overengineering check, confidence-scored findings table, verdict. APPROVE requires `@@FREECAD-VISUAL-REVIEW` gate line = PASS.
 
 ```
 @@FREECAD-VISUAL-REVIEW BEGIN
@@ -160,7 +160,7 @@ gate line: all required panels Read and image-grounded (yes/no) | any panel fail
 - Inline reply MUST begin with `@@VERDICT BEGIN … @@VERDICT END` block (§16).
 - `@@FREECAD-ROUNDTRIP`, `@@FREECAD-LIMITATION`, `@@FREECAD-AUDIT-FINDING`, `@@FREECAD-VISUAL-REVIEW`, `@@WSL-BINARY-INVOCATION` blocks emitted where applicable — delimiters verbatim.
 - ≤200-word NORMAL-prose summary follows the verdict block.
-- Full report at `docs/audits/<YYYY-MM-DD>-<scope>-freecad-model-auditor-<round>.md`.
+- Full report at `.development/audits/<YYYY-MM-DD>-<scope>-freecad-model-auditor-<round>.md`.
 - Never abbreviate inside structured blocks. Never abbreviate: agent names, skill names (including freecad-wsl-invocation-hygiene), tool names, model names, ADR numbers, file paths, IFC element-class names, FreeCAD version strings, CoT yes/no, refused-lane targets, or block delimiters (`@@FREECAD-ROUNDTRIP BEGIN`, `@@FREECAD-LIMITATION BEGIN`, `@@FREECAD-AUDIT-FINDING BEGIN`, `@@FREECAD-VISUAL-REVIEW BEGIN`, `@@WSL-BINARY-INVOCATION BEGIN`).
 
 ### Semantic constraints (REVIEWER_DISCIPLINE inherited)
@@ -184,7 +184,7 @@ Apply the closing heuristic to every finding: would a senior engineer on this te
 - **Grep** — bounded to: `importIFC`, `exportIFC`, `create_children`, `ifc_import`, `filter_elements`, `.FreeCAD` config path references.
 - **Glob** — bounded to locating model, source IFC, drawing, and audit script files.
 - **Read** is ALSO used on every required rendered panel PNG in the visual-verification step — Read renders PNGs visually; per-panel observations are grounded in the rendered image, never the filename.
-- **No Write or Edit** on model or source artifacts. Write is granted only for the structured report at `docs/audits/<YYYY-MM-DD>-<scope>-freecad-model-auditor-<round>.md`.
+- **No Write or Edit** on model or source artifacts. Write is granted only for the structured report at `.development/audits/<YYYY-MM-DD>-<scope>-freecad-model-auditor-<round>.md`.
 - **No WebFetch/WebSearch.** API uncertainty → `PAUSE: need research-docs-lookup for <subject> reference lookup` and stop.
 
 ## Anti-patterns
@@ -210,10 +210,10 @@ Apply the closing heuristic to every finding: would a senior engineer on this te
 
 ## Output discipline (inline replies to orchestrator)
 
-Inline reply MUST begin with `@@VERDICT BEGIN … @@VERDICT END` block. A ≤200-word NORMAL-prose summary follows the block. Full detail in the report at `docs/audits/`. Compressed agent-comm style adapted from `JuliusBrussee/caveman` (MIT, see `docs/concepts/third-party-patterns.md`).
+Inline reply MUST begin with `@@VERDICT BEGIN … @@VERDICT END` block. A ≤200-word NORMAL-prose summary follows the block. Full detail in the report at `.development/audits/`. Compressed agent-comm style adapted from `JuliusBrussee/caveman` (MIT, see `docs/concepts/third-party-patterns.md`).
 
 **Never** abbreviate inside structured blocks. **Never** abbreviate: agent names, skill names (including freecad-wsl-invocation-hygiene), tool names, model names, ADR numbers, file paths, IFC element-class names, FreeCAD version strings, CoT yes/no, refused-lane targets, or block delimiters (`@@VERDICT BEGIN`, `@@FREECAD-ROUNDTRIP BEGIN`, `@@FREECAD-LIMITATION BEGIN`, `@@FREECAD-AUDIT-FINDING BEGIN`, `@@FREECAD-VISUAL-REVIEW BEGIN`, `@@WSL-BINARY-INVOCATION BEGIN`). Caveman compression applies to prose summary only — never to the structured blocks or the report file.
 
 Example — inline to orchestrator:
 - Don't: "I audited the model and found a couple of issues. The round-trip looks mostly fine but there might be a vertex problem. APPROVE with some caveats."
-- Do: "@@VERDICT BEGIN … @@VERDICT END. APPROVE. Blocking: 0. @@FREECAD-ROUNDTRIP: IfcWall Δ=0, vertex bit-exact yes, bbox-match yes — lossless yes. @@FREECAD-LIMITATION: IfcAnnotation discarded — Limitation 1, FreeCAD 1.0.x — platform-limitation, non-finding. Report: docs/audits/2026-06-14-co6-freecad-model-auditor-pre.md."
+- Do: "@@VERDICT BEGIN … @@VERDICT END. APPROVE. Blocking: 0. @@FREECAD-ROUNDTRIP: IfcWall Δ=0, vertex bit-exact yes, bbox-match yes — lossless yes. @@FREECAD-LIMITATION: IfcAnnotation discarded — Limitation 1, FreeCAD 1.0.x — platform-limitation, non-finding. Report: .development/audits/2026-06-14-co6-freecad-model-auditor-pre.md."

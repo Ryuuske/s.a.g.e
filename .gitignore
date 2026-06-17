@@ -42,50 +42,11 @@ venv/
 .envrc
 .review-logs
 
-# Working artifacts — stay LOCAL; never ship to public surface
-# Policy invariant established in docs/plans/active.md Inc H (2026-05-28 revision):
-# developer keeps ALL working files local; GitHub repo is a clean installable public release.
-# Full guardian-owned exclusion list lands when the deferred Inc H guardian build fires.
-docs/plans/
-docs/audits/
-docs/handoff/
-docs/in-flight/
-docs/agents/
-docs/aidev/
-docs/persona/
-internal/
-# Relocated to internal/ at Master Run Stage 3 (ledger Entry 006); these
-# prefixes must never re-acquire tracked files (leak-guard enforces in CI).
-docs/decisions/
-docs/roadmap/
-docs/research/
-docs/recovery/
-docs/vision/
-docs/governance/
+# Working artifacts — stay LOCAL; never ship to public surface.
+# Policy invariant: the developer keeps ALL working files local; the GitHub repo
+# is a clean installable public release. Every local-only working surface (plans,
+# audits, handoffs, ADRs, roadmap, research, recovery, vision, agent CHANGELOGs,
+# BACKLOG, ledger, persona sources) now lives under a single .development/ tree —
+# one ignore rule, enforced by the CI leak-guard (.github/workflows/leak-guard.yml).
+.development/
 *:Zone.Identifier
-
-# Estate dashboard TS workspace deps + build outputs
-src/sage_mcp/estate/web/node_modules/
-src/sage_mcp/estate/web/dist/
-src/sage_mcp/estate/web/dist-demo/
-
-# Media pipeline — never commit media files or job packages
-# Job output packages live at ~/dev/media-jobs/ (outside this repo by design)
-scripts/media/__pycache__/
-scripts/media/config/__pycache__/
-scripts/media/schema/__pycache__/
-*.mp4
-*.mov
-*.mkv
-*.mp3
-*.wav
-*.m4a
-*.webm
-# Frame images (committed golden test fixtures in tests/fixtures/ are the exception;
-# those are small text files, not actual .jpg media)
-# Do NOT add tests/fixtures/ here — golden text fixtures must be committed.
-frames/
-audio/
-transcript/raw.json
-# media venv (setup.sh creates ~/.venvs/media outside the repo)
-.venvs/

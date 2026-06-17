@@ -102,7 +102,7 @@ All five before the `git push`. Any one missing, the push doesn't happen.
 
 ### Marking active-plan tasks complete
 
-A task in `<repo>/docs/active-plan.md` or `<repo>/docs/plans/active.md` (per ADR-0006, the latter for AI-dev work) marked `[x]` is a claim. The claim is "this acceptance criterion is satisfied." Verification:
+A task in `<repo>/docs/active-plan.md` or `<repo>/.development/plans/active.md` (per ADR-0006, the latter for AI-dev work) marked `[x]` is a claim. The claim is "this acceptance criterion is satisfied." Verification:
 
 - Re-read the acceptance criterion as written in the plan.
 - Run the test or check that demonstrates it.

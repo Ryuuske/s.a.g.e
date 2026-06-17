@@ -20,7 +20,7 @@ def _well_formed_approve():
         "@@VERDICT BEGIN\n"
         "verdict: APPROVE\n"
         "lane: aidev-code-reviewer\n"
-        "report: docs/audits/2026-05-25-foo-aidev-code-reviewer-post.md\n"
+        "report: .development/audits/2026-05-25-foo-aidev-code-reviewer-post.md\n"
         "findings: 0\n"
         "@@VERDICT END\n"
         "\n"
@@ -33,7 +33,7 @@ def _well_formed_request_changes():
         "@@VERDICT BEGIN\n"
         "verdict: REQUEST_CHANGES\n"
         "lane: aidev-code-reviewer\n"
-        "report: docs/audits/2026-05-25-bar-aidev-code-reviewer-post.md\n"
+        "report: .development/audits/2026-05-25-bar-aidev-code-reviewer-post.md\n"
         "findings: 2\n"
         "@@FINDING 1\n"
         "severity: 90\n"
@@ -57,7 +57,7 @@ class TestWellFormed:
         assert v.valid
         assert v.verdict == "APPROVE"
         assert v.lane == "aidev-code-reviewer"
-        assert v.report == "docs/audits/2026-05-25-foo-aidev-code-reviewer-post.md"
+        assert v.report == ".development/audits/2026-05-25-foo-aidev-code-reviewer-post.md"
         assert v.findings == []
         assert v.has_blocking is False
 

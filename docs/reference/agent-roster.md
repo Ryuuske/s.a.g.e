@@ -217,7 +217,7 @@ classification, shareability principle) lives at
 
 ### `dev-planner`
 
-- **Description**: Use to convert a sharpened software-dev vision (or concrete User request) into a binding plan at docs/plans/active.md, routing work items to dev-/data-/gh- specialists from the active roster. Software-dev scope only. Triggers when a vision is settled but no plan exists, or 'what would it take to add/fix/refactor X'. Do not use for AI-dev/finance/business-ops planning (aidev-planner / fin-planner / biz-planner), tech selection (dev-architect), or framing (dev-visionary).
+- **Description**: Use to convert a sharpened software-dev vision (or concrete User request) into a binding plan at .development/plans/active.md, routing work items to dev-/data-/gh- specialists from the active roster. Software-dev scope only. Triggers when a vision is settled but no plan exists, or 'what would it take to add/fix/refactor X'. Do not use for AI-dev/finance/business-ops planning (aidev-planner / fin-planner / biz-planner), tech selection (dev-architect), or framing (dev-visionary).
 - **Model**: opus · **Tools**: Read, Grep, Glob, Write
 
 ### `dev-python-reviewer`
@@ -348,7 +348,7 @@ classification, shareability principle) lives at
 
 ### `arch-planner`
 
-- **Description**: Use to convert a sharpened architecture vision (or concrete client request) into a binding plan at docs/plans/active.md, sequencing the project by discipline dependency and routing work items to the arch-* family. Architecture scope only. Triggers when a vision is settled but no plan exists, or 'what would it take to take this house/dwelling from brief to issued documentation'. Do not use for AI-dev/software/finance/business-ops planning, framing (→ arch-visionary), tech selection (→ dev-architect), or model edits (→ freecad-architect).
+- **Description**: Use to convert a sharpened architecture vision (or concrete client request) into a binding plan at .development/plans/active.md, sequencing the project by discipline dependency and routing work items to the arch-* family. Architecture scope only. Triggers when a vision is settled but no plan exists, or 'what would it take to take this house/dwelling from brief to issued documentation'. Do not use for AI-dev/software/finance/business-ops planning, framing (→ arch-visionary), tech selection (→ dev-architect), or model edits (→ freecad-architect).
 - **Model**: opus · **Tools**: Read, Grep, Glob, Write
 
 ### `arch-spec-writer`
@@ -395,7 +395,7 @@ classification, shareability principle) lives at
 
 ### `fin-planner`
 
-- **Description**: Use to convert a sharpened finance vision into a binding plan at docs/plans/active.md, sequencing budget/cash-flow/reporting/categorization/reconciliation by period dependency. Finance scope only. Triggers when a fin-visionary vision is settled, or 'what would it take to close Q3 / reconcile Account X'. Do not use for AI-dev/software/business-ops planning (aidev-planner / dev-planner / biz-planner), framing (fin-visionary), or tax/investment advice (REFUSE OUTRIGHT).
+- **Description**: Use to convert a sharpened finance vision into a binding plan at .development/plans/active.md, sequencing budget/cash-flow/reporting/categorization/reconciliation by period dependency. Finance scope only. Triggers when a fin-visionary vision is settled, or 'what would it take to close Q3 / reconcile Account X'. Do not use for AI-dev/software/business-ops planning (aidev-planner / dev-planner / biz-planner), framing (fin-visionary), or tax/investment advice (REFUSE OUTRIGHT).
 - **Model**: opus · **Tools**: Read, Grep, Glob, Write
 
 ### `fin-reconciler`
@@ -422,7 +422,7 @@ classification, shareability principle) lives at
 
 ### `biz-planner`
 
-- **Description**: Use to convert a sharpened business-ops vision into a binding plan at docs/plans/active.md, sequencing SOP/process/workflow design and rollout by role-dependency. Business-ops scope only. Triggers when a biz-visionary vision is settled, or 'what would it take to roll out process X'. Do not use for AI-dev/software/finance planning (aidev-planner / dev-planner / fin-planner), framing (biz-visionary), tech selection (dev-architect), or tax/investment advice (REFUSE OUTRIGHT).
+- **Description**: Use to convert a sharpened business-ops vision into a binding plan at .development/plans/active.md, sequencing SOP/process/workflow design and rollout by role-dependency. Business-ops scope only. Triggers when a biz-visionary vision is settled, or 'what would it take to roll out process X'. Do not use for AI-dev/software/finance planning (aidev-planner / dev-planner / fin-planner), framing (biz-visionary), tech selection (dev-architect), or tax/investment advice (REFUSE OUTRIGHT).
 - **Model**: opus · **Tools**: Read, Grep, Glob, Write
 
 ### `biz-process-builder`
@@ -524,21 +524,21 @@ classification, shareability principle) lives at
 
 ### `media-indexer`
 
-- **Description**: Use to refine chapter boundaries, titles, summaries, and keywords — writing both index.md and manifest.json chapters[] (that array only) in one consistency-checked pass. The two files must agree; divergence is a blocking self-finding. Never re-runs the pipeline, touches segments[]/frames[]/job/stages, corrects transcript text, or authors documents. Do not use for pipeline re-run (→ media-transcriber), transcript correction (→ media-proofreader), manual authoring (→ media-manual-author), or sheet sets / doc-lifecycle (→ arch-documenter / doc-keeper).
-- **Model**: opus · **Tools**: Read, Write, Edit, Bash, Grep, Glob
+- **Description**: Use to refine a job package's chapter map — adjust chapter boundaries, rewrite titles and one-line summaries, tune keywords in index.md so the read-index-first navigation is accurate and gap-free. Triggers on 'refine the chapters', 'improve the index', 'the chapter titles/boundaries are off'. Do not use for: running the pipeline (→ media-transcriber), fixing transcription mishears or domain terms (→ media-proofreader), writing a manual/quick-ref from the index (→ media-manual-author), or the deterministic first-pass chapter segmentation that belongs in build_index.py (→ scripts/media/).
+- **Model**: opus · **Tools**: Read, Write, Edit, Grep, Glob
 
 ### `media-manual-author`
 
-- **Description**: Use to compose a quick-reference guide or full step-by-step manual from a media job package. Reads index.md first, matches chapter(s), loads only those segment ranges and frame_ids, reads the actual frame images, then renders via pandoc or the docgen toolkit (~/.venvs/docgen) to output/. Cites timecodes per step. Never re-processes media, edits transcript or index, or re-runs the pipeline. Do not use for pipeline re-run (→ media-transcriber), transcript correction (→ media-proofreader), chapter boundary/title refinement (→ media-indexer), or architectural sheet sets (→ arch-documenter).
+- **Description**: Use to author a quick-reference guide or full manual about a topic from an existing job package — read index.md first, match the topic to chapter(s), load only those segments+frames via the timecode join, compose, render to md/pdf/docx via pandoc/docgen, cite timecodes. Triggers: 'create a quick reference for X', 'write a full manual with screenshots for Y', 'document how the video explains Z'. Do not use for running the pipeline (→ media-transcriber), transcript fixes (→ media-proofreader), chapter refinement (→ media-indexer).
 - **Model**: opus · **Tools**: Read, Write, Bash, Grep, Glob
 
 ### `media-proofreader`
 
-- **Description**: Use to proofread a completed transcript — reading transcript/segments.jsonl and writing corrected text to transcript/proofed.md plus an append-only correction log at transcript/corrections.md. Handles mishears, product-name variants, and acronym normalization; flags uncertain terms. Never touches segments.jsonl, chapters, index.md, or any output document. Do not use for re-transcription or pipeline re-run (→ media-transcriber), chapter boundary/title refinement (→ media-indexer), manual authoring (→ media-manual-author), or verifying whether a claim is factually true (→ research-fact-checker).
+- **Description**: Use to proofread a transcribed job package — read segments.jsonl, fix transcription mishears, flag uncertain domain terms/acronyms, write proofed.md (timecoded) plus an append-only corrections.md. Triggers: 'proofread the transcript', 'fix the mishears', 'clean up the transcription'. Do not use for running the pipeline / re-transcribing (→ media-transcriber), chapter refinement (→ media-indexer), manual authoring (→ media-manual-author), or deterministic normalization (→ scripts/media/).
 - **Model**: opus · **Tools**: Read, Write, Edit, Grep, Glob
 
 ### `media-transcriber`
 
-- **Description**: Use to run the media pipeline via scripts/media/run.py through six stages (probe, audio, transcribe, frames, manifest, index) after a doctor preflight, verifying each stage non-empty, schema-valid output, every frame_id is on disk, every chapter frame_id/segment_id resolves to a top-level frames[]/segments[] entry, and index.md covers full duration. Never edits scripts or output. Do not use for transcript correction (→ media-proofreader), chapter title/boundary refinement (→ media-indexer), manual authoring (→ media-manual-author), or editing pipeline scripts (→ aidev-code-implementer).
+- **Description**: Use to run the scripts/media/ ingestion pipeline end-to-end on a source file and sanity-verify the job package (audio, segments, frames>0, manifest validates, index covers duration). Thin wrapper over proven scripts. Triggers: 'ingest this video/audio', 'transcribe and package <file>', 'run the media pipeline on <source>'. Do not use for transcript fixes (→ media-proofreader), chapter refinement (→ media-indexer), manual authoring (→ media-manual-author), or reimplementing script logic (→ scripts/media/).
 - **Model**: sonnet · **Tools**: Read, Bash, Grep, Glob
 

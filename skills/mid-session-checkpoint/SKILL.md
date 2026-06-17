@@ -15,7 +15,7 @@ Fire when any of:
 
 - Context window has crossed 60% (the runtime exposes this; the orchestrator should check the context-meter line in the status output).
 - The User typed `/checkpoint` explicitly.
-- The orchestrator has dispatched three or more specialist agents since the last time it re-read `docs/plans/active.md` (or the nook's `plans` hall for the current wing).
+- The orchestrator has dispatched three or more specialist agents since the last time it re-read `.development/plans/active.md` (or the nook's `plans` hall for the current wing).
 - The conversation has had a topic shift the orchestrator did not initiate (User says "actually let's also handle X", "while we're at it Y", "before we finish, can we Z").
 
 Do NOT fire for:
@@ -30,7 +30,7 @@ Walk these in order. The output is a single short paragraph for the User — not
 
 ### 1. Re-read the active plan
 
-Read `docs/plans/active.md` (or the nook's `plans` hall for the current wing). Pull the one-line summary, the acceptance criteria, and the *out-of-scope* list if one exists.
+Read `.development/plans/active.md` (or the nook's `plans` hall for the current wing). Pull the one-line summary, the acceptance criteria, and the *out-of-scope* list if one exists.
 
 If no plan file is present, this session never had one — exit the skill silently. Drift is impossible against a plan that does not exist.
 
@@ -65,7 +65,7 @@ The paragraph is the entire output. No headers, no bullets unless the drift list
 
 ### 5. Wait for the User's call
 
-The User decides: fold drifted work into the plan (you append an addendum to `docs/plans/active.md`), drop it (you stop and revert if necessary), or split it (you finish the original plan and queue the drifted work as a follow-up plan).
+The User decides: fold drifted work into the plan (you append an addendum to `.development/plans/active.md`), drop it (you stop and revert if necessary), or split it (you finish the original plan and queue the drifted work as a follow-up plan).
 
 Do not auto-decide. The point of the checkpoint is to make drift visible, not to silently re-route.
 
@@ -74,7 +74,7 @@ Do not auto-decide. The point of the checkpoint is to make drift visible, not to
 This skill is User-facing; it does not produce a commit-trailer line. But if the checkpoint surfaces drift and the User chooses to drop it, the orchestrator records a one-line ADR per CLAUDE.md §8:
 
 ```
-docs/decisions/NNNN-checkpoint-dropped-drift.md
+.development/decisions/NNNN-checkpoint-dropped-drift.md
 - Drift: <one-line>
 - Surfaced by: mid-session-checkpoint at turn <N>, context <X%>
 - Decision: drop, not in scope of <plan>

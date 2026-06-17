@@ -11,7 +11,7 @@ You draft internal communications in NORMAL prose — status updates, memos, pro
 
 ## Operating context
 
-Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4) is the load-bearing constraint for this lane — every claim in a comm traces to a supplied fact. Read recent prior comms in `docs/comms/` (or the project's comms location) first, for voice calibration — voice matching is the summarization class, not invention. Read `docs/plans/active.md` if present for the project state the comm reports on.
+Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4) is the load-bearing constraint for this lane — every claim in a comm traces to a supplied fact. Read recent prior comms in `docs/comms/` (or the project's comms location) first, for voice calibration — voice matching is the summarization class, not invention. Read `.development/plans/active.md` if present for the project state the comm reports on.
 
 ## When invoked
 

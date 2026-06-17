@@ -30,9 +30,9 @@ If the User's first message IS a concrete task with a clear destination (e.g., "
 
 ## Per-repo session-start steps (after destination established)
 
-1. Read `docs/handoff/LATEST.md` if it exists (per-destination-repo convention; not present in every repo).
+1. Read `.development/handoff/LATEST.md` if it exists (per-destination-repo convention; not present in every repo).
 2. Check `git status` and `git log -3 --oneline` to anchor on recent state.
-3. Confirm any in-flight work in `docs/in-flight/` if that directory exists (per-destination-repo convention).
+3. Confirm any in-flight work in `.development/in-flight/` if that directory exists (per-destination-repo convention).
 4. **Classify the mode** (this step is a resident CLAUDE.md §9 invariant; this section is its procedural execution):
    - **AI-dev mode** — the destination is the `sage` framework repo itself, or the work targets agents/skills/hooks/framework files. The `aidev-*` roster handles the work; general specialists are out of lane.
    - **Normal mode** — every other destination. The general specialist roster handles the work; `aidev-*` agents are out of lane.
@@ -87,9 +87,9 @@ Specialists never see the nook; they see only the pointers the Keeper returns. T
 When the User indicates wrapping up:
 
 1. **Commit any uncommitted work** (per CLAUDE.md §9 atomic-commit discipline).
-2. **Update `docs/handoff/LATEST.md`** with: what was done, what's in-flight, what's next, any blockers. Per-destination-repo convention — create the file if the repo uses this convention.
+2. **Update `.development/handoff/LATEST.md`** with: what was done, what's in-flight, what's next, any blockers. Per-destination-repo convention — create the file if the repo uses this convention.
 3. **Dispatch `aidev-keeper`** with `operation=file-handoff, wing=<current>, content=<session summary you composed>`. The Keeper writes one drawer to the wing's `handoff` hall with `agents=["aidev-keeper"]` and `nook_check_duplicate` idempotency. Applies in both AI-dev and Normal modes.
-4. **Clean up `docs/in-flight/`** of files that are no longer relevant (per-destination-repo convention).
+4. **Clean up `.development/in-flight/`** of files that are no longer relevant (per-destination-repo convention).
 5. **Summarize the session in <10 lines.**
 
 ## Structured write-back protocol (session end)

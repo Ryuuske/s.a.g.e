@@ -8,4 +8,4 @@
 - [ ] Formatter clean (`uv run ruff format --check .`)
 - [ ] No hardcoded paths
 - [ ] Audit verdicts recorded (per-change auditor pair per `docs/specs/audit-pairing-matrix.md`)
-- [ ] ADR added/updated for any one-way or governance decision (dev repo: `internal/decisions/`; destination repos: `docs/decisions/`)
+- [ ] ADR added/updated for any one-way or governance decision (dev repo: `.development/decisions/`; destination repos: `.development/decisions/`)

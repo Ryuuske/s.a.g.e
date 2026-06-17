@@ -1,7 +1,7 @@
 """
 extract_frames.py — smart frame extraction with pHash deduplication.
 
-Strategy (priority order per the PRD smart-frame strategy):
+Strategy (priority order per PRD §10):
   1. Scene-change frames (PySceneDetect ContentDetector)
   2. Topic-midpoint frames (one per chapter boundary, at chapter midpoint)
   3. UI-cue frames (near transcript "click/open/select..." keywords)
@@ -18,7 +18,6 @@ Usage:
 import argparse
 import json
 import shutil
-import signal
 import subprocess
 import sys
 from pathlib import Path
@@ -56,14 +55,7 @@ def load_segments(segments_path: Path) -> list[dict]:
     return segments
 
 
-def _jpeg_qv(jpeg_quality: int) -> int:
-    """Convert JPEG quality (0-100) to ffmpeg -q:v scale (2-31, lower=better)."""
-    return max(2, int(31 - (min(100, max(0, jpeg_quality)) / 100.0) * 29))
-
-
-def extract_frame_at(
-    source: Path, t: float, output_path: Path, ffmpeg: str, jpeg_quality: int = 90
-) -> bool:
+def extract_frame_at(source: Path, t: float, output_path: Path, ffmpeg: str) -> bool:
     """Extract a single frame at time t (seconds) to output_path. Returns True on success."""
     cmd = [
         ffmpeg,
@@ -75,7 +67,7 @@ def extract_frame_at(
         "-frames:v",
         "1",
         "-q:v",
-        str(_jpeg_qv(jpeg_quality)),
+        "2",
         str(output_path),
     ]
     result = subprocess.run(cmd, capture_output=True, timeout=30)
@@ -109,34 +101,17 @@ def is_near_duplicate(phash_str: str, seen_hashes: list[str], max_distance: int)
     return False
 
 
-def _scene_timeout_handler(signum: int, frame: object) -> None:
-    raise TimeoutError("scene-detect wall-clock timeout exceeded")
-
-
-def detect_scene_changes(source: Path, threshold: float, timeout_sec: int = 1800) -> list[float]:
+def detect_scene_changes(source: Path, threshold: float) -> list[float]:
     """Return list of scene-change timestamps in seconds using PySceneDetect."""
     try:
         from scenedetect import SceneManager, open_video  # noqa: PLC0415
         from scenedetect.detectors import ContentDetector  # noqa: PLC0415
 
-        old_handler = signal.signal(signal.SIGALRM, _scene_timeout_handler)
-        signal.alarm(timeout_sec)
-        try:
-            video = open_video(str(source))
-            scene_manager = SceneManager()
-            scene_manager.add_detector(ContentDetector(threshold=threshold))
-            scene_manager.detect_scenes(video)
-            scene_list = scene_manager.get_scene_list()
-        except TimeoutError:
-            print(
-                f"  [ERROR] scene-detect timed out after {timeout_sec}s. "
-                "Increase timeouts.scene_detect_sec in defaults.yaml or check the video file.",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        finally:
-            signal.alarm(0)
-            signal.signal(signal.SIGALRM, old_handler)
+        video = open_video(str(source))
+        scene_manager = SceneManager()
+        scene_manager.add_detector(ContentDetector(threshold=threshold))
+        scene_manager.detect_scenes(video)
+        scene_list = scene_manager.get_scene_list()
 
         timestamps = []
         for scene_start, _scene_end in scene_list:
@@ -144,8 +119,6 @@ def detect_scene_changes(source: Path, threshold: float, timeout_sec: int = 1800
             if t > 0.0:
                 timestamps.append(round(t, 3))
         return timestamps
-    except SystemExit:
-        raise
     except Exception as exc:
         print(
             f"  [WARN] PySceneDetect failed: {exc} — falling back to interval only", file=sys.stderr
@@ -210,12 +183,9 @@ def extract_frames(
     scene_threshold = float(frames_cfg.get("scene_threshold", 30.0))
     fallback_interval = float(frames_cfg.get("fallback_interval_sec", 30))
     phash_distance = int(frames_cfg.get("phash_distance", 8))
-    jpeg_quality = int(frames_cfg.get("jpeg_quality", 90))
     chapters_cfg = cfg.get("chapters", {})
     target_count = int(chapters_cfg.get("target_count", 8))
     ui_keywords = cfg.get("ui_cue_keywords", [])
-    timeouts_cfg = cfg.get("timeouts", {})
-    scene_detect_timeout = int(timeouts_cfg.get("scene_detect_sec", 1800))
 
     frames_dir = job_dir / "frames"
     frames_dir.mkdir(parents=True, exist_ok=True)
@@ -255,7 +225,7 @@ def extract_frames(
 
     # --- Stage 1: scene-change frames ---
     print(f"extract_frames: detecting scene changes (threshold={scene_threshold}) ...")
-    scene_times = detect_scene_changes(source, scene_threshold, timeout_sec=scene_detect_timeout)
+    scene_times = detect_scene_changes(source, scene_threshold)
     print(f"  scene changes: {len(scene_times)} found")
 
     # --- Stage 2: topic midpoints ---
@@ -309,7 +279,7 @@ def extract_frames(
         fname = f"f_{frame_index:06d}_{time_str}.jpg"
         fpath = frames_dir / fname
 
-        ok = extract_frame_at(source, t, fpath, ffmpeg, jpeg_quality=jpeg_quality)
+        ok = extract_frame_at(source, t, fpath, ffmpeg)
         if not ok:
             print(f"  [SKIP] frame at t={t:.1f}s — extraction failed or blank")
             continue
@@ -322,12 +292,8 @@ def extract_frames(
                     print(f"  [DEDUP] frame at t={t:.1f}s ({reason}) removed by pHash")
                     fpath.unlink(missing_ok=True)
                     continue
-            except Exception as _dedup_exc:  # noqa: BLE001
-                # pHash comparison failed (e.g. corrupt hash); keep the frame
-                print(
-                    f"  [WARN] pHash dedup error at t={t:.1f}s ({reason}): {_dedup_exc}",
-                    file=sys.stderr,
-                )
+            except Exception:
+                pass  # if dedup fails, keep the frame
 
         if phash_str:
             seen_phashes.append(phash_str)

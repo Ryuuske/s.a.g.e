@@ -38,37 +38,12 @@ def load_segments(job_dir: Path) -> list[dict]:
     path = job_dir / "transcript" / "segments.jsonl"
     if not path.exists():
         return []
-
-    import jsonschema  # noqa: PLC0415
-
-    schema_path = Path(__file__).parent / "schema" / "segments.schema.json"
-    with schema_path.open() as fh:
-        seg_schema = json.load(fh)
-
     segs = []
     with path.open(encoding="utf-8") as fh:
-        for lineno, raw_line in enumerate(fh, start=1):
-            line = raw_line.strip()
-            if not line:
-                continue
-            try:
-                obj = json.loads(line)
-            except json.JSONDecodeError as exc:
-                print(
-                    f"build_manifest: ERROR — malformed JSON in {path} at line {lineno}: {exc}",
-                    file=sys.stderr,
-                )
-                sys.exit(1)
-            try:
-                jsonschema.validate(instance=obj, schema=seg_schema)
-            except jsonschema.ValidationError as exc:
-                print(
-                    f"build_manifest: ERROR — segment at {path} line {lineno} failed schema "
-                    f"validation: {exc.message}",
-                    file=sys.stderr,
-                )
-                sys.exit(1)
-            segs.append(obj)
+        for line in fh:
+            line = line.strip()
+            if line:
+                segs.append(json.loads(line))
     return segs
 
 
@@ -94,8 +69,6 @@ def auto_chapters(
     duration: float,
     target_count: int,
     min_duration: float,
-    max_title_words: int = 6,
-    max_summary_sentences: int = 2,
 ) -> list[dict]:
     """
     Auto-generate chapters by splitting duration into equal windows.
@@ -105,11 +78,8 @@ def auto_chapters(
         return []
 
     # Clamp target count so each chapter meets min_duration
-    if duration < min_duration:
-        count = 1
-    else:
-        max_chapters = max(1, int(duration / min_duration))
-        count = min(target_count, max_chapters)
+    max_chapters = max(1, int(duration / min_duration))
+    count = min(target_count, max_chapters)
     chapter_dur = duration / count
 
     chapters = []
@@ -132,20 +102,16 @@ def auto_chapters(
         # Collect text for summary
         chapter_texts = [s["text"] for s in segments if s["id"] in seg_ids]
         summary_text = " ".join(chapter_texts)
-        # Summary: first N sentences or first 120 chars
-        summary = _extract_summary(summary_text, max_sentences=max_summary_sentences)
+        # Simple summary: first sentence or first 120 chars
+        summary = _extract_summary(summary_text)
 
         # Simple keyword extraction: most common words > 4 chars
         keywords = _extract_keywords(summary_text)
 
-        # Title: "Section N" truncated to max_title_words (always fits here)
-        title_words = f"Section {i + 1}".split()[:max_title_words]
-        title = " ".join(title_words)
-
         chapters.append(
             {
                 "id": ch_id,
-                "title": title,
+                "title": f"Section {i + 1}",
                 "t_start": t_start,
                 "t_end": t_end,
                 "summary": summary,
@@ -158,18 +124,15 @@ def auto_chapters(
     return chapters
 
 
-def _extract_summary(text: str, max_chars: int = 200, max_sentences: int = 2) -> str:
+def _extract_summary(text: str, max_chars: int = 200) -> str:
     text = text.strip()
     if not text:
         return ""
-    # Collect up to max_sentences sentence-endings
-    import re as _re  # noqa: PLC0415
-
-    sentences = _re.split(r"(?<=[.!?])\s+", text)
-    clipped = " ".join(sentences[:max_sentences])
-    if len(clipped) <= max_chars:
-        return clipped
-    return clipped[:max_chars] + "…"
+    # Take up to first period or max_chars
+    period_idx = text.find(".")
+    if 0 < period_idx <= max_chars:
+        return text[: period_idx + 1]
+    return text[:max_chars] + ("…" if len(text) > max_chars else "")
 
 
 def _extract_keywords(text: str, max_kw: int = 5) -> list[str]:
@@ -243,9 +206,6 @@ def build_manifest(job_dir: Path, slug: str) -> None:
     chapters_cfg = cfg.get("chapters", {})
     target_count = int(chapters_cfg.get("target_count", 8))
     min_duration = float(chapters_cfg.get("min_duration_sec", 20))
-    max_title_words = int(chapters_cfg.get("max_title_words", 6))
-    index_cfg = cfg.get("index", {})
-    max_summary_sentences = int(index_cfg.get("max_summary_sentences", 2))
 
     segments = load_segments(job_dir)
     frames = load_frames(job_dir)
@@ -267,23 +227,14 @@ def build_manifest(job_dir: Path, slug: str) -> None:
             raw = json.load(fh)
             language = raw.get("info", {}).get("language", "en")
 
-    chapters = auto_chapters(
-        segments,
-        frames,
-        duration,
-        target_count,
-        min_duration,
-        max_title_words=max_title_words,
-        max_summary_sentences=max_summary_sentences,
-    )
+    chapters = auto_chapters(segments, frames, duration, target_count, min_duration)
 
     # Build manifest segments (add frame_ids cross-reference)
     manifest_segments = []
     for seg in segments:
         t_start = seg.get("t_start", 0)
         t_end = seg.get("t_end", t_start)
-        # Half-open [t_start, t_end) — consistent with chapter frame_ids join
-        frame_ids = [f["id"] for f in frames if f.get("t", 0) >= t_start and f.get("t", 0) < t_end]
+        frame_ids = [f["id"] for f in frames if f.get("t", 0) >= t_start and f.get("t", 0) <= t_end]
         manifest_segments.append(
             {
                 "id": seg["id"],

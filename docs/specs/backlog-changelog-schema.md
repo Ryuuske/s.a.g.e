@@ -13,7 +13,7 @@ Version: 1.1 — 2026-05-24
 
 > **Partial supersession (2026-06-10, Master Run Stage 1):** the BACKLOG.md
 > half of this schema is retired — the 9 per-agent BACKLOG files were deleted
-> and work items live ONLY in `internal/BACKLOG.md` (sequential `B-###` IDs).
+> and work items live ONLY in `.development/BACKLOG.md` (sequential `B-###` IDs).
 > The CHANGELOG.md half (append-only, ≤15-word entries, reverse-chronological)
 > remains live and binding. BACKLOG format sections below are preserved as the
 > historical record of the retired convention.
@@ -33,8 +33,8 @@ The 8 generic agents — `dev-architect`, `dev-code-implementer`, `dev-code-revi
 Per the subdir-loading verdict in `docs/specs/manifest-schema.md`: agent files are flat at `~/.claude/agents/<name>.md`, so per-agent backlogs/changelogs live in the S.A.G.E. repo, not in `~/.claude/agents/`.
 
 ```
-sage/docs/agents/<aidev-agent-name>.BACKLOG.md
-sage/docs/agents/<aidev-agent-name>.CHANGELOG.md
+sage/.development/agents/<aidev-agent-name>.BACKLOG.md
+sage/.development/agents/<aidev-agent-name>.CHANGELOG.md
 ```
 
 ---
@@ -106,7 +106,7 @@ Do not strike through or comment out backlog items. Delete them. Changelog is th
 # Backlog — aidev-planner
 
 - [ ] Add `briefing_template` to front matter per manifest schema `[2026-05-23, aidev-code-implementer]`
-- [ ] Cross-link plan output format to docs/plans/README.md when that file exists
+- [ ] Cross-link plan output format to .development/plans/README.md when that file exists
 ```
 
 **After ship — `aidev-planner.BACKLOG.md`:**
@@ -114,7 +114,7 @@ Do not strike through or comment out backlog items. Delete them. Changelog is th
 ```markdown
 # Backlog — aidev-planner
 
-- [ ] Cross-link plan output format to docs/plans/README.md when that file exists
+- [ ] Cross-link plan output format to .development/plans/README.md when that file exists
 ```
 
 **After ship — `aidev-planner.CHANGELOG.md`:**
@@ -163,7 +163,7 @@ The backlog item is retained and narrowed until all three targets ship; only the
 
 Two other workshop conventions this schema must not collide with:
 
-- `docs/in-flight/` — active work assigned and running, not yet committed. Item goes here when started; leaves when the commit lands.
+- `.development/in-flight/` — active work assigned and running, not yet committed. Item goes here when started; leaves when the commit lands.
 - `BACKLOG.md` (per-agent) — queued, not yet assigned. Item lives here until the orchestrator picks it up.
 
-A backlog item is not in-flight until explicitly started; once running, it moves to `docs/in-flight/`.
+A backlog item is not in-flight until explicitly started; once running, it moves to `.development/in-flight/`.

@@ -1,5 +1,5 @@
 <!--
-scope-owned: public S.A.G.E. persona artifact (sources: internal/persona/)
+scope-owned: public S.A.G.E. persona artifact (sources: .development/persona/)
 audience: users
 source: hand
 review-trigger: persona change

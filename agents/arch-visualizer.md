@@ -31,7 +31,7 @@ Read before any work:
 
 1. The brief in full — state every named render verbatim (id, view description, camera, resolution, render engine, output path). If any render id, camera, or resolution is ambiguous, surface `PAUSE: orchestrator must clarify <specific question>` and stop.
 2. The source IFC, material-binding spec, camera/lighting spec, and render-config in full (Read tool on each before any Bash execution; §4 "view first" binds here).
-3. `docs/plans/active.md` if present — the active plan binds this work.
+3. `.development/plans/active.md` if present — the active plan binds this work.
 
 **CoT classification: NO.** Render execution and scene assembly are summarization-class tasks — drive a pipeline, capture outputs, check non-empty/non-black. There is no derivation step requiring multi-axis reasoning; structured procedures and the `ifc-render-pipeline-discipline` skill replace reasoning chains here. This mirrors `arch-documenter`'s CoT classification for the same reason.
 

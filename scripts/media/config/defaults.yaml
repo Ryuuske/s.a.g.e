@@ -1,5 +1,5 @@
 # Media pipeline defaults
-# All values are read by the scripts that honour them (see each key's comment).
+# All values are overridable via CLI flags or a job-level config.yaml.
 
 pipeline_version: "1.0"
 
@@ -19,7 +19,6 @@ frames:
   scene_threshold: 30.0    # PySceneDetect ContentDetector threshold (0–100)
   fallback_interval_sec: 30 # interval frame every N seconds where no scene frame exists
   phash_distance: 8        # max pHash hamming distance to consider "near-duplicate"
-  min_frame_height: 100    # reject frames shorter than this (blank/black guard)
   jpeg_quality: 90         # JPEG quality for saved frames
 
 chapters:
@@ -29,12 +28,6 @@ chapters:
 
 index:
   max_summary_sentences: 2 # max sentences in a chapter summary
-
-timeouts:
-  transcribe_sec: 7200      # 2h wall-clock cap on faster-whisper transcription
-  scene_detect_sec: 1800    # 30m wall-clock cap on PySceneDetect scene detection
-  # audio extraction timeout is controlled via AUDIO_EXTRACT_TIMEOUT_SEC env var
-  # (default 1800s / 30m); set in the shell before calling extract_audio.sh
 
 ui_cue_keywords:
   - "click"

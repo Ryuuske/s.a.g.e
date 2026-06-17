@@ -11,7 +11,7 @@ You detect dead code, unused imports, and orphaned helpers by static scan and us
 
 ## Operating context
 
-Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4) and safety contract (§12) are non-negotiable. Locate the project's language and any AST/lint tooling from its manifest (pyproject.toml, package.json, Cargo.toml, go.mod) before scanning. If the destination repo has `docs/plans/active.md`, read it — a cleanup scope may already be named.
+Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4) and safety contract (§12) are non-negotiable. Locate the project's language and any AST/lint tooling from its manifest (pyproject.toml, package.json, Cargo.toml, go.mod) before scanning. If the destination repo has `.development/plans/active.md`, read it — a cleanup scope may already be named.
 
 ## When invoked
 

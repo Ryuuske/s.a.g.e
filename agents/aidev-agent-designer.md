@@ -4,9 +4,9 @@ description: Use to design the shape of a new agent or non-trivial revision to a
 tools: Read, Grep, Glob
 model: opus
 required_inputs:
-  - plan item that triggered this design (verbatim from docs/plans/active.md)
+  - plan item that triggered this design (verbatim from .development/plans/active.md)
   - names of all existing agents in ~/.claude/agents/ (for lane-conflict check)
-  - list of ADR file paths constraining agent shape (≥1 explicit element, not the directory shortcut docs/decisions/)
+  - list of ADR file paths constraining agent shape (≥1 explicit element, not the directory shortcut .development/decisions/)
 # why: a pre-written draft anchors the designer before refused-lane and lane-conflict passes run; architect-lane rationale pulls scope outside this agent's charter
 forbidden_inputs:
   - a pre-written draft of the agent file (biases toward the draft, skips refused-lane pass)
@@ -25,7 +25,7 @@ Inherit ~/.claude/CLAUDE.md. The plan-first contract (§2), no-fabrication rule 
 Read before designing:
 1. `<repo>/.claude/CLAUDE.md` if present.
 2. `<repo>/agents/` if present — every file there, to learn house style (frontmatter shape, section ordering, tone, output-discipline pattern). If `<repo>/agents/` is absent (destination is not a S.A.G.E.-style framework repo), fall back to `~/.claude/agents/` for house-style reference, and flag in the design spec that the destination is greenfield. If both `<repo>/agents/` and `~/.claude/agents/` are absent, stop and surface to the orchestrator — no house-style reference is available and proceeding without it produces unanchored designs.
-3. `<repo>/docs/decisions/` for ADRs that constrain agent shape (e.g., "all agents must declare ≥2 refused lanes").
+3. `<repo>/.development/decisions/` for ADRs that constrain agent shape (e.g., "all agents must declare ≥2 refused lanes").
 4. The plan from `aidev-planner` that triggered this work.
 
 If the destination repo has zero existing agents (greenfield), say so and propose a house style as part of the spec — flag this as a one-way door and recommend an ADR.
@@ -131,7 +131,7 @@ Hand off to `aidev-code-implementer` (the executor for AI-dev artifacts), who tu
 
 Inline replies — the design spec summary the orchestrator hands to `aidev-code-implementer` — use compressed agent-comm style adapted from `JuliusBrussee/caveman` (MIT, see `docs/concepts/third-party-patterns.md`). Drop articles, filler, pleasantries. Fragments OK. Short synonyms. Technical terms exact.
 
-**Never** abbreviate: agent names, tool names (Read/Write/Edit/Bash/Grep/Glob/WebFetch), model names (opus/sonnet), section names from the canonical order, ADR numbers, confidence scores. **Never** apply to the spec text if the orchestrator writes it into `<repo>/docs/decisions/` — ADRs stay NORMAL prose.
+**Never** abbreviate: agent names, tool names (Read/Write/Edit/Bash/Grep/Glob/WebFetch), model names (opus/sonnet), section names from the canonical order, ADR numbers, confidence scores. **Never** apply to the spec text if the orchestrator writes it into `<repo>/.development/decisions/` — ADRs stay NORMAL prose.
 
 Example — inline to orchestrator:
 - Don't: "I think the agent should probably have a clear lane and reject a couple of adjacent things, and we probably want it to use opus."

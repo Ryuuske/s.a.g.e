@@ -22,14 +22,14 @@ jobs:
       - name: fail if deny-listed working-artifact paths reappear
         run: |
           set -euo pipefail
-          deny_prefixes='^(docs/plans/|docs/audits/|docs/handoff/|docs/in-flight/|docs/decisions/|docs/roadmap/|docs/research/|docs/recovery/|docs/vision/|docs/governance/|internal/)'
+          deny_prefixes='^(\.development/)'
           offenders=$(git ls-files | grep -E "$deny_prefixes" || true)
           if [ -n "$offenders" ]; then
-            echo "::error::Inc H' policy invariant violated: working-artifact paths are tracked in the repo."
+            echo "::error::Policy invariant violated: local working-artifact paths are tracked in the repo."
             echo "::error::Policy: working files stay local; GitHub repo is a clean installable public release."
-            echo "::error::Source: docs/plans/active.md, section 'Inc H execution split'."
-            echo "::error::Deny-listed prefixes: docs/plans/, docs/audits/, docs/handoff/, docs/in-flight/, docs/decisions/, docs/roadmap/, docs/research/, docs/recovery/, docs/vision/, docs/governance/, internal/."
-            echo "::error::These prefixes must remain ignored via .gitignore and must not be tracked."
+            echo "::error::Source: .development/plans/active.md."
+            echo "::error::Deny-listed prefix: .development/ (the single local working-artifact tree)."
+            echo "::error::This prefix must remain ignored via .gitignore and must not be tracked."
             echo "::error::Offending tracked paths:"
             printf '::error::  %s\n' $offenders
             exit 1
@@ -37,7 +37,7 @@ jobs:
           echo "leak-guard: no deny-listed working-artifact paths tracked."
 
   stray-work-items:
-    name: work items live only in internal/BACKLOG.md
+    name: work items live only in .development/BACKLOG.md
     runs-on: ubuntu-latest
     timeout-minutes: 5
 

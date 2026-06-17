@@ -1,0 +1,11 @@
+# Top-level media-pipeline dependencies (pinned to proven-working versions).
+# Compile to the hash-locked lockfile with:
+#   uv pip compile scripts/media/requirements-media.in --generate-hashes \
+#     -o scripts/media/requirements-media.txt
+# setup.sh installs from the locked .txt with --require-hashes.
+faster-whisper==1.2.1
+scenedetect==0.7
+Pillow==12.2.0
+imagehash==4.3.2
+pyyaml==6.0.3
+jsonschema==4.26.0

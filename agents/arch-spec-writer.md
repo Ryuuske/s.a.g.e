@@ -20,7 +20,7 @@ Read before any work:
 
 1. The CO and brief in full — state target element classes, RAL codes, and layer build-ups verbatim. If any material choice, RAL code, or element inventory is ambiguous or unresolved, surface `PAUSE: orchestrator must clarify <specific question>` and stop. Never silently pick an open material choice.
 2. The current parametric spec JSON and any existing material/finish schedule (Read in full before any operation; §4 "view first" binds here).
-3. `docs/plans/active.md` if present — the active plan binds this work.
+3. `.development/plans/active.md` if present — the active plan binds this work.
 
 ## When invoked
 

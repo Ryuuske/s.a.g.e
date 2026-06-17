@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Gate: work items live ONLY in internal/BACKLOG.md.
+"""Gate: work items live ONLY in .development/BACKLOG.md.
 
-Master Run Stage 1 standing rule (internal/ledger.md Entry 001/004).
+Master Run Stage 1 standing rule (.development/ledger.md Entry 001/004).
 Scans every tracked file (git ls-files) for stray work-item markers and
 unchecked checkboxes. Word-bounded, case-sensitive matching per the Stage 1
 referee verdict Amendment 1 — incidental substrings (mktemp XXXX templates,
@@ -9,7 +9,7 @@ token fixtures like glpat-XXXX..., words containing "TODO") do not match.
 
 Allowlist policy: files whose CONTENT legitimately contains marker shapes
 (pattern definitions, reviewer instructions, fixtures, templates). Any
-addition to an allowlist requires a new entry in internal/ledger.md.
+addition to an allowlist requires a new entry in .development/ledger.md.
 
 Exit 0 = clean. Exit 1 = stray work item found (printed as file:line:match).
 """
@@ -46,7 +46,7 @@ CHECKBOX_ALLOW = {
 }
 
 # Whole trees excluded until their disposition lands (ledger Entry 001 Q3).
-PREFIX_ALLOW = ("docs/projects/sage-estate-dashboard/",)
+PREFIX_ALLOW: tuple[str, ...] = ()
 
 
 def tracked_files() -> list[str]:
@@ -72,10 +72,10 @@ def main() -> int:
             if rel not in CHECKBOX_ALLOW and CHECKBOX.search(line):
                 hits.append(f"{rel}:{lineno}: stray unchecked checkbox")
     if hits:
-        print("Stray work items found — work items live ONLY in internal/BACKLOG.md:")
+        print("Stray work items found — work items live ONLY in .development/BACKLOG.md:")
         print("\n".join(hits))
         print(
-            f"\n{len(hits)} hit(s). Either move the item to internal/BACKLOG.md "
+            f"\n{len(hits)} hit(s). Either move the item to .development/BACKLOG.md "
             "or (for legitimate marker-shaped content) add the file to the "
             "allowlist in scripts/gate_stray_work_items.py WITH a ledger entry."
         )

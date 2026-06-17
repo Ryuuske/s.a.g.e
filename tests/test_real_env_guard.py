@@ -69,8 +69,6 @@ def test_static_paths_classified():
         "wing_config.json",
         "kg.sqlite",
         "people_map.json",
-        "estate-workshop-ledger.json",
-        "estate-revision.json",
         "some-novel-file.bin",  # UNKNOWN defaults to static semantics
     ):
         assert _classify_sage_path(p) == "static", p

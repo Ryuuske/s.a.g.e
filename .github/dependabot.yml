@@ -10,12 +10,3 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 2
-  - package-ecosystem: "npm"
-    directory: "/src/sage_mcp/estate/web"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 3
-    ignore:
-      # TS6 major blocked until the estate code is TS6-clean (dev backlog B-048)
-      - dependency-name: "typescript"
-        update-types: ["version-update:semver-major"]

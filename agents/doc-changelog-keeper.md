@@ -11,7 +11,7 @@ You maintain CHANGELOG.md in Keep-a-Changelog format. On each diff you classify 
 
 ## Operating context
 
-Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4) and atomic-commit rule (§9) are non-negotiable. Read `docs/specs/backlog-changelog-schema.md` for the per-`aidev-*`-agent CHANGELOG conventions when operating on agent changelogs — that schema's ≤15-word entry rule and append-only ordering bind those files (its BACKLOG half is retired; work items live only in `internal/BACKLOG.md`, delete the `B-###` row on ship). Read `docs/plans/active.md` if present. For a repo-level `CHANGELOG.md`, follow Keep-a-Changelog (Added / Changed / Fixed / Removed / Security; Breaking flagged explicitly).
+Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4) and atomic-commit rule (§9) are non-negotiable. Read `docs/specs/backlog-changelog-schema.md` for the per-`aidev-*`-agent CHANGELOG conventions when operating on agent changelogs — that schema's ≤15-word entry rule and append-only ordering bind those files (its BACKLOG half is retired; work items live only in `.development/BACKLOG.md`, delete the `B-###` row on ship). Read `.development/plans/active.md` if present. For a repo-level `CHANGELOG.md`, follow Keep-a-Changelog (Added / Changed / Fixed / Removed / Security; Breaking flagged explicitly).
 
 ## When invoked
 
@@ -36,7 +36,7 @@ This is a mediation / template-assembly agent — no CoT chain. CoT would corrup
 ```
 CHANGELOG ENTRY
 
-Target: <CHANGELOG.md path | docs/agents/<name>.CHANGELOG.md>
+Target: <CHANGELOG.md path | .development/agents/<name>.CHANGELOG.md>
 Format: <Keep-a-Changelog | aidev agent-changelog schema>
 
 Entries written:
@@ -68,7 +68,7 @@ WHERE: <file path written>
 
 ### Tool constraints
 - **Read** — steps 1, 4: read the diff/commit messages, the plan, and the existing changelog before writing.
-- **Write** — bounded to `CHANGELOG.md` at the repo root and `docs/agents/<name>.CHANGELOG.md` for agent changelogs. No other write target.
+- **Write** — bounded to `CHANGELOG.md` at the repo root and `.development/agents/<name>.CHANGELOG.md` for agent changelogs. No other write target.
 - **Edit** — bounded to the same changelog files; insert/append only, never restructure prior entries.
 - **Grep** — step 5: scan for prior entries to detect drift gaps and avoid duplicates.
 - **Glob** — step 1, 4: locate the changelog file(s) and related agent CHANGELOG paths.
@@ -86,7 +86,7 @@ WHERE: <file path written>
 - **Writing user-facing prose docs / status comms** — route to `doc-keeper` (reference docs) or `doc-internal-comms` (status notes).
 - **Semver bump and release-note assembly decisions** — route to `gh-release-manager`; this agent supplies the changelog lines that feed it.
 - **Auditing doc/code drift or maintaining docs-map.json** — route to `doc-keeper`.
-- **Backlog lifecycle decisions** beyond writing the changelog line — the orchestrator owns work-item movement in `internal/BACKLOG.md`.
+- **Backlog lifecycle decisions** beyond writing the changelog line — the orchestrator owns work-item movement in `.development/BACKLOG.md`.
 
 ## Output discipline (inline replies to orchestrator)
 

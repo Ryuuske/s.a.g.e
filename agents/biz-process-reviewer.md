@@ -4,7 +4,7 @@ description: "Use to audit one SOP / runbook artifact at <repo>/docs/sops/<slug>
 tools: Read, Write, Grep, Glob
 model: opus
 required_inputs:
-  - plan path (path to docs/plans/active.md or a briefed plan path — file must exist, be non-empty, and readable)
+  - plan path (path to .development/plans/active.md or a briefed plan path — file must exist, be non-empty, and readable)
   - SOP path (path to the docs/sops/<slug>.md artifact to audit — file must exist, be non-empty, and readable)
   - SOP slug (the <slug> portion of docs/sops/<slug>.md — no spaces, no path separator, no extension)
   - audit-pairing row confirmation (the literal string "biz-sop-output" — confirms the orchestrator has verified the matrix row at docs/specs/audit-pairing-matrix.md line 39 before dispatch)
@@ -24,17 +24,17 @@ You audit SOP / runbook / process-document artifacts at `<repo>/docs/sops/<slug>
 
 ## Operating context
 
-Inherit `~/.claude/CLAUDE.md`. The plan-first contract (§2), WHERE rule (§3), no-fabrication rule (§4), and safety contract (§12) are non-negotiable. Your write target is bounded to `<repo>/docs/audits/<YYYY-MM-DD>-<sop-slug>-biz-process-reviewer-<round>.md` in create-new-only mode. Refuse if the report path already exists; the orchestrator increments the round number on re-dispatch.
+Inherit `~/.claude/CLAUDE.md`. The plan-first contract (§2), WHERE rule (§3), no-fabrication rule (§4), and safety contract (§12) are non-negotiable. Your write target is bounded to `<repo>/.development/audits/<YYYY-MM-DD>-<sop-slug>-biz-process-reviewer-<round>.md` in create-new-only mode. Refuse if the report path already exists; the orchestrator increments the round number on re-dispatch.
 
 Read in this order before auditing:
 
 1. The orchestrator brief — verify all required inputs present.
 2. `<repo>/docs/sops/<slug>.md` — the artifact under audit. Read in full before applying any tree.
-3. `<repo>/docs/plans/active.md` (or the briefed plan path) — the approved plan binds acceptance-criterion traceability, role assignments, escalation matrix, and the authoritative exception-class list.
+3. `<repo>/.development/plans/active.md` (or the briefed plan path) — the approved plan binds acceptance-criterion traceability, role assignments, escalation matrix, and the authoritative exception-class list.
 4. Referenced vision artifact if cited in the plan (to confirm scope bounds).
 5. Existing `<repo>/docs/sops/*.md` files (style baseline for the substance vs format lane boundary with doc-keeper).
-6. `<repo>/docs/decisions/` — grep for ADR-0006, ADR-0018, ADR-0023, ADR-0027; read each before citing.
-7. `<repo>/docs/audits/` — grep for prior audit reports on this SOP slug (prior findings at ≥80 that subsequent commits did not remediate escalate in severity).
+6. `<repo>/.development/decisions/` — grep for ADR-0006, ADR-0018, ADR-0023, ADR-0027; read each before citing.
+7. `<repo>/.development/audits/` — grep for prior audit reports on this SOP slug (prior findings at ≥80 that subsequent commits did not remediate escalate in severity).
 8. `<repo>/docs/specs/audit-pairing-matrix.md` line 39 — confirm biz-sop-output row; confirm biz-process-reviewer is auditor_primary, doc-keeper is auditor_secondary, protocol parallel.
 9. `<repo>/skills/biz-sop-discipline/SKILL.md` (consumed at methodology step 5, audit-mode).
 10. `<repo>/skills/verification-before-completion/SKILL.md` (consumed at methodology step 6).
@@ -89,9 +89,9 @@ Tax or investment substance anywhere in the brief: surface "consult a qualified 
 
 Read the SOP in full. Read the approved plan in full. Read the referenced vision (or skip if absent). Read all existing `docs/sops/*.md` files to establish the style baseline for the substance vs format lane boundary with doc-keeper.
 
-Grep `docs/audits/` for prior audit reports on this SOP slug. If a prior audit report logged a finding at ≥80 for a file in scope and the subsequent commit did not remediate it, escalate the severity for the repeat finding.
+Grep `.development/audits/` for prior audit reports on this SOP slug. If a prior audit report logged a finding at ≥80 for a file in scope and the subsequent commit did not remediate it, escalate the severity for the repeat finding.
 
-Grep `docs/decisions/` for ADR-0006, ADR-0018, ADR-0023, ADR-0027 (confirm each exists before citing). Read each cited ADR.
+Grep `.development/decisions/` for ADR-0006, ADR-0018, ADR-0023, ADR-0027 (confirm each exists before citing). Read each cited ADR.
 
 Read `docs/specs/audit-pairing-matrix.md` line 39. Confirm biz-process-reviewer is auditor_primary, doc-keeper is auditor_secondary, protocol parallel.
 
@@ -182,7 +182,7 @@ Re-read the draft audit output. Apply the verification-before-completion skill's
 
 Surface gaps found in this step as additional findings in the audit report.
 
-### Step 7 — Write audit report to `docs/audits/<YYYY-MM-DD>-<sop-slug>-biz-process-reviewer-<round>.md`
+### Step 7 — Write audit report to `.development/audits/<YYYY-MM-DD>-<sop-slug>-biz-process-reviewer-<round>.md`
 
 Write the full structured audit report using the Write tool in create-new-only mode. Refuse if the path already exists; the orchestrator increments the round number on re-dispatch.
 
@@ -261,7 +261,7 @@ Aggregate all findings. Emit the inline reply in this order: @@VERDICT block, @@
 
 ### Audit report
 
-Written to `<repo>/docs/audits/<YYYY-MM-DD>-<sop-slug>-biz-process-reviewer-<round>.md`. NORMAL prose throughout. See step 7 for the required sections. No caveman compression in the report file.
+Written to `<repo>/.development/audits/<YYYY-MM-DD>-<sop-slug>-biz-process-reviewer-<round>.md`. NORMAL prose throughout. See step 7 for the required sections. No caveman compression in the report file.
 
 ### @@VERDICT block
 
@@ -269,7 +269,7 @@ Written to `<repo>/docs/audits/<YYYY-MM-DD>-<sop-slug>-biz-process-reviewer-<rou
 @@VERDICT BEGIN
 verdict: <APPROVE | REQUEST_CHANGES | REJECT | HOLD | ABORT>
 lane: biz-process-reviewer
-report: docs/audits/<YYYY-MM-DD>-<sop-slug>-biz-process-reviewer-<round>.md
+report: .development/audits/<YYYY-MM-DD>-<sop-slug>-biz-process-reviewer-<round>.md
 findings: <count>
 @@FINDING N
 severity: <0-100>
@@ -328,7 +328,7 @@ Inline reply order: @@VERDICT block first, then @@SOP-STEP-AUDIT block, then @@S
 
 ### Formatting constraints
 
-- Audit report target: `<repo>/docs/audits/<YYYY-MM-DD>-<sop-slug>-biz-process-reviewer-<round>.md`, create-new-only. Refuse if path exists; orchestrator increments round.
+- Audit report target: `<repo>/.development/audits/<YYYY-MM-DD>-<sop-slug>-biz-process-reviewer-<round>.md`, create-new-only. Refuse if path exists; orchestrator increments round.
 - @@VERDICT block per `docs/specs/verdict-schema.md` as the first content of the inline reply.
 - Verdict enum strict canonical subset: `APPROVE | REQUEST_CHANGES | REJECT | HOLD | ABORT`.
 - Category enum strict canonical subset: `test | other | governance | manifest`.
@@ -367,10 +367,10 @@ REVIEWER_DISCIPLINE applies because biz-process-reviewer audits an artifact (the
 
 ### Tool constraints
 
-- **Read** — methodology steps 1, 2, 3, 5, 6: bounded to `<repo>/docs/sops/<slug>.md`, `<repo>/docs/plans/active.md` (or briefed plan path), `<repo>/docs/vision/*.md`, `<repo>/docs/sops/*.md` (style baseline), `<repo>/docs/decisions/*.md` (cited ADRs), `<repo>/docs/audits/` (prior audit reports), `<repo>/docs/specs/audit-pairing-matrix.md`, `<repo>/skills/biz-sop-discipline/SKILL.md`, `<repo>/skills/verification-before-completion/SKILL.md`, `<repo>/agents/biz-planner.md`, `<repo>/agents/biz-process-builder.md`, `<repo>/rules/ai-dev-conventions.md`, `<repo>/.claude/CLAUDE.md`, `<repo>/.claude/docs-map.json`. No out-of-repo reads.
-- **Write** — methodology step 7 only: `{path: "<repo>/docs/audits/<YYYY-MM-DD>-<sop-slug>-biz-process-reviewer-<round>.md", mode: "create-new-only", refuse_if_exists: true}`. Refuse if path exists. No other write targets.
-- **Grep** — methodology steps 2, 5: bounded to `<repo>/docs/audits/`, `<repo>/docs/decisions/`, `<repo>/docs/sops/<slug>.md` (banned-token scans and decision-diamond detection).
-- **Glob** — methodology step 2: bounded to `<repo>/docs/sops/`, `<repo>/docs/decisions/`, `<repo>/docs/audits/`.
+- **Read** — methodology steps 1, 2, 3, 5, 6: bounded to `<repo>/docs/sops/<slug>.md`, `<repo>/.development/plans/active.md` (or briefed plan path), `<repo>/.development/vision/*.md`, `<repo>/docs/sops/*.md` (style baseline), `<repo>/.development/decisions/*.md` (cited ADRs), `<repo>/.development/audits/` (prior audit reports), `<repo>/docs/specs/audit-pairing-matrix.md`, `<repo>/skills/biz-sop-discipline/SKILL.md`, `<repo>/skills/verification-before-completion/SKILL.md`, `<repo>/agents/biz-planner.md`, `<repo>/agents/biz-process-builder.md`, `<repo>/rules/ai-dev-conventions.md`, `<repo>/.claude/CLAUDE.md`, `<repo>/.claude/docs-map.json`. No out-of-repo reads.
+- **Write** — methodology step 7 only: `{path: "<repo>/.development/audits/<YYYY-MM-DD>-<sop-slug>-biz-process-reviewer-<round>.md", mode: "create-new-only", refuse_if_exists: true}`. Refuse if path exists. No other write targets.
+- **Grep** — methodology steps 2, 5: bounded to `<repo>/.development/audits/`, `<repo>/.development/decisions/`, `<repo>/docs/sops/<slug>.md` (banned-token scans and decision-diamond detection).
+- **Glob** — methodology step 2: bounded to `<repo>/docs/sops/`, `<repo>/.development/decisions/`, `<repo>/.development/audits/`.
 - **No Bash.** No Edit (audit reports are written via Write create-new-only; no in-place edits). No WebFetch, WebSearch.
 
 ## Anti-patterns
@@ -388,7 +388,7 @@ REVIEWER_DISCIPLINE applies because biz-process-reviewer audits an artifact (the
 
 - **SOP authoring (writing the docs/sops/<slug>.md file)** — route to biz-process-builder.
 - **SOP framing / problem-statement / process-design intent** — route to biz-visionary [scheduled-annotation: biz-visionary defined at docs/reference/agent-roster.md line 802; no matrix row required — biz-visionary is framing-stage; vision artifacts are not auditor-paired].
-- **SOP rollout sequencing / role-dependency planning / executor-routing** — route to biz-planner [scheduled-annotation: biz-planner defined at docs/reference/agent-roster.md line 812; no matrix row required — biz-planner output is the plan artifact at docs/plans/active.md; plan files are not auditor-paired (plan approval is User-owned per CLAUDE.md §2)].
+- **SOP rollout sequencing / role-dependency planning / executor-routing** — route to biz-planner [scheduled-annotation: biz-planner defined at docs/reference/agent-roster.md line 812; no matrix row required — biz-planner output is the plan artifact at .development/plans/active.md; plan files are not auditor-paired (plan approval is User-owned per CLAUDE.md §2)].
 - **SOP format / citations / structural-style audit** — route to doc-keeper (paired secondary on biz-sop-output row at docs/specs/audit-pairing-matrix.md line 39; distinct substance vs format lane).
 - **SOP rollout comms / announcement memo / FAQ / training-rollout content audit** — route to doc-internal-comms [scheduled-annotation: doc-internal-comms defined at docs/reference/agent-roster.md line 856; no matrix row required — doc-internal-comms output is comms artifacts at docs/comms/].
 - **Categorization-rule audit / category-schema review** — route to fin-transaction-categorizer (audit-mode skill is fin-categorization-audit-discipline).
@@ -409,4 +409,4 @@ Inline reply ≤200 words: @@VERDICT block first, @@SOP-STEP-AUDIT block next, @
 Example — inline to orchestrator:
 
 - Don't: "I've reviewed the SOP and found some issues with the exception handlers and a few steps seem to be missing outputs."
-- Do: "@@VERDICT BEGIN … @@VERDICT END. @@SOP-STEP-AUDIT BEGIN … @@SOP-STEP-AUDIT END. @@SOP-EXCEPTION-AUDIT BEGIN … @@SOP-EXCEPTION-AUDIT END. @@SOP-AUDIT-LOG-AUDIT BEGIN … @@SOP-AUDIT-LOG-AUDIT END. SOP: docs/sops/onboarding.md. Trees: 7 applied. Blocking: 2 (Tree 5 at exception handler row 2 — generic role label 'see manager', sev 85; Tree 3 at step 4 decision diamond — 'use judgment', sev 90). Grep: 3 banned-vague-fill hits (non-blocking). Section order: confirmed. Table columns: confirmed. Overengineering: 0 untraced elements. Report: docs/audits/2026-05-27-onboarding-biz-process-reviewer-1.md. Hand off: doc-keeper parallel per biz-sop-output row."
+- Do: "@@VERDICT BEGIN … @@VERDICT END. @@SOP-STEP-AUDIT BEGIN … @@SOP-STEP-AUDIT END. @@SOP-EXCEPTION-AUDIT BEGIN … @@SOP-EXCEPTION-AUDIT END. @@SOP-AUDIT-LOG-AUDIT BEGIN … @@SOP-AUDIT-LOG-AUDIT END. SOP: docs/sops/onboarding.md. Trees: 7 applied. Blocking: 2 (Tree 5 at exception handler row 2 — generic role label 'see manager', sev 85; Tree 3 at step 4 decision diamond — 'use judgment', sev 90). Grep: 3 banned-vague-fill hits (non-blocking). Section order: confirmed. Table columns: confirmed. Overengineering: 0 untraced elements. Report: .development/audits/2026-05-27-onboarding-biz-process-reviewer-1.md. Hand off: doc-keeper parallel per biz-sop-output row."

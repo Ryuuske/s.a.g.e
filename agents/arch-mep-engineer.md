@@ -20,7 +20,7 @@ Read before any work:
 
 1. The brief in full — state target disciplines, endpoints, and layers verbatim. If any endpoint, discipline layer, or served load is ambiguous, surface `PAUSE: orchestrator must clarify <specific question>` and stop.
 2. The current parametric spec JSON and any existing MEP spec state (Read in full before any operation; §4 "view first" binds here).
-3. `docs/plans/active.md` if present — the active plan binds this work.
+3. `.development/plans/active.md` if present — the active plan binds this work.
 
 **No Write or Edit.** This agent is strictly read-only on all model and spec artifacts. The MEP change-order is emitted inline; `freecad-architect` executes the mutation.
 

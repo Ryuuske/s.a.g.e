@@ -24,7 +24,7 @@ The orchestrator loads procedure skills by description match; expect this in sco
 
 ## Operating context
 
-Inherit ~/.claude/CLAUDE.md. Read the project's active plan file at `<repo>/docs/active-plan.md` or `<repo>/docs/plans/active.md` (whichever the project uses) for binding rules and follow-up debt. Locate the project's test/lint/build commands from the destination repo's manifest (`package.json` scripts, `Makefile` targets, `pyproject.toml` tool config, etc.).
+Inherit ~/.claude/CLAUDE.md. Read the project's active plan file at `<repo>/docs/active-plan.md` or `<repo>/.development/plans/active.md` (whichever the project uses) for binding rules and follow-up debt. Locate the project's test/lint/build commands from the destination repo's manifest (`package.json` scripts, `Makefile` targets, `pyproject.toml` tool config, etc.).
 
 ## Inputs to gather
 
@@ -38,7 +38,7 @@ gh pr view --json number,title,state,reviewDecision,reviews,comments,statusCheck
 gh pr checks 2>/dev/null
 
 # Past audit trail
-ls <repo>/docs/audits/ 2>/dev/null | tail -20
+ls <repo>/.development/audits/ 2>/dev/null | tail -20
 ```
 
 ## The 8 checklists
@@ -85,7 +85,7 @@ Some checks require a human at the actual target platform. The destination repo'
 - Or is the manual check still required? Note it under "Owner pre-merge checks."
 
 ### 7. Follow-up debt
-Read the project's active plan file at `<repo>/docs/active-plan.md` or `<repo>/docs/plans/active.md` (whichever the project uses) for the formal follow-up list. For each row:
+Read the project's active plan file at `<repo>/docs/active-plan.md` or `<repo>/.development/plans/active.md` (whichever the project uses) for the formal follow-up list. For each row:
 - **Severity** — Critical / Important / Minor. Critical = usually BLOCK.
 - **Workaround** — does the current state work for users in the meantime?
 - **Documentation** — is the deferral filed somewhere a future agent will find it?
@@ -134,7 +134,7 @@ Acceptable: Minor deferral, documented, with workaround. Blocking: Critical with
 - ...
 ```
 
-Full report to `<repo>/docs/audits/<YYYY-MM-DD>-ops-release-readiness-<scope>.md`. Inline reply: verdict + ≤400-word justification.
+Full report to `<repo>/.development/audits/<YYYY-MM-DD>-ops-release-readiness-<scope>.md`. Inline reply: verdict + ≤400-word justification.
 
 ## Verdict thresholds
 
@@ -164,8 +164,8 @@ Full report to `<repo>/docs/audits/<YYYY-MM-DD>-ops-release-readiness-<scope>.md
 
 Inline replies — verdict + ≤400-word justification the orchestrator sees — use compressed agent-comm style adapted from `JuliusBrussee/caveman` (MIT, see `docs/concepts/third-party-patterns.md`). Drop articles, filler, pleasantries. Fragments OK. Short synonyms. Technical terms exact.
 
-**Never** abbreviate: verdict labels (SHIP/HOLD/BLOCK), gate names (linter, tests, contract, smoke), commit SHAs, PR numbers, branch names, file paths, test counts, coverage percentages, comment URLs. **Never** apply to the structured report in `<repo>/docs/audits/<YYYY-MM-DD>-ops-release-readiness-<scope>.md` — that stays NORMAL prose. Treat BLOCK escalations as critical-class — never compress them.
+**Never** abbreviate: verdict labels (SHIP/HOLD/BLOCK), gate names (linter, tests, contract, smoke), commit SHAs, PR numbers, branch names, file paths, test counts, coverage percentages, comment URLs. **Never** apply to the structured report in `<repo>/.development/audits/<YYYY-MM-DD>-ops-release-readiness-<scope>.md` — that stays NORMAL prose. Treat BLOCK escalations as critical-class — never compress them.
 
 Example — inline to orchestrator:
 - Don't: "Looks like the branch is mostly ready but there are a few unresolved comments and one test is failing — probably HOLD until those clear."
-- Do: "VERDICT: HOLD. Gates: linter pass, type pass, tests 142/143 (1 fail: `test_export_csv` at tests/export.test.ts:88), coverage 79% (target 80%). Unresolved comments: 2 (github.com/.../pull/47#discussion_r123, #r456). Follow-up debt: 0 critical. Report: docs/audits/2026-05-20-pre-release-v0.3-ops-release-readiness.md."
+- Do: "VERDICT: HOLD. Gates: linter pass, type pass, tests 142/143 (1 fail: `test_export_csv` at tests/export.test.ts:88), coverage 79% (target 80%). Unresolved comments: 2 (github.com/.../pull/47#discussion_r123, #r456). Follow-up debt: 0 critical. Report: .development/audits/2026-05-20-pre-release-v0.3-ops-release-readiness.md."

@@ -55,9 +55,8 @@ SHIP_DIRS: tuple[str, ...] = (
     ".github",
     ".devcontainer",
     # NB: docs/specs ships the CURRENT framework spec contracts via SHIP_FILES
-    # below. Frozen/design-phase specs were relocated to internal/archive/specs/
-    # at Master Run Stage 3 and are excluded by construction.
-    # NB: the persona SOURCE files live at internal/persona/ — only the derived
+    # below. Frozen/design-phase specs are not shipped — excluded by construction.
+    # NB: the persona SOURCE files live at .development/persona/ — only the derived
     # public artifact (docs/concepts/sage-persona.md) ships, via SHIP_FILES. The
     # raw sage-profile.{md,docx,txt} carry the unbuilt voice/TTS/mode-router
     # spec and stay private.
@@ -109,11 +108,7 @@ SHIP_FILES: tuple[str, ...] = (
     "docs/specs/virtual-line-numbering.md",
     "docs/specs/schema.sql",
     "docs/concepts/sage-persona.md",
-    # estate contract JSONs — required by the shipped ts-web CI job
-    # (render.test.ts drift guard); byte-identical to the src/ copies
-    "docs/projects/sage-estate-dashboard/estate-design-tokens.json",
-    "docs/projects/sage-estate-dashboard/estate-model.schema.json",
-    # docs/specs — current framework specs (historical design docs: internal/archive/specs/)
+    # docs/specs — current framework specs
     "docs/specs/verdict-schema.md",
     "docs/specs/telemetry.md",
     "docs/specs/manifest-schema.md",
@@ -124,19 +119,12 @@ SHIP_FILES: tuple[str, ...] = (
 # executable documentation of the do-not-ship boundary; the allowlist already
 # excludes them by omission, this tuple is what the test asserts against.
 DO_NOT_SHIP: tuple[str, ...] = (
-    "docs/decisions",  # ADRs — private trail
-    "docs/audits",  # per-change audit reports
-    "docs/plans",  # working plans
-    "docs/roadmap",  # working roadmap / vision drafts
-    "docs/handoff",  # session handoffs + the run-log
-    "docs/research",  # research notes
-    "docs/recovery",  # recovery runbooks (operator-specific)
-    "docs/vision",  # vision drafts
-    "docs/agents",  # per-agent internal CHANGELOG process docs (BACKLOG halves retired 2026-06-10)
+    ".development",  # the single local working-artifact tree: plans, audits, ADRs,
+    # handoffs, roadmap, research, recovery, vision, agent CHANGELOGs, BACKLOG, ledger,
+    # persona sources (ADR-0117 — one ignore rule, leak-guard-denied)
     "CHANGELOG.md",  # carries historical prior-framework vocabulary
     "HISTORY.md",  # internal dev history
-    # (the pre-rebrand one-time migration tool was archived to internal/archive/tools/)
-    "scripts/gen_adr_index.py",  # targets internal/decisions (dev repo only)
+    "scripts/gen_adr_index.py",  # targets .development/decisions (dev repo only)
     "scripts/prune-plugin-cache.sh",  # operator cache tool, zero refs
     "docs/specs/framework-standards-charter.md",  # dev-repo governance contracts;
     # intentionally dev-only (measure_framework_surface.py self-encodes the contracts)

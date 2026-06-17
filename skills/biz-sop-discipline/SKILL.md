@@ -42,7 +42,7 @@ Do NOT fire this skill for:
 - Writing an M transform for the SOP's data step → `m-language-discipline`.
 - Writing the VBA macro the SOP references → `vba-language-discipline`.
 - Designing the agent that will write SOPs → `agent-creation` via `aidev-agent-creator`.
-- Checking whether a SOP plan is well-scoped → `biz-planner` [scheduled-annotation: biz-planner defined at docs/reference/agent-roster.md line 812; no matrix row required — biz-planner output is the plan artifact at docs/plans/active.md, plan files are not auditor-paired].
+- Checking whether a SOP plan is well-scoped → `biz-planner` [scheduled-annotation: biz-planner defined at docs/reference/agent-roster.md line 812; no matrix row required — biz-planner output is the plan artifact at .development/plans/active.md, plan files are not auditor-paired].
 - General pre-completion verification on the SOP → `verification-before-completion` (load `biz-sop-discipline` alongside; `verification-before-completion` governs the overall procedure).
 - Looking up the current ISO 9001 / ITIL / COBIT or any external audit-framework reference clause text → emit `PAUSE: need research-docs-lookup for <subject> reference lookup [scheduled-annotation: agent pending future session per agent-roster.md step 13]` and stop. (See "When this skill PAUSEs" below.)
 

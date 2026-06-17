@@ -16,7 +16,7 @@ Checks (any hit = exit 1):
      covered directory prefix).
   6. Root CLAUDE.md stays within its 50-line budget.
 
-Allowlist additions require an internal/ledger.md entry (Entry 004 policy).
+Allowlist additions require an .development/ledger.md entry (Entry 004 policy).
 """
 
 from __future__ import annotations
@@ -52,7 +52,7 @@ COUNT_ALLOW = {
     # historical-fenced baseline snapshots (charter §7/§8 2026-05-28 baseline)
     "docs/specs/framework-standards-charter.md",
     # fixed convention scope ("the 9 aidev-* agents", ADR-0010 C2), not a drifting count
-    "docs/agents/README.md",
+    ".development/agents/README.md",
     "docs/specs/backlog-changelog-schema.md",
 }
 
@@ -64,7 +64,7 @@ BANNED_ALLOW = {
     "CHANGELOG.md",  # append-only release history (reader-note fenced)
     "scripts/migrate_to_sage.py",  # migrates the pre-rebrand store (documents its path)
     "scripts/gate_docs.py",  # this file's allowlist
-    "internal/BACKLOG.md",  # dev-only work items
+    ".development/BACKLOG.md",  # dev-only work items
 }
 BANNED_ALLOW_PREFIXES = ("tests/",)  # migration-coverage fixtures
 
@@ -84,8 +84,7 @@ _PYPI_WARN_WORDS = ("taken", "unrelated", "not on PyPI", "NOT on PyPI", "strange
 
 # -- check 5: reachability ----------------------------------------------------
 REACH_PREFIX_COVERED = (
-    "docs/projects/sage-estate-dashboard/",  # covered by its registry row
-    "docs/agents/",  # covered by its registry row
+    ".development/agents/",  # covered by its registry row
     "docs/reference/",  # generated; registry row covers
 )
 
