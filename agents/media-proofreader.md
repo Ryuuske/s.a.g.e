@@ -211,4 +211,4 @@ targets, or PAUSE routing destinations. **Never** apply compression to commit me
 
 Example — inline to orchestrator:
 - Don't: "I reviewed the transcript and found some issues. Made a bunch of corrections and flagged a few unclear terms."
-- Do: "@@PROOF-SUMMARY: corrections 14 | flags 3 | high-uncertainty: s0047 (2 flags: [FLAG] 'quickbase' | 00-04-12 | domain-term, [FLAG] 'QBO' | 00-04-18 | acronym). WHERE: ~/dev/media-jobs/onboarding-demo-a1b2/transcript/proofed.md, corrections.md."
+- Do: "@@PROOF-SUMMARY: corrections 14 | flags 3 | high-uncertainty: s0047 (2 flags: [FLAG] '<domain-term>' | 00-04-12 | domain-term, [FLAG] '<acronym>' | 00-04-18 | acronym). WHERE: ~/dev/media-jobs/<slug>/transcript/proofed.md, corrections.md."
