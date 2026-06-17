@@ -93,6 +93,7 @@ SHIP_FILES: tuple[str, ...] = (
     "docs/reference/skills.md",
     "docs/reference/commands.md",
     "docs/reference/surface.md",
+    "docs/reference/agent-dependencies.md",
     # CI-referenced repo tooling (public CI must run green)
     "scripts/gate_docs.py",
     "scripts/gate_stray_work_items.py",
