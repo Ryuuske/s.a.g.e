@@ -183,12 +183,11 @@ def main() -> None:
     if args.force_stage:
         if args.force_stage not in STAGES:
             print(
-                f"run: FATAL — unknown stage {args.force_stage!r}; "
-                f"valid: {', '.join(STAGES)}",
+                f"run: FATAL — unknown stage {args.force_stage!r}; valid: {', '.join(STAGES)}",
                 file=sys.stderr,
             )
             sys.exit(1)
-        cascade = STAGES[STAGES.index(args.force_stage):]
+        cascade = STAGES[STAGES.index(args.force_stage) :]
         for st in cascade:
             stage_status[st] = "pending"
         # Persist the cleared markers before we start
