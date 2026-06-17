@@ -24,6 +24,11 @@ import re
 import sys
 from pathlib import Path
 
+try:
+    import yaml as _yaml
+except ImportError:  # pragma: no cover
+    _yaml = None  # type: ignore[assignment]
+
 REPO = Path(__file__).resolve().parent.parent
 
 BANNER = "<!-- GENERATED — DO NOT EDIT. Regenerate with `python3 scripts/gen_docs.py`. -->\n\n"
@@ -59,6 +64,78 @@ def frontmatter(text: str) -> dict[str, str]:
         elif key and line.startswith(" "):
             fields[key] = (fields[key] + " " + line.strip()).strip()
     return fields
+
+
+def _frontmatter_block(text: str) -> str | None:
+    """Return the raw YAML string inside the opening --- delimiters, or None."""
+    m = re.match(r"^---\n(.*?)\n---\n", text, re.S)
+    return m.group(1) if m else None
+
+
+def requires_entries(text: str) -> list[dict[str, str]]:
+    """Return the parsed `requires` list from agent frontmatter, or [].
+
+    The existing ``frontmatter()`` function is a flat key:value parser and cannot
+    parse the nested list-of-dicts that ``requires`` uses.  This function pulls
+    the raw YAML block and parses it with ``yaml.safe_load`` when available,
+    falling back to [] (no entries surfaced) when PyYAML is absent.
+    """
+    if _yaml is None:
+        return []
+    block = _frontmatter_block(text)
+    if not block:
+        return []
+    try:
+        data = _yaml.safe_load(block)
+    except _yaml.YAMLError:
+        return []
+    if not isinstance(data, dict):
+        return []
+    raw = data.get("requires")
+    if not isinstance(raw, list):
+        return []
+    result = []
+    for entry in raw:
+        if not isinstance(entry, dict):
+            continue
+        result.append(
+            {
+                "dep": str(entry.get("dep", "")),
+                "kind": str(entry.get("kind", "")),
+                "install": str(entry.get("install", "")),
+                "why": str(entry.get("why", "")),
+            }
+        )
+    return result
+
+
+def gen_agent_dependencies() -> str:
+    """Generate docs/reference/agent-dependencies.md from agents' ``requires`` fields."""
+    rows: list[tuple[str, dict[str, str]]] = []
+    for f in sorted((REPO / "agents").glob("*.md")):
+        text = f.read_text(encoding="utf-8")
+        fm = frontmatter(text)
+        name = fm.get("name", f.stem)
+        for entry in requires_entries(text):
+            rows.append((name, entry))
+    lines = [
+        BANNER,
+        "# Agent dependencies — reference\n\n",
+        "Generated from `agents/*.md` frontmatter `requires` fields. Lists every agent\n",
+        "that declares at least one external dependency not shipped with S.A.G.E. core.\n",
+        "Governed by ADR-0121.\n\n",
+    ]
+    if rows:
+        lines.append("| Agent | Dependency | Kind | Install | Why |\n|---|---|---|---|---|\n")
+        for name, entry in rows:
+            dep = entry["dep"].replace("|", "\\|")
+            kind = entry["kind"].replace("|", "\\|")
+            install = entry["install"].replace("|", "\\|")
+            why = entry["why"].replace("|", "\\|")
+            lines.append(f"| `{name}` | {dep} | `{kind}` | {install} | {why} |\n")
+    else:
+        lines.append("_No agents currently declare external dependencies._\n")
+    return "".join(lines)
 
 
 def agents() -> list[dict[str, str]]:
@@ -196,6 +273,7 @@ def main() -> int:
         REPO / "docs/reference/skills.md": skills_md,
         REPO / "docs/reference/commands.md": commands_md,
         REPO / "docs/reference/surface.md": gen_surface(agent_rows, n_skills, n_commands),
+        REPO / "docs/reference/agent-dependencies.md": gen_agent_dependencies(),
         REPO / "AGENTS.md": gen_agents_md(),
     }
     check = "--check" in sys.argv

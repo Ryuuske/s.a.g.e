@@ -64,6 +64,7 @@ counts) live ONLY in generated docs.
 | reference/skills.md | every skill + description | generated from `skills/*/SKILL.md` |
 | reference/commands.md | every command-skill | generated from `commands/*.md` |
 | reference/surface.md | counts, hooks, wings, manifest facts | generated from repo manifests |
+| reference/agent-dependencies.md | external dependencies per agent (agents with `requires` only) | generated from `agents/*.md` `requires` fields |
 
 ## Other tracked surfaces
 

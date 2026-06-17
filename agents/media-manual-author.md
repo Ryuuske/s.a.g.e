@@ -15,6 +15,15 @@ forbidden_inputs:
   - "requests to fix/refine the package (transcript→media-proofreader; chapters→media-indexer; author consumes, never mutates source)"
   - "hardcoded client, product, employer, or domain names in styling or document templates (runtime data, never in this file)"
 briefing_template: "Author <quick-ref|full-manual> on topic '<topic>' as <md|pdf|docx>. Index: <index-path>. Package root: <package-root>."
+requires:
+  - dep: pandoc
+    kind: system
+    install: "apt-get install pandoc (or brew install pandoc); wkhtmltopdf for PDF rendering"
+    why: "renders the composed markdown to pdf or docx; md output needs no render tool but pdf/docx steps call pandoc directly"
+  - dep: "~/.venvs/docgen"
+    kind: venv
+    install: "~/.venvs/docgen/bin/pip install python-docx openpyxl (see docgen toolkit notes)"
+    why: "alternative render path when the brief names docgen as the render tool; absent if only pandoc render is used"
 ---
 
 # Media Manual Author

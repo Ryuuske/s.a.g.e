@@ -37,6 +37,34 @@ What the orchestrator must NOT pass. Each string names an input category that ac
 
 A one-line template the orchestrator pastes verbatim into the brief, with `<placeholder>` tokens the orchestrator fills before sending.
 
+### `requires`
+
+**Type:** YAML list of mappings. Optional — omit entirely for agents with no external dependencies.
+
+Each entry declares one external dependency the agent cannot function without but that S.A.G.E. core does not ship. Fields per entry:
+
+| Field | Type | Description |
+|---|---|---|
+| `dep` | string | Short human name for the dependency (e.g., `"Playwright MCP plugin"`, `"ffmpeg"`, `"playwright runtime + browser binaries"`). |
+| `kind` | enum | One of: `mcp-plugin` (a Claude Code plugin MCP server), `system` (an OS-level binary), `package` (a pip/npm/other package), `venv` (a project-specific virtual environment). |
+| `install` | string | The command or pointer an operator runs to provision the dependency (e.g., `"claude plugin install (Playwright MCP) — registered at user scope"`, `"pip install playwright && playwright install"`, `"scripts/media/setup.sh"`). |
+| `why` | string | What the agent cannot do without this dependency — the functional consequence of it being absent. |
+
+`scripts/gen_docs.py` reads every agent's `requires` entries and generates `docs/reference/agent-dependencies.md` — a table (Agent | Dependency | Kind | Install | Why) listing only agents that declare the field. Agents with no external dependency omit `requires` entirely; they do not appear in the generated registry. Governed by ADR-0121.
+
+**Example:**
+```yaml
+requires:
+  - dep: Playwright MCP plugin
+    kind: mcp-plugin
+    install: "claude plugin install (Playwright MCP) — registered at user scope"
+    why: "the one-off interactive browser tools (navigate/click/snapshot/evaluate) are reachable only via this MCP server"
+  - dep: playwright runtime + browser binaries
+    kind: package
+    install: "pip install playwright (in the project venv) && playwright install"
+    why: "committed Playwright scripts (the deliverable for recurring flows) need the runtime + browser binaries to execute"
+```
+
 ---
 
 ## What "populated" means

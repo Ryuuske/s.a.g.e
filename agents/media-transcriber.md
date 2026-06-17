@@ -14,6 +14,15 @@ forbidden_inputs:
   - "a request to 'improve/clean up' the transcript (judgment lane → media-proofreader)"
   - "instructions to bypass doctor.py or probe.py preflight checks"
 briefing_template: "Run media pipeline. Source: <source-path>. Slug: <job-slug>. Package root: <package-root>. Resume if stages marked done."
+requires:
+  - dep: ffmpeg
+    kind: system
+    install: "scripts/media/setup.sh (installs ffmpeg + all media pipeline deps)"
+    why: "audio extraction and frame capture stages invoke ffmpeg directly; without it the pipeline fails at the audio stage"
+  - dep: "~/.venvs/media"
+    kind: venv
+    install: "scripts/media/setup.sh"
+    why: "faster-whisper, scenedetect, Pillow, imagehash and the rest of the transcription/packaging deps live in this venv (hash-locked in scripts/media/requirements-media.txt); doctor.py reports missing venv if absent"
 ---
 
 # Media Transcriber

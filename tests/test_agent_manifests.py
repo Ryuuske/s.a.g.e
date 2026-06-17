@@ -229,6 +229,43 @@ class TestManifestListShape:
 
 
 # ---------------------------------------------------------------------------
+# Assertion 1b — requires field shape (external-dependency declarations, ADR-0121)
+# ---------------------------------------------------------------------------
+
+
+class TestRequiresField:
+    """`requires` (optional) must be a list of dicts, each with non-empty dep/kind/
+    install/why and kind from the ADR-0121 enum.  A malformed entry silently produces
+    empty cells in the generated docs/reference/agent-dependencies.md."""
+
+    _KINDS = {"mcp-plugin", "system", "package", "venv"}
+
+    def test_requires_well_formed(self, manifest_agent):
+        path, data = manifest_agent
+        req = data.get("requires")
+        if req is None:
+            return  # field optional
+        assert isinstance(req, list), (
+            f"{path.name}: requires parsed as {type(req).__name__}, expected list. "
+            f"See docs/specs/manifest-schema.md."
+        )
+        for i, entry in enumerate(req):
+            assert isinstance(entry, dict), (
+                f"{path.name}: requires[{i}] is {type(entry).__name__}, expected a mapping "
+                f"with dep/kind/install/why."
+            )
+            for key in ("dep", "kind", "install", "why"):
+                val = entry.get(key)
+                assert isinstance(val, str) and val.strip(), (
+                    f"{path.name}: requires[{i}] missing or empty '{key}' "
+                    f"(would generate an empty cell in agent-dependencies.md)."
+                )
+            assert entry["kind"] in self._KINDS, (
+                f"{path.name}: requires[{i}].kind={entry['kind']!r} not in {sorted(self._KINDS)}."
+            )
+
+
+# ---------------------------------------------------------------------------
 # Assertion 2 — no unfilled <placeholder> in required_inputs / forbidden_inputs
 # ---------------------------------------------------------------------------
 

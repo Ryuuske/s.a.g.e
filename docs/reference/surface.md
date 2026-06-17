@@ -6,8 +6,8 @@ The single home for countable facts (no hand-written doc may state these).
 
 | Fact | Value | Source |
 |---|---|---|
-| Agents | 98 | `agents/*.md` |
-| Skills | 38 | `skills/*/SKILL.md` |
+| Agents | 99 | `agents/*.md` |
+| Skills | 39 | `skills/*/SKILL.md` |
 | Command-skills | 5 | `commands/*.md` |
 | Hook events | 2 (PreCompact, Stop) | `hooks/hooks.json` |
 | Wing types | 6 (dev, knowledge, meta, ops, personal, project) | `wing_config.json` |

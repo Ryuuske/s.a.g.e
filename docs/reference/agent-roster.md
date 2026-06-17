@@ -12,7 +12,7 @@ classification, shareability principle) lives at
 | Family | Prefix | Count |
 |---|---|---|
 | AI Development | `aidev-` | 16 |
-| General Development | `dev-` | 31 |
+| General Development | `dev-` | 32 |
 | GitHub Project Mechanics | `gh-` | 6 |
 | Data Engineering | `data-` | 5 |
 | Architecture | `arch-`/`freecad-` | 11 |
@@ -24,7 +24,7 @@ classification, shareability principle) lives at
 | Research | `research-` | 2 |
 | Test / E2E Validation | `test-` | 5 |
 | Media | `media-` | 4 |
-| **Total** | — | **98** |
+| **Total** | — | **99** |
 
 ## Family: AI Development
 
@@ -114,6 +114,11 @@ classification, shareability principle) lives at
 
 - **Description**: Use to evaluate technical design decisions, technology selections, system boundaries, refactor scope, and architectural patterns. Triggers when the User asks "should I use X or Y," when an ADR is being proposed or reviewed, when a refactor would change module boundaries, or when the orchestrator faces a non-trivial design choice during planning. Do not use for routine code review (that's dev-code-reviewer), visual design (dev-ux-designer), or implementation (dev-code-implementer). Do not use for AI-dev agent shape — that's `aidev-agent-designer`.
 - **Model**: opus · **Tools**: Read, Grep, Glob, WebSearch, WebFetch
+
+### `dev-browser-operator`
+
+- **Description**: Use to drive a browser toward a goal — explore/repair selectors and self-QA a running app via the Playwright MCP tools (one-off), and commit a pinned Playwright script for any flow that runs more than once. Triggers: 'scrape/extract from <page>', 'automate this browser flow', 'this selector broke / flaky on <page>', 'self-QA the app at <url>'. Do not use for running or flake-classifying the existing e2e suite (→ dev-e2e-runner; this agent repairs a broken selector/flow, it does not run the suite), general non-browser code (→ dev-code-implementer), or designing test cases (→ dev-test-engineer).
+- **Model**: sonnet · **Tools**: Read, Write, Edit, Bash, Grep, Glob, mcp__plugin_playwright_playwright__navigate, mcp__plugin_playwright_playwright__navigate_back, mcp__plugin_playwright_playwright__click, mcp__plugin_playwright_playwright__type, mcp__plugin_playwright_playwright__fill_form, mcp__plugin_playwright_playwright__hover, mcp__plugin_playwright_playwright__select_option, mcp__plugin_playwright_playwright__press_key, mcp__plugin_playwright_playwright__snapshot, mcp__plugin_playwright_playwright__take_screenshot, mcp__plugin_playwright_playwright__evaluate, mcp__plugin_playwright_playwright__wait_for, mcp__plugin_playwright_playwright__tabs, mcp__plugin_playwright_playwright__console_messages, mcp__plugin_playwright_playwright__network_requests
 
 ### `dev-build-error-resolver`
 
