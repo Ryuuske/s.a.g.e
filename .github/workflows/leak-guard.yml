@@ -55,6 +55,13 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
 
+      - name: Set up Python
+        # setup-python's interpreter is not externally-managed, so the pinned pip
+        # install below is safe on PEP-668 runners (ubuntu-24.04). Same SHA as ci.yml.
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: "3.12"
+
       - name: install PyYAML (gen_docs parses the manifest `requires` field)
         run: python3 -m pip install --quiet "pyyaml==6.0.3"
 
