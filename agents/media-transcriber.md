@@ -108,8 +108,9 @@ is not a success criterion — verify content.
 - **segments.jsonl**: non-empty; each line parses as JSON with `id`, `t_start`, `t_end`,
   `text`. Flag if mean `no_speech_prob` is high (silent or music-only recording).
 - **frames/** (video sources only): file count > 0 (`ls -1 <package-root>/frames/ | wc -l`),
-  at least one `.jpg` present. For audio-only sources (mp3/wav/m4a) there are no frames —
-  skip this check; an empty or absent `frames/` is correct, not a failure.
+  at least one `.jpg` present. Skip this check when `manifest.json` `job.source_type` is
+  `audio` (probe.py sets it to `audio` when there is no video stream, regardless of container/
+  extension — an audio-only `.mp4` counts) — an empty or absent `frames/` is then correct, not a failure.
 - **manifest.json**: file exists and is non-empty; every `frame_id` in `manifest.json`
   (the `frames` list and each chapter's frame IDs) resolves to a file on disk. Frame IDs
   live in the manifest, not in `segments.jsonl` — the manifest is the timecode join.
