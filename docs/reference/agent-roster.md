@@ -23,7 +23,8 @@ classification, shareability principle) lives at
 | Operations | `ops-` | 2 |
 | Research | `research-` | 2 |
 | Test / E2E Validation | `test-` | 5 |
-| **Total** | — | **94** |
+| Media | `media-` | 4 |
+| **Total** | — | **98** |
 
 ## Family: AI Development
 
@@ -518,4 +519,26 @@ classification, shareability principle) lives at
 
 - **Description**: Use to build and PROVE an isolated sandbox for a S.A.G.E. end-to-end run, and to tear it down with proof the real environment is untouched. The only crew agent that constructs the jail (throwaway HOME, redirected CLAUDE_DIR/SAGE_NOOK_PATH/CLAUDE_CONFIG_DIR, fresh venv, crontab shim). Triggers: pre-install sandbox build, isolation proof gate, post-run teardown + real-state diff. Do not use to run install.sh (test-install-verifier), to mine/search the nook (test-nook-operator), or to assemble the report (test-evidence-reporter).
 - **Model**: sonnet · **Tools**: Bash, Read, Write
+
+## Family: Media
+
+### `media-indexer`
+
+- **Description**: Use to refine a job package's chapter map — adjust chapter boundaries, rewrite titles and one-line summaries, tune keywords in index.md so the read-index-first navigation is accurate and gap-free. Triggers on 'refine the chapters', 'improve the index', 'the chapter titles/boundaries are off'. Do not use for: running the pipeline (→ media-transcriber), fixing transcription mishears or domain terms (→ media-proofreader), writing a manual/quick-ref from the index (→ media-manual-author), or the deterministic first-pass chapter segmentation that belongs in build_index.py (→ scripts/media/).
+- **Model**: opus · **Tools**: Read, Write, Edit, Grep, Glob
+
+### `media-manual-author`
+
+- **Description**: Use to author a quick-reference guide or full step-by-step manual about a topic from an existing job package — read index.md first, match the topic to chapter(s), load only those segments+frames via the timecode join, compose, render to md/pdf/docx via pandoc/docgen, cite timecodes. Triggers on 'create a quick reference for topic X', 'write a full manual with screenshots for process Y', 'document how the video explains Z'. Do not use for: running the pipeline (→ media-transcriber), correcting transcript text (→ media-proofreader), refining chapter boundaries/titles (→ media-indexer), or rendering deterministic conversion that belongs in a script (→ scripts/media/ + docgen toolkit).
+- **Model**: opus · **Tools**: Read, Write, Bash, Grep, Glob
+
+### `media-proofreader`
+
+- **Description**: Use to proofread a transcribed job package — read segments.jsonl, fix likely transcription mishears, flag uncertain domain/product terms and acronyms, write transcript/proofed.md with timecoded headers and an append-only transcript/corrections.md audit log. Triggers on 'proofread the transcript', 'fix the mishears in <package>', 'clean up the transcription'. Do not use for: running the pipeline / re-transcribing (→ media-transcriber), refining chapter boundaries or titles in index.md (→ media-indexer), writing a manual/quick-ref (→ media-manual-author), or deterministic text normalization that belongs in transcribe.py (→ scripts/media/).
+- **Model**: opus · **Tools**: Read, Write, Edit, Grep, Glob
+
+### `media-transcriber`
+
+- **Description**: Use to run the scripts/media/ ingestion pipeline end-to-end on a source media file and verify the produced job package is non-empty and structurally sane (audio extracted, segments present, frames > 0, manifest validates, index covers duration). Thin wrapper over proven deterministic scripts. Triggers on 'ingest this video/audio', 'transcribe and package <file>', 'run the media pipeline on <source>'. Do not use for: fixing transcription mishears or flagging domain terms (→ media-proofreader), refining chapter boundaries/titles (→ media-indexer), writing a manual/quick-ref from a package (→ media-manual-author), or deterministic logic that belongs inside the scripts (→ scripts/media/, do not reimplement in the agent).
+- **Model**: sonnet · **Tools**: Read, Bash, Grep, Glob
 
