@@ -216,7 +216,7 @@ classification, shareability principle) lives at
 
 ### `dev-planner`
 
-- **Description**: Use to convert a sharpened software-dev vision (or concrete User request) into a binding plan at docs/plans/active.md, routing work items to dev-/data-/gh- specialists from the active roster. Software-dev scope only. Triggers when a vision is settled but no plan exists, or 'what would it take to add/fix/refactor X'. Do not use for AI-dev/finance/business-ops planning (aidev-planner / fin-planner / biz-planner), tech selection (dev-architect), or framing (dev-visionary).
+- **Description**: Use to convert a sharpened software-dev vision (or concrete User request) into a binding plan at .development/plans/active.md, routing work items to dev-/data-/gh- specialists from the active roster. Software-dev scope only. Triggers when a vision is settled but no plan exists, or 'what would it take to add/fix/refactor X'. Do not use for AI-dev/finance/business-ops planning (aidev-planner / fin-planner / biz-planner), tech selection (dev-architect), or framing (dev-visionary).
 - **Model**: opus · **Tools**: Read, Grep, Glob, Write
 
 ### `dev-python-reviewer`
@@ -347,7 +347,7 @@ classification, shareability principle) lives at
 
 ### `arch-planner`
 
-- **Description**: Use to convert a sharpened architecture vision (or concrete client request) into a binding plan at docs/plans/active.md, sequencing the project by discipline dependency and routing work items to the arch-* family. Architecture scope only. Triggers when a vision is settled but no plan exists, or 'what would it take to take this house/dwelling from brief to issued documentation'. Do not use for AI-dev/software/finance/business-ops planning, framing (→ arch-visionary), tech selection (→ dev-architect), or model edits (→ freecad-architect).
+- **Description**: Use to convert a sharpened architecture vision (or concrete client request) into a binding plan at .development/plans/active.md, sequencing the project by discipline dependency and routing work items to the arch-* family. Architecture scope only. Triggers when a vision is settled but no plan exists, or 'what would it take to take this house/dwelling from brief to issued documentation'. Do not use for AI-dev/software/finance/business-ops planning, framing (→ arch-visionary), tech selection (→ dev-architect), or model edits (→ freecad-architect).
 - **Model**: opus · **Tools**: Read, Grep, Glob, Write
 
 ### `arch-spec-writer`
@@ -394,7 +394,7 @@ classification, shareability principle) lives at
 
 ### `fin-planner`
 
-- **Description**: Use to convert a sharpened finance vision into a binding plan at docs/plans/active.md, sequencing budget/cash-flow/reporting/categorization/reconciliation by period dependency. Finance scope only. Triggers when a fin-visionary vision is settled, or 'what would it take to close Q3 / reconcile Account X'. Do not use for AI-dev/software/business-ops planning (aidev-planner / dev-planner / biz-planner), framing (fin-visionary), or tax/investment advice (REFUSE OUTRIGHT).
+- **Description**: Use to convert a sharpened finance vision into a binding plan at .development/plans/active.md, sequencing budget/cash-flow/reporting/categorization/reconciliation by period dependency. Finance scope only. Triggers when a fin-visionary vision is settled, or 'what would it take to close Q3 / reconcile Account X'. Do not use for AI-dev/software/business-ops planning (aidev-planner / dev-planner / biz-planner), framing (fin-visionary), or tax/investment advice (REFUSE OUTRIGHT).
 - **Model**: opus · **Tools**: Read, Grep, Glob, Write
 
 ### `fin-reconciler`
@@ -421,7 +421,7 @@ classification, shareability principle) lives at
 
 ### `biz-planner`
 
-- **Description**: Use to convert a sharpened business-ops vision into a binding plan at docs/plans/active.md, sequencing SOP/process/workflow design and rollout by role-dependency. Business-ops scope only. Triggers when a biz-visionary vision is settled, or 'what would it take to roll out process X'. Do not use for AI-dev/software/finance planning (aidev-planner / dev-planner / fin-planner), framing (biz-visionary), tech selection (dev-architect), or tax/investment advice (REFUSE OUTRIGHT).
+- **Description**: Use to convert a sharpened business-ops vision into a binding plan at .development/plans/active.md, sequencing SOP/process/workflow design and rollout by role-dependency. Business-ops scope only. Triggers when a biz-visionary vision is settled, or 'what would it take to roll out process X'. Do not use for AI-dev/software/finance planning (aidev-planner / dev-planner / fin-planner), framing (biz-visionary), tech selection (dev-architect), or tax/investment advice (REFUSE OUTRIGHT).
 - **Model**: opus · **Tools**: Read, Grep, Glob, Write
 
 ### `biz-process-builder`

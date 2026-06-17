@@ -27,7 +27,7 @@ bash install.sh          # runs `pip install -e .` → puts `sage` + `sage-mcp` 
 **Verify:** `sage --version` prints a version, and `sage-mcp --help` resolves.
 If `sage-mcp` is not found, re-open your shell or check that `install.sh` finished —
 the MCP server must be on PATH before (or right after) the Claude Code plugin loads
-(see `docs/decisions/0026-mcp-bootstrap-documented-prerequisite.md`).
+(see `.development/decisions/0026-mcp-bootstrap-documented-prerequisite.md`).
 
 ## 2. Bootstrap the Nook in one command
 
@@ -52,7 +52,7 @@ sage recall "anything you just mined" --results 3
 ```
 
 **Verify:** you get drawers back (not an empty result). If a repo carries ADRs under
-`docs/decisions/`, they classify into a `decisions` room when a repo `sage.yaml`
+`.development/decisions/`, they classify into a `decisions` room when a repo `sage.yaml`
 defines one — `sage recall "<a decision you wrote>" --wing <repo>` should surface it.
 
 ## 4. Wire the orchestrator (Claude Code)
@@ -83,7 +83,7 @@ layer, the memory layer, and the hooks are all live.
 - `README.md` — install detail + the Distribution section.
 - `docs/concepts/mission.md` — what S.A.G.E. is for and its design principles.
 - `docs/reference/agent-roster.md` — the specialist agents and how the orchestrator routes to them.
-- `docs/decisions/` — the ADR trail (every non-trivial decision, append-only).
+- `.development/decisions/` — the ADR trail (every non-trivial decision, append-only).
 
 If something in steps 1–4 does not verify, re-run that step's command with the
 preview/`--help` flag first — every S.A.G.E. entry point is designed to fail loud, not

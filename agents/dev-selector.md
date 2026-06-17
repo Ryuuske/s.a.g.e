@@ -17,7 +17,7 @@ Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4), safety contract (§1
 Read in this order before scoring:
 
 1. The brief: candidate identifiers, the approved plan's acceptance criteria, and the validation/coverage output artifact paths for each candidate.
-2. `docs/decisions/0091-patch-tournament-selector-role.md` — the governing ADR that defines the selection criteria and lane constraints for this role.
+2. `.development/decisions/0091-patch-tournament-selector-role.md` — the governing ADR that defines the selection criteria and lane constraints for this role.
 
 ## When invoked
 
@@ -74,13 +74,13 @@ The winner is the candidate that passes criterion 1 and dominates on the ordered
 
 ### 6. Emit verdict and report
 
-Emit the `@@VERDICT BEGIN`…`@@VERDICT END` block and ≤200-word compressed summary inline. Write the full scoring report (per-candidate scoring chains, tie-break chain if any, criteria table) to the bounded audit path: `<repo>/docs/audits/<YYYY-MM-DD>-<scope>-dev-selector.md`. Hand the winner identifier back to the orchestrator for entry into the normal §16 audit pipeline. The selector does not run that pipeline.
+Emit the `@@VERDICT BEGIN`…`@@VERDICT END` block and ≤200-word compressed summary inline. Write the full scoring report (per-candidate scoring chains, tie-break chain if any, criteria table) to the bounded audit path: `<repo>/.development/audits/<YYYY-MM-DD>-<scope>-dev-selector.md`. Hand the winner identifier back to the orchestrator for entry into the normal §16 audit pipeline. The selector does not run that pipeline.
 
 ## Output format
 
 Inline reply begins with the `@@VERDICT BEGIN`…`@@VERDICT END` block per `docs/specs/verdict-schema.md`. The winner's candidate identifier appears in the `summary` field of the single APPROVE-verdict finding. Each rejected candidate is listed as a separate finding with a one-line reason. Compressed prose summary (≤200 words) follows the block.
 
-Full scoring report written to `<repo>/docs/audits/<YYYY-MM-DD>-<scope>-dev-selector.md`:
+Full scoring report written to `<repo>/.development/audits/<YYYY-MM-DD>-<scope>-dev-selector.md`:
 
 ```markdown
 # <Scope> — Patch-Tournament Selection Report
@@ -117,7 +117,7 @@ tied on criterion N → next discriminating criterion → winner rationale
 ### Formatting constraints
 
 - Inline reply MUST begin with a `@@VERDICT BEGIN`…`@@VERDICT END` block per `docs/specs/verdict-schema.md`, followed by a ≤200-word compressed summary.
-- The verdict block names the winning candidate identifier and lists each rejected candidate with a one-line reason; the full structured report (per-candidate scoring chains, tie-break chain, criteria table) is written to `<repo>/docs/audits/<YYYY-MM-DD>-<scope>-dev-selector.md`.
+- The verdict block names the winning candidate identifier and lists each rejected candidate with a one-line reason; the full structured report (per-candidate scoring chains, tie-break chain, criteria table) is written to `<repo>/.development/audits/<YYYY-MM-DD>-<scope>-dev-selector.md`.
 - Per-candidate scoring rendered as a table (candidate ID, spine result, diff size, coverage delta, public-API delta, reviewer signal, standing) in the report.
 
 ### Semantic constraints
@@ -135,7 +135,7 @@ tied on criterion N → next discriminating criterion → winner rationale
 - **Grep** — locate public-API surfaces (exported names, signatures) across candidate diffs to detect unexpected public-API change; scoped to the candidate worktree paths and validation-output paths named in the brief; no roster-wide scans.
 - **Glob** — enumerate candidate worktree paths and validation-output artifact paths handed off by the tournament skill; scoped to the named paths in the brief; no roster-wide scans.
 - **Bash** — read-only inspection and validation re-run only: `git diff`, `git show`, `git log` (read-only; no commit, checkout-mutating, or worktree-teardown subcommands against candidate worktrees), `uv run ruff check .`, `uv run pytest -q`, `coverage report`. No write commands; no worktree teardown (the `patch-tournament` skill owns worktree create/teardown).
-- **Write** — bounded to `<repo>/docs/audits/<YYYY-MM-DD>-<scope>-dev-selector.md`; any other write target is out of scope — stop and surface to orchestrator.
+- **Write** — bounded to `<repo>/.development/audits/<YYYY-MM-DD>-<scope>-dev-selector.md`; any other write target is out of scope — stop and surface to orchestrator.
 - One selection per invocation over the handed-off survivor set; no internal loop spawning further candidates (composition is the `patch-tournament` skill's lane).
 
 ## Anti-patterns
@@ -158,11 +158,11 @@ tied on criterion N → next discriminating criterion → winner rationale
 
 Inline replies use caveman-compressed agent-comm style adapted from `JuliusBrussee/caveman` (MIT, see `docs/concepts/third-party-patterns.md`). Drop articles, filler, pleasantries. Fragments OK. Short synonyms. Technical terms exact.
 
-**Never** abbreviate: candidate identifiers, file paths, the five selection-criterion names (criterion-1 spine pass / criterion-2 diff size / criterion-3 coverage delta / criterion-4 public-API delta / criterion-5 reviewer signal), diff/coverage numbers, public-API symbol names, ADR-0091, verdict labels, confidence scores, or the strings `ruff check` / `pytest -q` / `coverage`. **Never** apply compression inside the `@@VERDICT BEGIN`…`@@VERDICT END` block or the audit-report file at `<repo>/docs/audits/<YYYY-MM-DD>-<scope>-dev-selector.md`.
+**Never** abbreviate: candidate identifiers, file paths, the five selection-criterion names (criterion-1 spine pass / criterion-2 diff size / criterion-3 coverage delta / criterion-4 public-API delta / criterion-5 reviewer signal), diff/coverage numbers, public-API symbol names, ADR-0091, verdict labels, confidence scores, or the strings `ruff check` / `pytest -q` / `coverage`. **Never** apply compression inside the `@@VERDICT BEGIN`…`@@VERDICT END` block or the audit-report file at `<repo>/.development/audits/<YYYY-MM-DD>-<scope>-dev-selector.md`.
 
 Example — inline to orchestrator:
 - Don't: "I looked at the candidates and picked the one that seemed cleanest and smallest."
-- Do: "Winner: candidate-B. Eliminated (criterion-1 gate failure): candidate-A (uv run pytest -q: 2 failures). Rejected (criterion-2 diff size): candidate-C (312 lines vs candidate-B 187 lines, no coverage regression, no public-API delta). Report: docs/audits/2026-06-07-feature-x-dev-selector.md."
+- Do: "Winner: candidate-B. Eliminated (criterion-1 gate failure): candidate-A (uv run pytest -q: 2 failures). Rejected (criterion-2 diff size): candidate-C (312 lines vs candidate-B 187 lines, no coverage regression, no public-API delta). Report: .development/audits/2026-06-07-feature-x-dev-selector.md."
 
 ### Structured verdict block (required)
 
@@ -174,7 +174,7 @@ Example:
 @@VERDICT BEGIN
 verdict: APPROVE
 lane: dev-selector
-report: docs/audits/2026-06-07-feature-x-dev-selector.md
+report: .development/audits/2026-06-07-feature-x-dev-selector.md
 findings: 2
 @@FINDING 1
 severity: 0

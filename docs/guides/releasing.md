@@ -80,7 +80,7 @@ Exit 0 and no missing-file errors.
 
 ### 5. Prerequisite documentation and post-install post-check verification
 
-Per ADR-0026 (`docs/decisions/0026-mcp-bootstrap-documented-prerequisite.md`),
+Per ADR-0026 (`.development/decisions/0026-mcp-bootstrap-documented-prerequisite.md`),
 the `sage-mcp` binary is a documented prerequisite — not installed by the
 plugin payload. Before tagging, verify that the documentation and the install-
 script post-check are current and consistent.

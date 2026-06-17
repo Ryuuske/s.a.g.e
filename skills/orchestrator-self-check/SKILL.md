@@ -18,7 +18,7 @@ Fire this skill **before** any of:
 - `git tag`
 - `/ultrareview` invocation
 - Telling the User "approved, shipping" or equivalent
-- Marking a multi-turn task as complete in `docs/plans/active.md`
+- Marking a multi-turn task as complete in `.development/plans/active.md`
 
 Do NOT fire it for:
 
@@ -32,7 +32,7 @@ Walk these in order. Stop and remediate at the first NO before continuing.
 
 ### 1. Did a plan exist and get approved?
 
-Look at `docs/plans/active.md` (or the nook's `plans` hall for the current wing). It must contain a plan covering the change you are about to ship. The plan must be marked approved by the User in the conversation — implicit "go ahead" is the same as explicit.
+Look at `.development/plans/active.md` (or the nook's `plans` hall for the current wing). It must contain a plan covering the change you are about to ship. The plan must be marked approved by the User in the conversation — implicit "go ahead" is the same as explicit.
 
 - **YES** — quote the plan's one-line summary in your pre-commit message.
 - **NO** — stop. Either (a) the change is genuinely trivial (one-line typo, copy fix); say so in the commit message and skip persistence, or (b) draft the plan now per CLAUDE.md §2.
@@ -60,7 +60,7 @@ Not "you intended to dispatch them" — did they produce a verdict in the conver
 
 ### 4. Was any blocking finding overridden, and was the override recorded?
 
-A finding scored ≥80 (per CLAUDE.md §16) is blocking. If you proceeded past a blocking finding for any reason — User said "ship it anyway", finding was reclassified after discussion, audit was bypassed because of urgency — the override MUST exist as a new ADR in `docs/decisions/` quoting the original finding and the rationale for proceeding.
+A finding scored ≥80 (per CLAUDE.md §16) is blocking. If you proceeded past a blocking finding for any reason — User said "ship it anyway", finding was reclassified after discussion, audit was bypassed because of urgency — the override MUST exist as a new ADR in `.development/decisions/` quoting the original finding and the rationale for proceeding.
 
 - **YES** (override exists) — quote the ADR filename.
 - **NO** (no override needed; all findings ≤79 or all resolved) — say so.
@@ -68,7 +68,7 @@ A finding scored ≥80 (per CLAUDE.md §16) is blocking. If you proceeded past a
 
 ### 5. Was the plan persisted before downstream dispatch?
 
-CLAUDE.md §2 "Non-AI-dev plan persistence" rule: the approved plan must live at `<repo>/docs/plans/active.md` (or the nook `plans` hall) before any specialist that consumes the plan was dispatched. If you dispatched the implementer / reviewer with the plan still only in conversation, the file-reading auditor saw "no plan" and silently passed when it should have blocked.
+CLAUDE.md §2 "Non-AI-dev plan persistence" rule: the approved plan must live at `<repo>/.development/plans/active.md` (or the nook `plans` hall) before any specialist that consumes the plan was dispatched. If you dispatched the implementer / reviewer with the plan still only in conversation, the file-reading auditor saw "no plan" and silently passed when it should have blocked.
 
 - **YES** — confirm the file mtime predates the first specialist dispatch in this round.
 - **NO** — stop. Persist the plan now; if specialists ran without it, re-dispatch them with the plan in their brief.

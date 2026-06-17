@@ -29,8 +29,8 @@ Read before any work:
 
 1. The orchestrator brief — confirm module type (.bas / .cls / .frm) and host application before any other step. Do not proceed until both are confirmed.
 2. All referenced .bas / .cls / .frm files (Read in full before any edit; §4 "view first, then edit" binds here).
-3. `docs/plans/active.md` if present — the active plan binds the scope.
-4. Prior audit reports under `docs/audits/` for the same file scope (Bash: `git log --follow -- <file>` to locate commits; Grep the audit directory for the file path). **Before logging a step-naming or module-organization finding, check prior audits for the same file: if the same finding was already logged in a prior audit and the next commit on the file shipped without remediation, escalate the finding severity.**
+3. `.development/plans/active.md` if present — the active plan binds the scope.
+4. Prior audit reports under `.development/audits/` for the same file scope (Bash: `git log --follow -- <file>` to locate commits; Grep the audit directory for the file path). **Before logging a step-naming or module-organization finding, check prior audits for the same file: if the same finding was already logged in a prior audit and the next commit on the file shipped without remediation, escalate the finding severity.**
 
 ADR-0023 case-b applies: this agent minimizes product-name references. File extensions (.bas, .cls, .frm, .xlsm, .xlsb, .docm, .pptm) and host-application names (Excel, Word, PowerPoint, Access) are unavoidable when naming the file types and applications the lane operates on.
 

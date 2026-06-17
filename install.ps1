@@ -323,8 +323,8 @@ foreach ($doc in @('agent-roster.md')) {  # generated reference roster; matrix +
 }
 
 Say ''
-Say '==> docs/decisions/0000-template.md'
-$decisionsDir = Join-Path $ClaudeDir 'docs\decisions'
+Say '==> .development/decisions/0000-template.md'
+$decisionsDir = Join-Path $ClaudeDir '.development\decisions'
 if (-not (Test-Path $decisionsDir)) {
     if (-not $DryRun) { New-Item -ItemType Directory -Path $decisionsDir | Out-Null }
     Say ("$(WouldOrDoes)create dir: $decisionsDir")

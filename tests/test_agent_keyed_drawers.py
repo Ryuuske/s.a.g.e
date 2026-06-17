@@ -42,7 +42,7 @@ def two_agent_keyed_drawers(monkeypatch, config, kg):
         room="docs",
         content=(
             "Unique-marker GLYPTODON content from the docs-keeper drawer. "
-            "Auditing docs/handoff/LATEST.md for stale references after the "
+            "Auditing .development/handoff/LATEST.md for stale references after the "
             "aidev-code-reviewer rename."
         ),
         agents=["docs-keeper"],

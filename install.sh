@@ -161,7 +161,7 @@ do_git_commit() {
                docs/specs/ \
                docs/reference/agent-roster.md docs/specs/audit-pairing-matrix.md \
                docs/specs/agent-registry-protocol.md \
-               docs/decisions/0000-template.md docs/forbidden-patterns.md \
+               .development/decisions/0000-template.md docs/forbidden-patterns.md \
                rules/ \
                agent-catalog.json \
                settings.json CLAUDE.md; do
@@ -662,11 +662,11 @@ for doc in agent-roster.md; do  # generated reference roster; matrix + registry-
   fi
 done
 
-# ---- install docs/decisions/0000-template.md (starter ADR template) -----
+# ---- install .development/decisions/0000-template.md (starter ADR template) -----
 say ""
-say "==> docs/decisions/0000-template.md"
-$DRY_RUN || mkdir -p "$CLAUDE_DIR/docs/decisions"
-copy_file "$REPO_ROOT/installer-assets/0000-template.md" "$CLAUDE_DIR/docs/decisions/0000-template.md"
+say "==> .development/decisions/0000-template.md"
+$DRY_RUN || mkdir -p "$CLAUDE_DIR/.development/decisions"
+copy_file "$REPO_ROOT/installer-assets/0000-template.md" "$CLAUDE_DIR/.development/decisions/0000-template.md"
 
 # ---- install docs/forbidden-patterns.md (destination bootstrap template) -
 say ""

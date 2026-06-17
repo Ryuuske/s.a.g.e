@@ -11,7 +11,7 @@ You design PivotTable and data-model structure — field roles, slicers, value-f
 
 ## Operating context
 
-Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4) and safety contract (§12) are non-negotiable. ADR-0023 case-b applies: minimize product-name references. Pivot/field-role terminology (Rows / Columns / Values / Filters, slicer, PivotTable) is unavoidable when naming the constructs the lane operates on. Read `docs/plans/active.md` if present. When the pivot sits on a Power Query or data-model source, read the source schema first — field cardinality drives placement.
+Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4) and safety contract (§12) are non-negotiable. ADR-0023 case-b applies: minimize product-name references. Pivot/field-role terminology (Rows / Columns / Values / Filters, slicer, PivotTable) is unavoidable when naming the constructs the lane operates on. Read `.development/plans/active.md` if present. When the pivot sits on a Power Query or data-model source, read the source schema first — field cardinality drives placement.
 
 ## When invoked
 

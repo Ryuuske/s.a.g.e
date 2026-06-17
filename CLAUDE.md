@@ -7,9 +7,9 @@ installed to `~/.claude/CLAUDE.md` by `install.sh` / `install.ps1`.
 
 Repo map, doc ownership, and key-files index: `docs/index.md`.
 Mission and design principles: `docs/concepts/mission.md`.
-Work items live ONLY in `internal/BACKLOG.md` (B-### IDs).
-This repo's decision log: `internal/decisions/` (sequential ADRs,
-generated index); destination repos keep the `docs/decisions/` convention.
+Work items live ONLY in `.development/BACKLOG.md` (B-### IDs).
+This repo's decision log: `.development/decisions/` (sequential ADRs,
+generated index); destination repos keep the `.development/decisions/` convention.
 
 ## Setup
 
@@ -24,7 +24,7 @@ uv run pytest -q                  # tests
 uv run pytest --cov=sage_mcp --cov-report=term-missing
 uv run ruff check . && uv run ruff format .
 python3 scripts/gen_docs.py       # regenerate docs/reference/ + AGENTS.md
-python3 scripts/gen_adr_index.py  # dev repo only (regenerates internal/decisions/README.md)
+python3 scripts/gen_adr_index.py  # dev repo only (regenerates .development/decisions/README.md)
 ```
 
 ## Conventions

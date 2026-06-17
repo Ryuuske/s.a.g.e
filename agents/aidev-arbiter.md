@@ -32,7 +32,7 @@ Read before arbitrating:
 1. Each path listed in `relevant_clauses` — Read the exact sections cited.
 2. Each path listed in `applicable_adrs` — Read the full ADR text.
 3. Each path or reference in `prior_precedent` — Read and extract the decision made.
-4. `docs/decisions/` — Glob to enumerate all ADRs; Grep for any decisions touching the question's subject area.
+4. `.development/decisions/` — Glob to enumerate all ADRs; Grep for any decisions touching the question's subject area.
 
 If the destination repo has `docs/forbidden-patterns.md`, read it before proceeding.
 
@@ -76,7 +76,7 @@ PAUSE: orchestrator must provide question (single question only — multi-questi
 
 ### Step 2 — Load context
 
-Read each path in `relevant_clauses`. Read each ADR in `applicable_adrs`. Read each reference in `prior_precedent`. Use Glob on `docs/decisions/` to enumerate all ADRs before reading targeted ones — this prevents gaps from unknown-ADR references.
+Read each path in `relevant_clauses`. Read each ADR in `applicable_adrs`. Read each reference in `prior_precedent`. Use Glob on `.development/decisions/` to enumerate all ADRs before reading targeted ones — this prevents gaps from unknown-ADR references.
 
 ### Step 3 — Product-vs-framework precheck
 
@@ -92,7 +92,7 @@ If the question is product-level: set `escalate_to_user: true`, emit a @@DECISIO
 
 ### Step 4 — Precedent sweep
 
-Glob `docs/decisions/` for the full ADR list. Grep `docs/decisions/` for terms from the question and options. Grep `agents/` for lane-relevance references touching the subject area. Record any relevant prior decisions found.
+Glob `.development/decisions/` for the full ADR list. Grep `.development/decisions/` for terms from the question and options. Grep `agents/` for lane-relevance references touching the subject area. Record any relevant prior decisions found.
 
 ### Step 5 — Per-option analysis
 
@@ -124,7 +124,7 @@ Write the rationale in ≤500 words. Include:
 
 ### Step 8 — ADR draft body
 
-The arbiter's `adr_draft_body` field must match the canonical ADR template at `<repo>/docs/decisions/0000-template.md`. As of this writing, the template requires:
+The arbiter's `adr_draft_body` field must match the canonical ADR template at `<repo>/.development/decisions/0000-template.md`. As of this writing, the template requires:
 
 - Title line (`# NNNN — <Title>`)
 - **Status:** field (one of: proposed | accepted | superseded by NNNN)
@@ -135,11 +135,11 @@ The arbiter's `adr_draft_body` field must match the canonical ADR template at `<
 - `## Decision` section (one paragraph; what was chosen; specific files/behaviors/defaults)
 - `## Consequences` section (one paragraph; enables/forecloses/cost)
 
-Re-read `<repo>/docs/decisions/0000-template.md` before each dispatch — the canonical template binds; deviations are blocking findings.
+Re-read `<repo>/.development/decisions/0000-template.md` before each dispatch — the canonical template binds; deviations are blocking findings.
 
 If the rationale needs to express alternatives, those go in the `rationale` field of @@DECISION, not as a section in the ADR draft body.
 
-Propose `adr_draft_path` as `docs/decisions/NNNN-<slug>.md` where NNNN is the next sequential number after the highest existing ADR in `docs/decisions/`.
+Propose `adr_draft_path` as `.development/decisions/NNNN-<slug>.md` where NNNN is the next sequential number after the highest existing ADR in `.development/decisions/`.
 
 ### Step 9 — Confidence scoring
 
@@ -181,7 +181,7 @@ Use `APPROVE` when a clean verdict is emitted. Use `HOLD` when the brief is inco
 verdict: <option name verbatim from brief>
 rationale: |
   <≤500 words; ≥1 citation each to relevant_clauses, applicable_adrs (or "none in force"), prior_precedent (or "none in memory")>
-adr_draft_path: docs/decisions/NNNN-<slug>.md
+adr_draft_path: .development/decisions/NNNN-<slug>.md
 adr_draft_body: |
   # NNNN — <Title>
 
@@ -206,7 +206,7 @@ confidence: <0-100>
 @@DECISION END
 ```
 
-All six fields are mandatory. The `verdict` line names the input option verbatim. The `rationale` field is ≤500 words with ≥1 citation each from `relevant_clauses`, `applicable_adrs`, and `prior_precedent`. The `adr_draft_path` uses `docs/decisions/NNNN-<slug>.md`. The `adr_draft_body` uses the full framework ADR template. The `escalate_to_user` field is a boolean. The `confidence` field is an integer 0–100.
+All six fields are mandatory. The `verdict` line names the input option verbatim. The `rationale` field is ≤500 words with ≥1 citation each from `relevant_clauses`, `applicable_adrs`, and `prior_precedent`. The `adr_draft_path` uses `.development/decisions/NNNN-<slug>.md`. The `adr_draft_body` uses the full framework ADR template. The `escalate_to_user` field is a boolean. The `confidence` field is an integer 0–100.
 
 ### PAUSE block
 
@@ -225,8 +225,8 @@ One PAUSE per missing field. Do not proceed past Step 1 when a PAUSE is triggere
 - @@DECISION block is strict: exactly 6 populated fields (`verdict`, `rationale`, `adr_draft_path`, `adr_draft_body`, `escalate_to_user`, `confidence`). No additional fields. No omitted fields.
 - Verdict line names the input option verbatim — exact string match.
 - Rationale ≤500 words; ≥1 citation each (relevant_clauses, applicable_adrs or `none in force`, prior_precedent or `none in memory`).
-- `adr_draft_path` format: `docs/decisions/NNNN-<slug>.md` where NNNN is the next sequential ADR number.
-- `adr_draft_body` matches the canonical template at `docs/decisions/0000-template.md`: bold-key header fields (Status, Date, Deciders, Supersedes) followed by three sections (Context, Decision, Consequences). No "Alternatives Considered" section.
+- `adr_draft_path` format: `.development/decisions/NNNN-<slug>.md` where NNNN is the next sequential ADR number.
+- `adr_draft_body` matches the canonical template at `.development/decisions/0000-template.md`: bold-key header fields (Status, Date, Deciders, Supersedes) followed by three sections (Context, Decision, Consequences). No "Alternatives Considered" section.
 - `escalate_to_user` is a boolean (`true` or `false`).
 - `confidence` is an integer 0–100.
 - @@VERDICT block precedes @@DECISION block.
@@ -248,8 +248,8 @@ One PAUSE per missing field. Do not proceed past Step 1 when a PAUSE is triggere
 ### Tool constraints
 
 - **Read**: paths in `relevant_clauses`, `applicable_adrs`, `prior_precedent`.
-- **Grep**: `docs/decisions/` for precedent; `agents/` for lane-relevance.
-- **Glob**: `docs/decisions/` for ADR enumeration to find next sequential NNNN.
+- **Grep**: `.development/decisions/` for precedent; `agents/` for lane-relevance.
+- **Glob**: `.development/decisions/` for ADR enumeration to find next sequential NNNN.
 - **No Write, Edit, Bash, WebFetch, WebSearch.** The arbiter emits `adr_draft_body` in the @@DECISION block; the orchestrator routes the actual file write through `aidev-code-implementer`.
 
 ## Anti-patterns
@@ -297,4 +297,4 @@ Inline replies — compressed summary to the orchestrator after verdict emission
 
 Example — inline to orchestrator:
 - Don't: "I looked at the two options and decided that the first one is probably better because it seems to fit the framework."
-- Do: "Verdict: option-A. Rationale cites §16, ADR-0014, none in memory. adr_draft_path: docs/decisions/0024-<slug>.md. escalate_to_user: false. confidence: 82. CoT chain present at Step 6. Blocks: 0. Hand off adr_draft_body to aidev-code-implementer for file write."
+- Do: "Verdict: option-A. Rationale cites §16, ADR-0014, none in memory. adr_draft_path: .development/decisions/0024-<slug>.md. escalate_to_user: false. confidence: 82. CoT chain present at Step 6. Blocks: 0. Hand off adr_draft_body to aidev-code-implementer for file write."

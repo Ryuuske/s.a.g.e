@@ -11,7 +11,7 @@ This skill is consumed exclusively by `gh-pr-reviewer` (reviewer-shaped, Phase D
 
 The seven trees are logic-heavy per `rules/ai-dev-conventions.md` CoT injection classification: severity scoring (0–100 per finding) plus nit/constructive/blocker classification under conflicting rules (a stylistic preference that touches a security boundary escalates to blocker, not nit). The higher-severity-wins rule in Element A is binding across all trees — this skill never softens a borderline call to avoid a `REQUEST_CHANGES` verdict.
 
-ADR-0029 (`docs/decisions/0029-gh-pr-reviewer-identifying-info-exemption.md`) grants `gh-pr-reviewer` a case-a exemption for `gh` CLI and GitHub references; this skill inherits the exemption through its consuming agent.
+ADR-0029 (`.development/decisions/0029-gh-pr-reviewer-identifying-info-exemption.md`) grants `gh-pr-reviewer` a case-a exemption for `gh` CLI and GitHub references; this skill inherits the exemption through its consuming agent.
 
 ## When this skill binds
 

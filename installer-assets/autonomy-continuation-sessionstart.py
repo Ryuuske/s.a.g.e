@@ -18,7 +18,7 @@ Contract — the orchestrator owns one marker file:
       Written by the orchestrator when an autonomous run starts; updated at
       each phase; cleared (deleted) at the terminal. JSON object:
         {
-          "run_log": "<abs path to docs/handoff/<run>-run-log.md>",
+          "run_log": "<abs path to .development/handoff/<run>-run-log.md>",
           "phase":   "<current phase id, e.g. '6'>",
           "status":  "in-flight" | "terminal",
           "skills_changed": true | false   # optional; set when the run

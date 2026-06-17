@@ -74,7 +74,7 @@ Blocking findings (≥80): <count>
 Verdict: PASS | CAUTION | FAIL
 Recommended tests to add: <ordered list, top 5>
 
-Audit report: <repo>/docs/audits/<YYYY-MM-DD>-<scope>-dev-test-engineer-<round>.md
+Audit report: <repo>/.development/audits/<YYYY-MM-DD>-<scope>-dev-test-engineer-<round>.md
 ```
 
 ## Constraints
@@ -93,7 +93,7 @@ Audit report: <repo>/docs/audits/<YYYY-MM-DD>-<scope>-dev-test-engineer-<round>.
 
 Inline replies — verdict + summary the orchestrator sees — use compressed agent-comm style adapted from `JuliusBrussee/caveman` (MIT, see `docs/concepts/third-party-patterns.md`). Drop articles, filler, pleasantries. Fragments OK. Short synonyms. Technical terms exact.
 
-**Never** abbreviate: verdict labels (PASS/CAUTION/FAIL), confidence scores, test names, coverage percentages, file:line references. **Never** apply to the structured report in `<repo>/docs/audits/` — that stays NORMAL prose.
+**Never** abbreviate: verdict labels (PASS/CAUTION/FAIL), confidence scores, test names, coverage percentages, file:line references. **Never** apply to the structured report in `<repo>/.development/audits/` — that stays NORMAL prose.
 
 Example — inline to orchestrator:
 - Don't: "I ran the tests and the coverage went down on the auth file. Should probably add tests for the error path before merging."
@@ -109,7 +109,7 @@ Example:
 @@VERDICT BEGIN
 verdict: APPROVE
 lane: dev-test-engineer
-report: docs/audits/2026-05-20-auth-rewrite-dev-test-engineer-post.md
+report: .development/audits/2026-05-20-auth-rewrite-dev-test-engineer-post.md
 findings: 1
 @@FINDING 1
 severity: 75

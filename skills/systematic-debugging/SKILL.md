@@ -102,7 +102,7 @@ Escalate to the User (CLAUDE.md §7) if any of these are true after Phase 3:
 When the cycle completes, the work product is:
 
 - A commit with the root-cause fix and the regression test, message names the cause.
-- A line added to `<repo>/docs/active-plan.md` or `<repo>/docs/plans/active.md` (per ADR-0006, the latter for AI-dev work) under "follow-up debt" if the cause exposed a broader fragility worth addressing later.
+- A line added to `<repo>/docs/active-plan.md` or `<repo>/.development/plans/active.md` (per ADR-0006, the latter for AI-dev work) under "follow-up debt" if the cause exposed a broader fragility worth addressing later.
 - An ADR if the fix involved a non-obvious mechanism, an unintuitive trade-off, or accepted uncertainty.
 
 The User should not have to ask "what was wrong" — the commit message and ADR answer that for future-you.

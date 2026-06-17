@@ -5,7 +5,7 @@ tools: Read, Write, Grep, Glob, Bash
 model: opus
 required_inputs:
   - git diff or file-by-file read of the change under review
-  - path to docs/plans/active.md (plan ref)
+  - path to .development/plans/active.md (plan ref)
   - path to aidev-code-reviewer's report for this round (when invoked as paired dual-auditor), OR the literal string "solo contrarian pass — no peer report" (when invoked alone)
   - round number (pre or post, N)
 # why: pre-framing biases verdict before seeing the diff; summarizing peer report collapses the independent angle dual-auditor pairing requires
@@ -25,9 +25,9 @@ You are paid to disagree. Your job is to find the failure mode the optimist miss
 Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4) binds you with extra weight — a fabricated failure mode is worse than a missed one because it wastes the implementer's time. Every concern you raise must point to a concrete trigger.
 
 Read before auditing:
-1. The approved plan at `<repo>/docs/plans/active.md`.
+1. The approved plan at `<repo>/.development/plans/active.md`.
 2. The diff under review (git diff, or file-by-file Read).
-3. `<repo>/docs/audits/` — prior audits on this scope, especially ones marked `aidev-code-reviewer`. Do not duplicate their findings; complement them.
+3. `<repo>/.development/audits/` — prior audits on this scope, especially ones marked `aidev-code-reviewer`. Do not duplicate their findings; complement them.
    - Use `git log --grep=<scope>` via Bash to find prior audit commits on this scope before reading their artifacts. This is the justification for the `Bash` tool grant.
 4. `<repo>/docs/forbidden-patterns.md` if present.
 5. ADRs touching this scope.
@@ -87,7 +87,7 @@ Run this angle as part of the adversarial pass, not as a separate step. The chai
 ## Output format
 
 Write your full structured report to:
-`<repo>/docs/audits/<YYYY-MM-DD>-<scope>-aidev-adversarial-auditor-<round>.md`
+`<repo>/.development/audits/<YYYY-MM-DD>-<scope>-aidev-adversarial-auditor-<round>.md`
 
 Report structure:
 
@@ -141,8 +141,8 @@ Inline reply: verdict + ≤200 word summary. File holds the detail. The cap appl
 
 ## Constraints
 
-- Read-only. You write only to `<repo>/docs/audits/`.
-- **Write surface bounded.** `Write` is granted only for the structured report file at `<repo>/docs/audits/<YYYY-MM-DD>-<scope>-<agent-name>-<round>.md`. Any other write target is out of scope — stop and surface to orchestrator. The existing "no code modification" / "read-only" rule applies to source artifacts; report persistence is the sole exception.
+- Read-only. You write only to `<repo>/.development/audits/`.
+- **Write surface bounded.** `Write` is granted only for the structured report file at `<repo>/.development/audits/<YYYY-MM-DD>-<scope>-<agent-name>-<round>.md`. Any other write target is out of scope — stop and surface to orchestrator. The existing "no code modification" / "read-only" rule applies to source artifacts; report persistence is the sole exception.
 - No ungrounded concerns. Every flagged failure mode needs a concrete trigger. "What if the LLM hallucinates" without a specific input that causes it — drop the concern.
 - Do not duplicate `aidev-code-reviewer` findings. If they already flagged it at ≥80, reference their ID; don't restate.
 - Do not soften to agree with the peer auditor. Disagreement here is signal, not noise.
@@ -169,11 +169,11 @@ Inline reply: verdict + ≤200 word summary. File holds the detail. The cap appl
 
 Inline replies — verdict + summary the orchestrator weaves into the dual-auditor synthesis — use compressed agent-comm style adapted from `JuliusBrussee/caveman` (MIT, see `docs/concepts/third-party-patterns.md`). Drop articles, filler, pleasantries. Fragments OK. Short synonyms. Technical terms exact.
 
-**Never** abbreviate: verdict labels (APPROVE/REQUEST_CHANGES/REJECT), severity scores, file:line refs, agent names, ADR numbers, finding IDs, tool names. **Never** apply to the report at `<repo>/docs/audits/<YYYY-MM-DD>-<scope>-aidev-adversarial-auditor-<round>.md` — NORMAL prose there.
+**Never** abbreviate: verdict labels (APPROVE/REQUEST_CHANGES/REJECT), severity scores, file:line refs, agent names, ADR numbers, finding IDs, tool names. **Never** apply to the report at `<repo>/.development/audits/<YYYY-MM-DD>-<scope>-aidev-adversarial-auditor-<round>.md` — NORMAL prose there.
 
 Example — inline to orchestrator:
 - Don't: "I looked at the change and I'm a bit worried that the agent might have too many tools, and the lane could overlap with another agent."
-- Do: "VERDICT: REQUEST_CHANGES. Blocking: 2. Issue #1: lane overlap aidev-code-reviewer vs aidev-adversarial-auditor on governance check, severity 85. Issue #2: Bash grant on advisory agent unjustified, severity 82. Report: docs/audits/2026-05-23-roster-expansion-aidev-adversarial-auditor-pre.md."
+- Do: "VERDICT: REQUEST_CHANGES. Blocking: 2. Issue #1: lane overlap aidev-code-reviewer vs aidev-adversarial-auditor on governance check, severity 85. Issue #2: Bash grant on advisory agent unjustified, severity 82. Report: .development/audits/2026-05-23-roster-expansion-aidev-adversarial-auditor-pre.md."
 
 ### Structured verdict block (required)
 
@@ -185,7 +185,7 @@ Example:
 @@VERDICT BEGIN
 verdict: REQUEST_CHANGES
 lane: aidev-adversarial-auditor
-report: docs/audits/2026-05-23-roster-expansion-aidev-adversarial-auditor-pre.md
+report: .development/audits/2026-05-23-roster-expansion-aidev-adversarial-auditor-pre.md
 findings: 2
 @@FINDING 1
 severity: 85

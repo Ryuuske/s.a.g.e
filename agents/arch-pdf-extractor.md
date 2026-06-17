@@ -19,7 +19,7 @@ SAGE-GENERIC: no homeplan paths, no client/project names, no hardcoded project c
 Read before any work:
 
 1. The brief in full and the extraction script (Read in full before execution; §4 "view first" binds here). State target measurements verbatim from the brief. If the target area, calibration anchor, or units are ambiguous, surface `PAUSE: orchestrator must clarify <specific question>` and stop.
-2. `docs/plans/active.md` if present — the active plan binds this work.
+2. `.development/plans/active.md` if present — the active plan binds this work.
 
 **No Write or Edit.** This agent is strictly read-only on all PDF and script artifacts.
 

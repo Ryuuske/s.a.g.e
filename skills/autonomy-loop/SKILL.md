@@ -13,9 +13,9 @@ This skill is a **toolkit, not an enforcer** (ADR-0011): it describes the loop t
 
 Bind this skill when ALL of:
 
-1. The User has approved a plan that spans multiple phases (`docs/plans/*.md`), AND
+1. The User has approved a plan that spans multiple phases (`.development/plans/*.md`), AND
 2. The User has explicitly said to run autonomously without pausing at phase boundaries (e.g. "no per-phase pause", "run to the terminal", "self-continue across context boundaries"), AND
-3. A durable run-log exists or is created at `docs/handoff/<run>-run-log.md` (the re-anchor spine + the User's end-of-run audit trail).
+3. A durable run-log exists or is created at `.development/handoff/<run>-run-log.md` (the re-anchor spine + the User's end-of-run audit trail).
 
 Do NOT bind for: a single approved change (use the normal session-lifecycle + the `docs/specs/audit-pairing-matrix.md` pairing); the session-start destination picker (that is `session-lifecycle`); any operation that would make a private repo public (out of scope — see Floor 3).
 
@@ -52,7 +52,7 @@ These are absolute. The loop runs autonomously EXCEPT when a floor trips — the
 - **Floor 1 — Unplanned destructive/irreversible op.** If a step would require a genuinely-UNPLANNED destructive or irreversible operation (one not sanctioned by the approved plan and its ADRs) — STOP, do not perform it, surface to the User with the exact op and why it is unplanned. Planned irreversible ops (an approved rename, a tagged release, an archive-then-rebalance) are NOT floor breaches; they proceed behind their own checkpoints.
 - **Floor 2 — Archive-tag-before-squash / before any hardest-to-reverse step.** Cut and push an `archive/<marker>` tag BEFORE any squash, history rewrite, or runtime data migration. The tag + any pre-op backup are the recovery floor. A count/fingerprint mismatch on a data migration self-halts.
 - **Floor 3 — NEVER flip repo visibility.** The loop never runs `gh repo edit --visibility`, never publishes a private repo, never makes anything public. This is asserted, not assumed: grep the loop's own actions for any visibility-flip path → must be zero. The single highest-irreversibility action (going public) is explicitly OUTSIDE the loop's reach — the User's manual hand. When the loop drives `gh-release-manager` EXECUTE, it pins `required_visibility: private` (ADR-0064) on every dispatch, so an accidentally-public repo ABORTs the release rather than publishing.
-- **Floor 4 — Retain the private working repo + its full trail.** Never delete the private repo, its `docs/decisions/`/`docs/audits/`/`docs/plans/` trail, or the archive tags. The clean export is produced by an allowlist (public-by-construction), not by destroying the private trail.
+- **Floor 4 — Retain the private working repo + its full trail.** Never delete the private repo, its `.development/decisions/`/`.development/audits/`/`.development/plans/` trail, or the archive tags. The clean export is produced by an allowlist (public-by-construction), not by destroying the private trail.
 - **Floor 5 — `~/.claude` self-mods are arbiter-gated.** Any change to the active `~/.claude/` spine/skills/agents goes through the audit pair → `aidev-arbiter` ruling → then `/reload-plugins` (or a deferred end-of-run install-sync if the plan defers it). The loop never grants itself a `~/.claude` write the §12 classifier blocks.
 
 A floor breach is the ONLY thing that stops an approved autonomous run to reach the User. Everything else — every decision, fork, split, codex edge — routes to `aidev-arbiter` and is logged.
@@ -73,7 +73,7 @@ This is a User OUTPUT PREFERENCE, adopted directly — not a framework fork, and
 
 An autonomous run outlives a single context window. When the context auto-compacts or a fresh session starts mid-run, the orchestrator RE-ANCHORS and CONTINUES without waiting for the User:
 
-1. Read `docs/handoff/<run>-run-log.md` (the durable spine) + `git log`/`git status`. Git history is truth on any conflict.
+1. Read `.development/handoff/<run>-run-log.md` (the durable spine) + `git log`/`git status`. Git history is truth on any conflict.
 2. Identify the current phase from the run-log's last COMPLETE card / in-progress section and the branch state.
 3. Resume the loop at the exact step the run-log records. Keep the run-log current at every milestone — it is both the re-anchor spine and the User's end-of-run audit trail.
 
@@ -83,7 +83,7 @@ The run-log is the continuation contract. If the installed plugin/skills are sta
 
 ```
 ~/.sage/autonomy-run.json
-  { "run_log": "<abs path to docs/handoff/<run>-run-log.md>",
+  { "run_log": "<abs path to .development/handoff/<run>-run-log.md>",
     "phase": "<current phase id>",
     "status": "in-flight" | "terminal",
     "skills_changed": true|false }   # set true after a run edits skills, until /reload-plugins
@@ -99,7 +99,7 @@ Track defects and decisions as GitHub Issues for the run (the Issue/PR templates
 
 Per ADR-0011 the framework ships NO enforcement hooks — only fail-open context-injectors and non-blocking evaluators. The autonomy loop's hook support follows that rule (the exact shapes are ruled by `aidev-arbiter` and recorded in the Phase-5 ADR):
 
-- **SessionStart continuation injector** — a fail-open SessionStart hook that, when a run is in-flight (a run-log with an unfinished terminal), injects a one-line re-anchor pointer ("autonomous run in-flight → read `docs/handoff/<run>-run-log.md` and continue") so a fresh session self-continues. It injects context; it does not block. If skills changed mid-run, it surfaces the `/reload-plugins` reminder rather than forcing a reload (no native hook-level skill-reload exists; the injector informs).
+- **SessionStart continuation injector** — a fail-open SessionStart hook that, when a run is in-flight (a run-log with an unfinished terminal), injects a one-line re-anchor pointer ("autonomous run in-flight → read `.development/handoff/<run>-run-log.md` and continue") so a fresh session self-continues. It injects context; it does not block. If skills changed mid-run, it surfaces the `/reload-plugins` reminder rather than forcing a reload (no native hook-level skill-reload exists; the injector informs).
 - **Reporting-contract evaluator** — a non-blocking evaluator (NOT a per-message gate; no `MessageDisplay` hook event exists in Claude Code, and ADR-0011 forbids a blocking hook) that records whether the run's output followed the card format, for post-hoc review. It never alters or blocks output.
 - **Stop / PreCompact** — the existing keeper emergency-drawer fallback (`hooks/scripts/stop.py` / `precompact.py`) already captures session state; the loop relies on the orchestrator-owned run-log as the primary continuation spine and those hooks as the fallback.
 

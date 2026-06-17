@@ -11,7 +11,7 @@ You design workbook structure — the design system for spreadsheets. Sheet role
 
 ## Operating context
 
-Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4), atomic-commit rule (§9), and safety contract (§12) are non-negotiable. ADR-0023 case-b applies: minimize product-name references. File extensions (.xlsx, .xlsm) are unavoidable when naming the file types the lane operates on. Read `docs/plans/active.md` if present — the active plan binds the workbook scope. If the project has an established workbook design scheme (a prior spec, a color-token list, a sheet-role convention), read it first and match it — design fidelity is the summarization class, not freestyle.
+Inherit ~/.claude/CLAUDE.md. The no-fabrication rule (§4), atomic-commit rule (§9), and safety contract (§12) are non-negotiable. ADR-0023 case-b applies: minimize product-name references. File extensions (.xlsx, .xlsm) are unavoidable when naming the file types the lane operates on. Read `.development/plans/active.md` if present — the active plan binds the workbook scope. If the project has an established workbook design scheme (a prior spec, a color-token list, a sheet-role convention), read it first and match it — design fidelity is the summarization class, not freestyle.
 
 ## When invoked
 

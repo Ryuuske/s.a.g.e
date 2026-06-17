@@ -7,7 +7,7 @@ description: Use when about to dispatch on a Codex-eligible surface — before c
 
 This skill is the dispatch-time gate the orchestrator consults when a Codex touch might be appropriate. It runs one stage before `/codex:*` is composed — earlier than `codex-budget` (which reads live rate-limit data at the moment of invocation) and earlier than `codex-budget-plan-time` (which flags predicted budget pressure during plan drafting). The question it answers is "should this go to Codex at all"; the budget skills answer "is there room in the budget if it does."
 
-This skill operationalizes ADR-0028 (`docs/decisions/0028-codex-dispatch-time-reflex-check.md`) and is a sub-pattern of ADR-0011 (`docs/decisions/0011-claude-md-section-12-no-shipped-hooks.md`) toolkit-not-enforcer principle: the skill recommends and informs; it does not enforce via hooks or hard blocks.
+This skill operationalizes ADR-0028 (`.development/decisions/0028-codex-dispatch-time-reflex-check.md`) and is a sub-pattern of ADR-0011 (`.development/decisions/0011-claude-md-section-12-no-shipped-hooks.md`) toolkit-not-enforcer principle: the skill recommends and informs; it does not enforce via hooks or hard blocks.
 
 ## When this skill binds
 
@@ -34,7 +34,7 @@ Read `~/.cache/sage/codex-presence.json`. If the file is missing, skip to re-det
 **Cache validity checks (in order):**
 
 1. **Age:** if `detected_at` is more than 30 days before now, treat the cache as missing and re-detect.
-2. **Signal path:** stat the path recorded in the `signal` field. Use a bounded operation (cap stat at 100ms per finding D5 in `docs/audits/2026-05-27-adr-0036-aidev-adversarial-auditor-post-2.md`). If any stat failure occurs — `ENOENT`, `EACCES`, `ELOOP`, permission denied, or any other error — treat the path as no-longer-exists and re-detect immediately (per finding D4: all stat failures collapse to treat-as-missing; do not escalate as error).
+2. **Signal path:** stat the path recorded in the `signal` field. Use a bounded operation (cap stat at 100ms per finding D5 in `.development/audits/2026-05-27-adr-0036-aidev-adversarial-auditor-post-2.md`). If any stat failure occurs — `ENOENT`, `EACCES`, `ELOOP`, permission denied, or any other error — treat the path as no-longer-exists and re-detect immediately (per finding D4: all stat failures collapse to treat-as-missing; do not escalate as error).
 3. **Present flag:** if both checks pass and `present: false`, Codex is absent — go to the absent-degradation exit below.
 4. If both checks pass and `present: true`, proceed to Element 2.
 
@@ -132,7 +132,7 @@ No structured block. No emojis. No explanation of the decision tree to the User.
 
 ### Example 1 — Contract-shaped brief (real)
 
-**Brief description (this exact skill implementation brief):** verbatim design spec with `@@SKILL-DESIGN BEGIN/END` block, named ADRs to cite (`docs/decisions/0036-...`, `docs/decisions/0014-...`), scheduled annotation list with stat requirements, `<placeholder>` tokens throughout, explicit WHERE target, acceptance criteria R-2 + R-3 + R-4, named `forbidden_inputs`, explicit section order, 9-step implementation checklist.
+**Brief description (this exact skill implementation brief):** verbatim design spec with `@@SKILL-DESIGN BEGIN/END` block, named ADRs to cite (`.development/decisions/0036-...`, `.development/decisions/0014-...`), scheduled annotation list with stat requirements, `<placeholder>` tokens throughout, explicit WHERE target, acceptance criteria R-2 + R-3 + R-4, named `forbidden_inputs`, explicit section order, 9-step implementation checklist.
 
 **Decision path:**
 1. Presence: assume detected (present: true, cache valid).

@@ -43,13 +43,13 @@ jobs:
         run: $HOME/.local/bin/uv run pytest -q
 
       - name: pip-audit (dependency vulnerability scan)
-        # CVE-2026-45829 ignored per docs/decisions/0090 — not reachable in embedded mode, no patched chromadb exists
+        # CVE-2026-45829 ignored per .development/decisions/0090 — not reachable in embedded mode, no patched chromadb exists
         run: |
           $HOME/.local/bin/uv export --format requirements-txt --no-emit-project -o /tmp/reqs.txt
           $HOME/.local/bin/uvx pip-audit -r /tmp/reqs.txt --ignore-vuln CVE-2026-45829
 
       - name: framework-surface --check
-        # Full Contract-A gating restored per docs/decisions/0096 (ADR-0080 advisory escape hatch removed)
+        # Full Contract-A gating restored per .development/decisions/0096 (ADR-0080 advisory escape hatch removed)
         run: $HOME/.local/bin/uv run python scripts/measure_framework_surface.py --check
 
       - name: install.sh dry-run smoke

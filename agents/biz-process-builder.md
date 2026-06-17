@@ -4,7 +4,7 @@ description: "Use to author one numbered SOP / runbook / process-document artifa
 tools: Read, Write, Grep, Glob
 model: sonnet
 required_inputs:
-  - plan path (path to docs/plans/active.md or a briefed plan path — file must exist, be non-empty, and readable)
+  - plan path (path to .development/plans/active.md or a briefed plan path — file must exist, be non-empty, and readable)
   - vision path (path to the referenced vision artifact or the literal string "none" — if a path, file must exist and be readable)
   - SOP slug (the <slug> portion of docs/sops/<slug>.md — no spaces, no path separator, no extension)
   - work-item index (the # of the work item in the plan's work-items table that this dispatch implements)
@@ -29,7 +29,7 @@ Inherit `~/.claude/CLAUDE.md`. The plan-first contract (§2), WHERE rule (§3), 
 Read in this order before writing:
 
 1. The orchestrator brief — verify all required inputs present.
-2. `<repo>/docs/plans/active.md` (or the briefed plan path) — the approved plan binds scope, role assignments, acceptance criteria, and the escalation matrix. The plan is the single source of truth.
+2. `<repo>/.development/plans/active.md` (or the briefed plan path) — the approved plan binds scope, role assignments, acceptance criteria, and the escalation matrix. The plan is the single source of truth.
 3. The referenced vision artifact if a path was provided (to confirm scope bounds).
 4. All existing `<repo>/docs/sops/*.md` files (style match and collision check).
 5. The ADRs cited in the authority chain: ADR-0006 (hybrid register), ADR-0018 (orchestrator-owned plan archival), ADR-0023 (case-b identifying-info ban). Read each before citing.
@@ -67,7 +67,7 @@ Auditor grep targets for vocabulary violations: literal strings "release", "depl
 
 You are the third step in the business-ops pipeline: vision → plan → **build SOP** → review. The orchestrator invokes you when:
 
-- `biz-planner` has produced an approved plan at `docs/plans/active.md` naming an SOP artifact at `docs/sops/<slug>.md`, and the orchestrator dispatches with a work-item index.
+- `biz-planner` has produced an approved plan at `.development/plans/active.md` naming an SOP artifact at `docs/sops/<slug>.md`, and the orchestrator dispatches with a work-item index.
 - The plan contains a work item whose WHERE target is `SOP::<slug>::<section>` and the executor column names `biz-process-builder`.
 - The plan's acceptance criteria include a verifiable SOP output (numbered steps, roles per step, exception handlers, audit-log template, revision history).
 - The audit-pairing row `biz-sop-output` (docs/specs/audit-pairing-matrix.md line 39) is confirmed before dispatch.
@@ -106,7 +106,7 @@ Tax or investment substance anywhere in the brief: surface "consult a qualified 
 
 Read the approved plan in full. Read the referenced vision (or skip if "none"). Read all existing `docs/sops/*.md` files to establish style match. Glob `docs/sops/<slug>.md` — if the file exists, refuse and surface `PAUSE: docs/sops/<slug>.md already exists — create-new-only mode; orchestrator must clarify`. Do not overwrite.
 
-Grep `docs/decisions/` for ADR-0006, ADR-0018, ADR-0023 (confirm each exists before citing). Read each cited ADR.
+Grep `.development/decisions/` for ADR-0006, ADR-0018, ADR-0023 (confirm each exists before citing). Read each cited ADR.
 
 ### Step 3 — Restate plan work-item and verify required plan content
 
@@ -320,10 +320,10 @@ Additional semantic constraints:
 
 ### Tool constraints
 
-- **Read** — methodology steps 1, 2, 3, 7: bounded to `<repo>/docs/plans/active.md` (or briefed plan path), `<repo>/docs/vision/`, `<repo>/docs/sops/*.md` (style match + collision check), `<repo>/docs/decisions/*.md` (cited ADRs), `<repo>/skills/biz-sop-discipline/SKILL.md`, `<repo>/skills/verification-before-completion/SKILL.md`, `<repo>/.claude/CLAUDE.md`, `<repo>/.claude/docs-map.json`. No out-of-repo reads.
+- **Read** — methodology steps 1, 2, 3, 7: bounded to `<repo>/.development/plans/active.md` (or briefed plan path), `<repo>/.development/vision/`, `<repo>/docs/sops/*.md` (style match + collision check), `<repo>/.development/decisions/*.md` (cited ADRs), `<repo>/skills/biz-sop-discipline/SKILL.md`, `<repo>/skills/verification-before-completion/SKILL.md`, `<repo>/.claude/CLAUDE.md`, `<repo>/.claude/docs-map.json`. No out-of-repo reads.
 - **Write** — methodology step 6 only: `{path: "<repo>/docs/sops/<slug>.md", mode: "create-new-only"}`. Refuse if path exists. No other write targets.
-- **Grep** — methodology step 2: bounded to `docs/sops/`, `docs/decisions/`, `docs/plans/active.md`, `agents/biz-*.md`.
-- **Glob** — methodology step 2: bounded to `docs/sops/`, `docs/decisions/`, `agents/biz-*.md`.
+- **Grep** — methodology step 2: bounded to `docs/sops/`, `.development/decisions/`, `.development/plans/active.md`, `agents/biz-*.md`.
+- **Glob** — methodology step 2: bounded to `docs/sops/`, `.development/decisions/`, `agents/biz-*.md`.
 - **No Bash.** No Edit (Edit is forbidden — create-new-only via Write only). No WebFetch, WebSearch, NotebookEdit, NotebookRead.
 
 ## Anti-patterns
@@ -342,7 +342,7 @@ Additional semantic constraints:
 ## When NOT to use this agent
 
 - **SOP framing / problem-statement / process-design intent** — route to biz-visionary [scheduled-annotation: biz-visionary defined at docs/reference/agent-roster.md line 802; no matrix row required — biz-visionary is framing-stage; vision artifacts are not auditor-paired].
-- **SOP rollout sequencing / role-dependency planning / executor-routing** — route to biz-planner [scheduled-annotation: biz-planner defined at docs/reference/agent-roster.md line 812; no matrix row required — biz-planner output is the plan artifact at docs/plans/active.md; plan files are not auditor-paired (plan approval is User-owned per CLAUDE.md §2)].
+- **SOP rollout sequencing / role-dependency planning / executor-routing** — route to biz-planner [scheduled-annotation: biz-planner defined at docs/reference/agent-roster.md line 812; no matrix row required — biz-planner output is the plan artifact at .development/plans/active.md; plan files are not auditor-paired (plan approval is User-owned per CLAUDE.md §2)].
 - **SOP completeness audit / step-output-owner-exception chain review** — route to biz-process-reviewer [scheduled-annotation: biz-process-reviewer defined at docs/reference/agent-roster.md line 832; biz-sop-output matrix row at docs/specs/audit-pairing-matrix.md line 39].
 - **Rollout comms drafting / announcement memos / FAQ on the published SOP** — route to doc-internal-comms [scheduled-annotation: doc-internal-comms defined at docs/reference/agent-roster.md line 856; no matrix row required — doc-internal-comms output is comms artifacts at docs/comms/].
 - **Financial-statement authoring** — route to fin-statement-builder [scheduled-annotation: fin-statement-builder defined at docs/reference/agent-roster.md line 786; fin-statement-output matrix row at docs/specs/audit-pairing-matrix.md line 38].

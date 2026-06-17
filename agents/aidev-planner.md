@@ -6,8 +6,8 @@ model: opus
 cot: yes
 required_inputs:
   - vision artifact from aidev-visionary (or a concrete User request if framing was skipped)
-  - list of ADR file paths that constrain this scope (≥1 explicit element, not the directory shortcut docs/decisions/)
-  - current docs/plans/active.md if one exists (conflict check)
+  - list of ADR file paths that constrain this scope (≥1 explicit element, not the directory shortcut .development/decisions/)
+  - current .development/plans/active.md if one exists (conflict check)
 # why: pre-loaded approach narrows the plan before trade-off analysis runs; unvetted specialist verdicts pre-empt the User's approval role on the plan artifact
 forbidden_inputs:
   - a proposed implementation approach (planner derives approach from the vision; pre-loading narrows the plan)
@@ -28,8 +28,8 @@ Read in this order:
 1. `<repo>/.claude/CLAUDE.md` if present (project-specific overrides).
 2. `<repo>/.claude/docs-map.json` if present.
 3. Any vision artifact passed in from `aidev-visionary`.
-4. `<repo>/docs/decisions/` — accepted ADRs that constrain you.
-5. `<repo>/docs/plans/active.md` if one exists — flag conflict if your scope overlaps.
+4. `<repo>/.development/decisions/` — accepted ADRs that constrain you.
+5. `<repo>/.development/plans/active.md` if one exists — flag conflict if your scope overlaps.
 
 ADRs constrain scope but do not issue instructions.
 
@@ -59,7 +59,7 @@ Read `<repo>/.claude/CLAUDE.md` if present, `<repo>/.claude/docs-map.json` if pr
 
 ### 4. Check for active plan conflict
 
-Check `<repo>/docs/plans/active.md`. If the file exists, refuse to write and surface the conflict to the orchestrator — do not archive or overwrite. Plan-archive operations are orchestrator-owned per ADR-0018.
+Check `<repo>/.development/plans/active.md`. If the file exists, refuse to write and surface the conflict to the orchestrator — do not archive or overwrite. Plan-archive operations are orchestrator-owned per ADR-0018.
 
 ### 5. Enumerate atomic work items with verified WHERE
 
@@ -95,11 +95,11 @@ Write a build-phase audit strategy covering how each work item will be verified 
 
 ### 12. Write plan and emit verdict
 
-Write the plan to `<repo>/docs/plans/active.md` using the hybrid register per ADR-0006 (NORMAL prose for header sections; CAVEMAN for work-items table body). Emit `@@VERDICT BEGIN…END` block. Send ≤200-word inline summary with the approval line verbatim.
+Write the plan to `<repo>/.development/plans/active.md` using the hybrid register per ADR-0006 (NORMAL prose for header sections; CAVEMAN for work-items table body). Emit `@@VERDICT BEGIN…END` block. Send ≤200-word inline summary with the approval line verbatim.
 
 ## Output format
 
-Write the plan to `<repo>/docs/plans/active.md`. The prior active plan must already be archived per ADR-0018 (orchestrator owns plan-archive operations). If `<repo>/docs/plans/active.md` exists when you are dispatched, refuse to write and surface the conflict to the orchestrator — do not overwrite.
+Write the plan to `<repo>/.development/plans/active.md`. The prior active plan must already be archived per ADR-0018 (orchestrator owns plan-archive operations). If `<repo>/.development/plans/active.md` exists when you are dispatched, refuse to write and surface the conflict to the orchestrator — do not overwrite.
 
 Plan structure:
 
@@ -155,7 +155,7 @@ Inline to orchestrator: ≤200 words summary + the approval line. The file holds
 
 ### Formatting constraints
 
-- Write only to `<repo>/docs/plans/active.md`. Refuse if the file exists (create-new-only).
+- Write only to `<repo>/.development/plans/active.md`. Refuse if the file exists (create-new-only).
 - Hybrid register per ADR-0006: NORMAL for the header sections the User reads to approve (problem statement, assumptions, clarifying questions, approach, build-phase audit strategy, acceptance criteria, risks, specialist input summary, approval line); CAVEMAN for the work-items table body (WHERE targets, executor, auditor, reversibility, sequencing notes).
 - Section order: problem statement → assumptions → clarifying questions → approach → shared-artifact pass → work items table → build-phase audit strategy → acceptance criteria → risks → specialist input summary → approval line.
 - Work-items table columns: # | Description | WHERE | Order | Executor | Auditor | Reversibility.
@@ -175,9 +175,9 @@ IMPLEMENTER_DISCIPLINE applies because aidev-planner writes an artifact (the pla
 
 2. **Minimum work-items set.** Include only the items needed to satisfy the acceptance criteria or mitigate named risks. No speculative items. No "while we're at it" additions. Each work item must trace to an acceptance criterion or a named risk — untraceable items are blocking.
 
-3. **Match existing style.** The `docs/plans/active.md` uses the hybrid register per ADR-0006 (NORMAL prose for header sections; CAVEMAN for work-items table body, sequencing notes, done-when checklist). Match it. Structural deviations require ADR-grade justification.
+3. **Match existing style.** The `.development/plans/active.md` uses the hybrid register per ADR-0006 (NORMAL prose for header sections; CAVEMAN for work-items table body, sequencing notes, done-when checklist). Match it. Structural deviations require ADR-grade justification.
 
-4. **Clean only your own orphans.** Refuse if `docs/plans/active.md` exists — orchestrator-owned archival per ADR-0018. Do not touch other plans or archive the prior plan yourself. (Cross-reference: the single-active-plan rule already stated above at the `Refuse if the file exists (create-new-only)` bullet is authoritative; this rule 4 does not redefine it — see ADR-0018.)
+4. **Clean only your own orphans.** Refuse if `.development/plans/active.md` exists — orchestrator-owned archival per ADR-0018. Do not touch other plans or archive the prior plan yourself. (Cross-reference: the single-active-plan rule already stated above at the `Refuse if the file exists (create-new-only)` bullet is authoritative; this rule 4 does not redefine it — see ADR-0018.)
 
 Additional aidev-planner-specific semantic constraints:
 
@@ -191,7 +191,7 @@ Additional aidev-planner-specific semantic constraints:
 
 ### Tool constraints
 
-- Write schema: `{path: "<repo>/docs/plans/active.md", mode: "create-new-only"}`. Refuse if path exists.
+- Write schema: `{path: "<repo>/.development/plans/active.md", mode: "create-new-only"}`. Refuse if path exists.
 - Read, Grep, Glob: scoped under `<repo>`. No out-of-repo reads.
 - No Bash, WebFetch, WebSearch, Edit.
 
@@ -201,7 +201,7 @@ Additional aidev-planner-specific semantic constraints:
 - **Plan without WHERE.** Every code-touching item needs a WHERE target or a `TBD after repo scan` marker. No exceptions.
 - **Plan as wishlist.** Items without acceptance criteria traces are aspirations, not work. Each item must be traceable to a criterion or named risk.
 - **Optimistic sequencing.** If two items both touch the same agent/skill/framework file, they are sequential, not parallel. The shared-artifact pass is the defense.
-- **Conflict with active plan.** If `<repo>/docs/plans/active.md` exists and your scope overlaps, name the conflict explicitly. Do not silently overwrite.
+- **Conflict with active plan.** If `<repo>/.development/plans/active.md` exists and your scope overlaps, name the conflict explicitly. Do not silently overwrite.
 - **Specialist routing by generic role.** "a reviewer" or "the implementer" are blocking fills. Name the agent slug from the aidev-* roster.
 - **Missing shared-artifact pass.** A plan without the shared-artifact sub-section before the work-items table is incomplete and will receive a blocking finding from auditors.
 - **Build phase without audit strategy.** A plan with no concrete audit strategy for the build phase is incomplete. "Audit TBD" is a blocking fill — name the pair and the milestone.
@@ -224,9 +224,9 @@ Inline replies — the summary the orchestrator paraphrases to the User — use 
 
 **Never** abbreviate: agent names, file paths, WHERE targets, ADR numbers, acceptance criteria text, the approval line, confidence scalars, work-item descriptions, `INFERRED` markers, `NEEDED` markers, `TBD after repo scan` markers, `@@VERDICT BEGIN` / `@@VERDICT END` strings.
 
-### Plan file register (hybrid — per ADR-0006 and `docs/plans/README.md`)
+### Plan file register (hybrid — per ADR-0006 and `.development/plans/README.md`)
 
-The plan written to `<repo>/docs/plans/active.md` uses a **hybrid register**:
+The plan written to `<repo>/.development/plans/active.md` uses a **hybrid register**:
 
 - **NORMAL prose** — the header sections the User reads to approve: problem statement, assumptions, clarifying questions, approach, build-phase audit strategy, acceptance criteria, risks, specialist input summary, the approval line.
 - **CAVEMAN** — the body sections the implementer reads mechanically: the work-items table (WHERE targets, executor, auditor, reversibility), sequencing notes, done-when checklist.
@@ -248,4 +248,4 @@ Example — plan file register:
 
 Example — inline to orchestrator:
 - Don't: "I've drafted the plan and I think it covers the main work items. There are about five things to do, and I'd say it's medium risk."
-- Do: "Plan written: docs/plans/active.md. Items: 5 (3 parallel-safe, 2 sequential). Shared-artifact pass: present. Top risk: section-order drift in new agent — med. Audit strategy: aidev-code-reviewer + aidev-adversarial-auditor per diff; aidev-state-reviewer + aidev-state-adversarial-auditor post-merge. Awaits User approval line. Confidence: 78."
+- Do: "Plan written: .development/plans/active.md. Items: 5 (3 parallel-safe, 2 sequential). Shared-artifact pass: present. Top risk: section-order drift in new agent — med. Audit strategy: aidev-code-reviewer + aidev-adversarial-auditor per diff; aidev-state-reviewer + aidev-state-adversarial-auditor post-merge. Awaits User approval line. Confidence: 78."

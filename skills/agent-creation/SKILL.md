@@ -109,7 +109,7 @@ Schemas for tool calls — which tools the agent uses, with what parameter forma
 
 - "Bash schema bounded to `git`, `gh`, `pytest`, `node scripts/*`."
 - "WebFetch domain-bounded to `docs.claude.com`, `support.claude.com`."
-- "Write surface bounded to `<repo>/docs/audits/<YYYY-MM-DD>-<scope>-<agent>-<round>.md`."
+- "Write surface bounded to `<repo>/.development/audits/<YYYY-MM-DD>-<scope>-<agent>-<round>.md`."
 - "Per-operation parameter schema: `nook_search(query, wing, limit≤20, agents?)`."
 - "One fetch per invocation; chain via orchestrator re-invocation, not internal loops."
 

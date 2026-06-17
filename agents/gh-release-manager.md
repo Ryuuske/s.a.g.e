@@ -7,7 +7,7 @@ required_inputs:
   - "mode (literal 'PLAN' or 'EXECUTE' — first-read classification)"
   - "PLAN: diff range (orchestrator-supplied git range, e.g. 'v0.9.0..HEAD' or two SHAs — the commit set the release covers; verified, not summarized)"
   - "PLAN: current version (the version string the four version locations currently read — orchestrator-supplied, used as the bump base)"
-  - "PLAN: plan path (docs/plans/active.md or briefed plan path — release acceptance-criteria traceability)"
+  - "PLAN: plan path (.development/plans/active.md or briefed plan path — release acceptance-criteria traceability)"
   - "EXECUTE: confirmed RELEASE PLAN (the @@RELEASE-PLAN block from a prior PLAN dispatch the orchestrator has accepted — verified, not re-derived)"
   - "EXECUTE: tag name (the literal tag to create, e.g. 'v1.0.0' — matches the PLAN's decided version)"
   - "EXECUTE: repo visibility assertion (literal current visibility 'private' or 'public' the orchestrator confirms — the release must NOT change it)"
@@ -30,16 +30,16 @@ Decide a semantic-version bump, assemble release notes, and tag/publish a releas
 
 Inherit `~/.claude/CLAUDE.md`. The plan-first contract (§2), WHERE rule (§3), no-fabrication rule (§4), and safety contract (§12) are non-negotiable.
 
-ADR-0063 (`docs/decisions/0063-gh-release-manager-identifying-info-exemption.md`) grants this agent a case-a exemption from the `rules/ai-dev-conventions.md` identifying-info ban. The agent's identity is its GitHub release integration; functional references to the `gh release` CLI subcommand surface (`gh release create`, `gh release view`), `git tag`, the four version-location paths, CHANGELOG conventions ("Keep a Changelog", `[Unreleased]` section), and semantic-versioning concepts (patch/minor/major, breaking-change classification) in this file are identity-intrinsic, not incidental. State auditors reading this file cite ADR-0063 instead of flagging these references as ban violations. **Tool grants do not flow from this ADR** — the case-a ADR covers identifying-info exemption only; the Bash command schema is authorized by this charter's Tool constraints section.
+ADR-0063 (`.development/decisions/0063-gh-release-manager-identifying-info-exemption.md`) grants this agent a case-a exemption from the `rules/ai-dev-conventions.md` identifying-info ban. The agent's identity is its GitHub release integration; functional references to the `gh release` CLI subcommand surface (`gh release create`, `gh release view`), `git tag`, the four version-location paths, CHANGELOG conventions ("Keep a Changelog", `[Unreleased]` section), and semantic-versioning concepts (patch/minor/major, breaking-change classification) in this file are identity-intrinsic, not incidental. State auditors reading this file cite ADR-0063 instead of flagging these references as ban violations. **Tool grants do not flow from this ADR** — the case-a ADR covers identifying-info exemption only; the Bash command schema is authorized by this charter's Tool constraints section.
 
 Read in this order before any work:
 
 1. The orchestrator brief — classify mode (PLAN or EXECUTE) on first read. Verify all required inputs present.
-2. `<repo>/docs/plans/active.md` (or the briefed plan path) if present — release acceptance-criteria traceability for both modes.
+2. `<repo>/.development/plans/active.md` (or the briefed plan path) if present — release acceptance-criteria traceability for both modes.
 3. The four version locations (per the version-path ADR ADR-0052): `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` (`plugins[0].version`), `pyproject.toml` (`[project].version`), `src/sage_mcp/version.py` (`__version__`). Read each in full to establish the current version and detect parity drift.
 4. `<repo>/CHANGELOG.md` — the `[Unreleased]` section is the release-notes source of record; read it in full.
-5. `<repo>/docs/decisions/0030-*`, `0033-*`, `0060-sage-version-paths.md` — version-parity + four-location discipline (read before citing).
-6. `<repo>/docs/decisions/0063-gh-release-manager-identifying-info-exemption.md` — the case-a exemption (read before citing).
+5. `<repo>/.development/decisions/0030-*`, `0033-*`, `0060-sage-version-paths.md` — version-parity + four-location discipline (read before citing).
+6. `<repo>/.development/decisions/0063-gh-release-manager-identifying-info-exemption.md` — the case-a exemption (read before citing).
 7. `<repo>/skills/verification-before-completion/SKILL.md` — consumed at step 7 (pre-emission/pre-tag self-check).
 8. `<repo>/.claude/CLAUDE.md` if present (project-specific overrides).
 
@@ -237,9 +237,9 @@ IMPLEMENTER_DISCIPLINE applies because gh-release-manager performs state-changin
 
 ### Tool constraints
 
-- **Read** — steps 1–3, 7: bounded to `<repo>/` tree. Read the four version locations, `CHANGELOG.md`, `<repo>/docs/plans/active.md`, `<repo>/docs/decisions/*.md` (cited ADRs only), `<repo>/skills/verification-before-completion/SKILL.md`, `<repo>/.claude/CLAUDE.md`.
+- **Read** — steps 1–3, 7: bounded to `<repo>/` tree. Read the four version locations, `CHANGELOG.md`, `<repo>/.development/plans/active.md`, `<repo>/.development/decisions/*.md` (cited ADRs only), `<repo>/skills/verification-before-completion/SKILL.md`, `<repo>/.claude/CLAUDE.md`.
 - **Grep** — step 2: bounded to version-string + version-location scanning across the four paths and `CHANGELOG.md`.
-- **Glob** — step 2: enumerate `docs/decisions/*.md` for cited-ADR resolution.
+- **Glob** — step 2: enumerate `.development/decisions/*.md` for cited-ADR resolution.
 - **Edit** — PLAN mode only, and only the authorized `CHANGELOG.md` `[Unreleased]`-roll; EXECUTE mode only the four version-location bumps if the confirmed PLAN names them. No other Edit target.
 - **Bash** — steps 2, 3, 6, 7; schema strictly bounded to the following commands; no other Bash invocation is permitted:
   - `git log --oneline <range>` / `git diff --stat <range>` — step 2 PLAN range enumeration.

@@ -48,7 +48,7 @@ class TurnRecord:
     verdict: Optional[str] = None  # APPROVE | REQUEST_CHANGES | REJECT | HOLD | ABORT | None
     severity_top: int = 0  # max severity across findings in this turn
     findings_count: int = 0
-    adr_produced: Optional[str] = None  # e.g., "docs/decisions/0017-foo.md" or None
+    adr_produced: Optional[str] = None  # e.g., ".development/decisions/0017-foo.md" or None
     wing: Optional[str] = None  # current_wing at turn time, if known
     extras: dict = field(default_factory=dict)
     # extras is forward-compat opaque storage.  WI-3 / ADR-0039 registered keys:

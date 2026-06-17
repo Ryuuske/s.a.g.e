@@ -24,7 +24,7 @@ These conventions apply when working on application code, scripts, automation, w
 
 ## Plan as the routing source
 
-Every Build phase dispatch reads the plan's specialist routing from `<repo>/docs/plans/active.md`. The plan names which `dev-*` specialists handle which work items, including which language-specific reviewer activates per project (via `aidev-agent-manager.detect-project` signals — `Cargo.toml` activates `dev-rust-reviewer`, `go.mod` activates `dev-go-reviewer`, `manage.py` + `requirements.txt` activates `dev-django-reviewer`, etc.).
+Every Build phase dispatch reads the plan's specialist routing from `<repo>/.development/plans/active.md`. The plan names which `dev-*` specialists handle which work items, including which language-specific reviewer activates per project (via `aidev-agent-manager.detect-project` signals — `Cargo.toml` activates `dev-rust-reviewer`, `go.mod` activates `dev-go-reviewer`, `manage.py` + `requirements.txt` activates `dev-django-reviewer`, etc.).
 
 ## Test strategy is mandatory in the plan
 

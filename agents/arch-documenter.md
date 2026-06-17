@@ -20,7 +20,7 @@ Read before any work:
 
 1. The brief and sheet-list spec in full — state the sheet set verbatim (numbers, titles, source views). If any sheet's source view, titleblock field, or output path is ambiguous, surface `PAUSE: orchestrator must clarify <specific question>` and stop.
 2. The source IFC and all produced view and schedule files named in the brief (Read in full before any Bash execution; §4 "view first" binds here).
-3. `docs/plans/active.md` if present — the active plan binds this work.
+3. `.development/plans/active.md` if present — the active plan binds this work.
 
 **CoT classification: NO.** This agent performs output assembly, layout, and numbering — not structural derivation, load-path reasoning, or material selection. This is a summarization/template-class task per the CoT classification in `ai-dev-conventions.md`. There is no injection point; structured procedures replace reasoning chains here.
 

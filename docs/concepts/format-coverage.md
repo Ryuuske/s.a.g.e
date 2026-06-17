@@ -183,7 +183,7 @@ That's the entire CLI change. Two argparse edits + one `elif` branch.
 
 ## Empirical smoke test — local mixed-format directory
 
-Live extraction was verified end-to-end on 2026-05-19 (Python 3.13, MarkItDown 0.1.5 + striprtf 0.0.27) against a mixed real-world corpus: every supported format extracted or skipped with the documented skip-code, no source file modified. The full captured run output is archived at internal/archive/docs/format-coverage-with-2026-05-19-run-capture.md.
+Live extraction was verified end-to-end on 2026-05-19 (Python 3.13, MarkItDown 0.1.5 + striprtf 0.0.27) against a mixed real-world corpus: every supported format extracted or skipped with the documented skip-code, no source file modified. The full captured run output is archived at .development/archive/docs/format-coverage-with-2026-05-19-run-capture.md.
 
 ## Backwards compatibility
 

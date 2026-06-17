@@ -20,7 +20,7 @@ Read before any work:
 
 1. The approved change-order in full — confirm spec values are present (else `PAUSE: orchestrator must clarify <q>`).
 2. The current parametric spec JSON and all make/verify/render scripts and builder modules named in the brief (Read in full before any Edit; §4 "view first, then edit" binds here).
-3. `docs/plans/active.md` if present — the active plan binds this work.
+3. `.development/plans/active.md` if present — the active plan binds this work.
 4. The canonical leak-guard `.gitignore` pattern set as defined in `freecad-wsl-invocation-hygiene` (the build lane is the legitimate writer that provisions it into the project repo).
 
 ## When invoked

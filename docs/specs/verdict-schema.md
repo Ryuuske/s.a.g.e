@@ -87,7 +87,7 @@ Plan covers all 7 acceptance criteria. Risks file complete. Lane discipline clea
 If `report:` in the structured block is `none`, no report-path line follows. Otherwise the auditor closes with the report path on its own line, NORMAL prose, for the User's reference:
 
 ```
-Report: docs/audits/2026-05-25-skills-batch-aidev-code-reviewer-post.md
+Report: .development/audits/2026-05-25-skills-batch-aidev-code-reviewer-post.md
 ```
 
 ## Parser contract

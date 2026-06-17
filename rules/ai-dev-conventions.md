@@ -6,8 +6,8 @@ paths:
   - "**/statusline/**"
   - "**/claude-md/**"
   - "**/docs/specs/**"
-  - "**/docs/agents/**"
-  - "**/docs/decisions/**"
+  - "**/.development/agents/**"
+  - "**/.development/decisions/**"
   - "**/installer*.sh"
   - "**/installer-assets/**"
 ---
@@ -48,4 +48,4 @@ All agent and skill CRUD operations go through `aidev-agent-creator` or `aidev-s
 
 ## ADR discipline
 
-Reordering sections, adding new manifest fields, adding new auditor pairings, or any one-way governance change requires an ADR at `docs/decisions/NNNN-slug.md`. ADRs are append-only — supersede, never edit. ADR-grade decisions for AI-dev work include: section reordering in agent files; new manifest field additions; new audit-pairing matrix rows; family additions; lane statement changes on existing agents.
+Reordering sections, adding new manifest fields, adding new auditor pairings, or any one-way governance change requires an ADR at `.development/decisions/NNNN-slug.md`. ADRs are append-only — supersede, never edit. ADR-grade decisions for AI-dev work include: section reordering in agent files; new manifest field additions; new audit-pairing matrix rows; family additions; lane statement changes on existing agents.

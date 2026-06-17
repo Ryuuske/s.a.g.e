@@ -38,7 +38,7 @@ counts) live ONLY in generated docs.
 | concepts/closets.md | closet concept | users | hand | feature change |
 | concepts/format-coverage.md | mining format support + skip codes | users | hand | new format/miner change |
 | concepts/third-party-patterns.md | upstream pattern attributions | all | hand | new borrow |
-| concepts/sage-persona.md | the public S.A.G.E. persona artifact | users | hand | persona change (sources: internal/persona/) |
+| concepts/sage-persona.md | the public S.A.G.E. persona artifact | users | hand | persona change (sources: .development/persona/) |
 
 ## docs/specs/ — contracts paired with code
 
@@ -75,7 +75,7 @@ counts) live ONLY in generated docs.
 | installer-assets/README-claude-wakeup.md | wakeup automation quirks + constants record | maintainer | hand | wakeup change |
 | statusline/README.md | statusline fields + samples (illustrative) | users | hand | statusline change |
 | .claude-plugin/README.md | plugin packaging notes | devs | hand | plugin change |
-| docs/agents/ (9 CHANGELOGs + README) | aidev shipped-change records | devs | hand (schema) | agent ship |
+| .development/agents/ (9 CHANGELOGs + README) | aidev shipped-change records | devs | hand (schema) | agent ship |
 | rules/*.md | work-type conventions (installed to ~/.claude/rules/) | agents | hand | convention change |
 
 ## Repo layout (key paths)
@@ -106,10 +106,10 @@ wing_config.json      registered wings + wing-type taxonomy
 
 ## Internal-class working surfaces (never tracked, never ship)
 
-`docs/plans/` (active plan convention), `docs/audits/` (audit reports),
-`docs/handoff/` (session handoffs), `docs/in-flight/` — live at their
-conventional paths, gitignored + leak-guard-denied. `internal/` holds the
-canonical BACKLOG, this repo's decision log (`internal/decisions/`), the
-restructure ledger, archives, and relocated working docs. Pre-2026-06-10
+`.development/plans/` (active plan convention), `.development/audits/` (audit reports),
+`.development/handoff/` (session handoffs), `.development/in-flight/` — live at their
+conventional paths, gitignored + leak-guard-denied. `.development/` holds the
+canonical BACKLOG, this repo's decision log (`.development/decisions/`), the
+restructure ledger, and relocated working docs. Pre-2026-06-10
 documents in those areas cite OLD ADR numbers — translation key:
-`internal/ledger.md` Entry 005.
+`.development/ledger.md` Entry 005.
