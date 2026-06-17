@@ -40,7 +40,7 @@ Agent files are generic and shareable. No agent file names a specific employer, 
 
 ## Audit pairings
 
-The audit-pairing matrix at `docs/specs/audit-pairing-matrix.md` is the single source of truth for which auditors pair on what work. AI-dev diff changes route to `aidev-code-reviewer` + `aidev-adversarial-auditor` (parallel). AI-dev state audits (no diff) route to `aidev-state-reviewer` + `aidev-state-adversarial-auditor` (parallel). Roster-wide governance updates use the `propagation-batch` row with the two-phase audit protocol — state pair audits the batch as a whole first, then `aidev-code-reviewer` audits each embedded modification.
+The audit-pairing matrix at `docs/specs/audit-pairing-matrix.md` is the single source of truth for which auditors pair on what work. AI-dev diff changes route to `aidev-code-reviewer` + a Codex adversarial pass (`/codex:adversarial-review`; fallback `aidev-adversarial-auditor` when Codex is unavailable — ADR-0123) (parallel). AI-dev state audits (no diff) route to `aidev-state-reviewer` + a Codex adversarial pass (`/codex:adversarial-review`; fallback `aidev-state-adversarial-auditor` — ADR-0123) (parallel). Roster-wide governance updates use the `propagation-batch` row with the two-phase audit protocol — state reviewer + the Codex adversarial pass audit the batch as a whole first, then `aidev-code-reviewer` audits each embedded modification.
 
 ## CRUD flow
 

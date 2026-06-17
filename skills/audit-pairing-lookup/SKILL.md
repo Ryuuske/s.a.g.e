@@ -53,6 +53,7 @@ At least one of `change_type` or `change_description` (plus `diff_paths` if avai
 3. **Validate auditors against the catalog.** For each of `auditor_primary`, `auditor_secondary`, `auditor_tertiary`:
    - Check the name exists in `~/.claude/agent-catalog.json`.
    - If a named auditor is missing from the catalog, set `drift_warning` and continue (return the pairing with the warning rather than failing — the orchestrator decides whether to proceed).
+   - **Codex-pass carve-out:** a `/codex:*` slash-command secondary (the Codex adversarial-review lane, ADR-0123) is NOT a catalog agent. Recognize a `/codex:adversarial-review` entry as a valid Codex pass and SKIP the `~/.claude/agent-catalog.json` check for it; do NOT set `drift_warning` for a `/codex:*` entry. Codex-pass readiness is validated by `codex-budget` / `codex:setup`, not by the agent catalog.
 
 4. **Check matrix freshness.** If the matrix's `last_audited` field is more than 90 days old, set `stale_warning`.
 
@@ -64,7 +65,7 @@ At least one of `change_type` or `change_description` (plus `diff_paths` if avai
 @@PAIRING BEGIN
 change_type: <slug>
 auditor_primary: <agent-name>
-auditor_secondary: <agent-name or null>
+auditor_secondary: <agent-name, /codex:* Codex-pass token (with Claude fallback in parens), or null>
 auditor_tertiary: <agent-name or null>
 protocol: parallel | sequential | solo | self-pass
 matrix_source: docs/specs/audit-pairing-matrix.md
@@ -98,7 +99,7 @@ Output:
 @@PAIRING BEGIN
 change_type: aidev-diff
 auditor_primary: aidev-code-reviewer
-auditor_secondary: aidev-adversarial-auditor
+auditor_secondary: /codex:adversarial-review (fallback aidev-adversarial-auditor — ADR-0123)
 auditor_tertiary: null
 protocol: parallel
 matrix_source: docs/specs/audit-pairing-matrix.md
@@ -159,6 +160,6 @@ The orchestrator sees the warning and routes to `aidev-agent-manager` to activat
 ## Anti-patterns
 
 - **Hardcoded pairings in agent files** — every pairing lives in the matrix. If you find yourself wanting to add a pairing to an agent file, you are bypassing this skill. Update the matrix instead.
-- **Skipping validation against the catalog** — a matrix row that names a non-existent agent fails silently at dispatch time. Always validate.
+- **Skipping validation against the catalog** — a matrix row that names a non-existent agent fails silently at dispatch time. Always validate. Exception: `/codex:*` secondaries are validated by Codex-readiness (`codex-budget` / `codex:setup`), not the agent catalog — do not raise `drift_warning` for a `/codex:*` entry.
 - **Inferring change_type from natural language alone** — file paths are stronger evidence. Prefer the path-pattern match over keyword match.
 - **Adding pairing-resolution logic to this skill** — when auditors return split verdicts, that's resolution policy, not lookup. The matrix's "Resolution protocol" section covers it; the orchestrator applies it after both verdicts return. This skill ends at "here are the auditors to dispatch."

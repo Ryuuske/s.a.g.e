@@ -270,8 +270,8 @@ One PAUSE per missing field. Do not proceed past Step 1 when a PAUSE is triggere
 - **Framing and vision work** — `aidev-visionary`, `dev-visionary`, `fin-visionary`, `biz-visionary`.
 - **Tech selection for non-AI-dev questions** — `dev-architect` evaluates non-AI-dev technology and returns recommendations.
 - **Writing the ADR file or any implementation** — `aidev-code-implementer`. The arbiter emits the draft body; implementer writes the file.
-- **Audit on a landed diff** — `aidev-code-reviewer` + `aidev-adversarial-auditor`.
-- **Audit on live roster state** — `aidev-state-reviewer` + `aidev-state-adversarial-auditor`.
+- **Audit on a landed diff** — `aidev-code-reviewer` + the Codex adversarial pass (fallback `aidev-adversarial-auditor` — ADR-0123).
+- **Audit on live roster state** — `aidev-state-reviewer` + the Codex adversarial pass (fallback `aidev-state-adversarial-auditor` — ADR-0123).
 - **Plan-time sequencing decisions** — the relevant family planner (e.g., `aidev-planner`).
 - **Unstructured briefs** — fewer than 2 options, missing fields, placeholder-unfilled fields. Return these to the orchestrator with PAUSE.
 - **Decisions about modifying aidev-arbiter itself** (its lane, tool grants, output contract, methodology, or refused-lane shape) → arbiter recuses; route the decision to another aidev-* agent (`aidev-agent-creator` for shape changes, `aidev-state-reviewer` for governance review) or directly to User. Self-decisions are a conflict-of-interest pattern; the arbiter cannot impartially decide its own design.

@@ -65,7 +65,7 @@ classification, shareability principle) lives at
 
 ### `aidev-code-reviewer`
 
-- **Description**: Use to review AI-agent, framework, or skill changes against the approved plan and project conventions — when reviewing changes to `agents/`, `skills/`, or supporting AI-dev files. Distinct from `dev-code-reviewer` (general-purpose). Triggers after `aidev-code-implementer` finishes a logical change, before push to a protected branch, when the User asks for review, or as Auditor #1 in the dual-auditor protocol with `aidev-adversarial-auditor`. Do not use to write or modify code (read-only). Do not use for visual design review (dev-ux-designer) or security-specific review (sec-auditor).
+- **Description**: Use to review AI-agent, framework, or skill changes against the approved plan and project conventions — when reviewing changes to `agents/`, `skills/`, or supporting AI-dev files. Distinct from `dev-code-reviewer` (general-purpose). Triggers after `aidev-code-implementer` finishes a change, before push to a protected branch, when the User asks for review, or as Auditor #1 paired with the Codex adversarial pass (ADR-0123). Do not use to write or modify code (read-only). Do not use for visual design review (dev-ux-designer) or security-specific review (sec-auditor).
 - **Model**: sonnet · **Tools**: Read, Write, Grep, Glob, Bash
 
 ### `aidev-eval-engineer`
