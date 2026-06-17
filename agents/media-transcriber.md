@@ -22,7 +22,7 @@ requires:
   - dep: "~/.venvs/media"
     kind: venv
     install: "scripts/media/setup.sh"
-    why: "whisper, openai-whisper, and all transcription/packaging deps live in this venv; doctor.py reports missing venv if absent"
+    why: "faster-whisper, scenedetect, Pillow, imagehash and the rest of the transcription/packaging deps live in this venv (hash-locked in scripts/media/requirements-media.txt); doctor.py reports missing venv if absent"
 ---
 
 # Media Transcriber
