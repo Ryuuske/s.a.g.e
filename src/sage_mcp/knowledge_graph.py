@@ -53,9 +53,8 @@ def read_counts_readonly(db_path: str) -> tuple[int, int]:
 
     Opens the resolved path in read-only URI mode (``mode=ro``), which never
     creates the file, and runs only ``SELECT count(*)``. This is the single
-    read-only KG-stats path shared by the in-process ``nook_estate`` MCP tool and
-    the standalone ``sage estate`` CLI, so both honour the ADR-0003 read-only
-    contract identically (PR #34 ultra-review). Fail-soft to ``(0, 0)`` when the
+    read-only KG-stats path honouring the ADR-0003 read-only contract
+    (PR #34 ultra-review). Fail-soft to ``(0, 0)`` when the
     file is absent, locked, or schema-less.
     """
     if not os.path.isfile(db_path):

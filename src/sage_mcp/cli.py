@@ -1389,13 +1389,6 @@ def cmd_dashboard(args):
     dashboard(nook_path=nook_path)
 
 
-def cmd_estate(args):
-    """Emit the schema-valid Estate Model JSON (ADR-0003 copy-snapshot read path)."""
-    from .estate.command import cmd_estate as _cmd_estate
-
-    _cmd_estate(args)
-
-
 def cmd_repair_status(args):
     """Read-only HNSW capacity health check (#1222)."""
     from .repair import status as repair_status
@@ -2861,44 +2854,6 @@ def main():
         help="Governance (verdict-log) + Nook store health dashboard",
     )
 
-    p_estate = sub.add_parser(
-        "estate",
-        help="Emit the Estate Model JSON (read-only, copy-snapshot)",
-    )
-    p_estate.add_argument(
-        "--json",
-        action="store_true",
-        help="Emit JSON (always on — output is JSON regardless; accepted for clarity)",
-    )
-    p_estate.add_argument(
-        "--level",
-        type=int,
-        default=0,
-        choices=[0, 1, 2, 3],
-        help="Enumeration depth: 0 = structure+counts (default); 1-3 reserved for drawer detail",
-    )
-    # Accept --nook AFTER the subcommand too (the documented form
-    # `sage estate --json --nook <path>`). SUPPRESS so it never clobbers the
-    # global --nook given BEFORE the subcommand (PR #34 review).
-    p_estate.add_argument(
-        "--nook",
-        default=argparse.SUPPRESS,
-        help="Where the nook lives (default: from ~/.sage/config.json or ~/.sage/nook)",
-    )
-    # Remaining documented flags (sage-estate-json-command.md): --wing scopes
-    # future level-2/3 drilldown (accepted now; no behaviour change at level 0),
-    # --no-bodies is the always-on safety flag (the model never carries bodies).
-    p_estate.add_argument(
-        "--wing",
-        default=None,
-        help="Scope to one wing (reserved for level 2-3 drilldown; no effect at level 0)",
-    )
-    p_estate.add_argument(
-        "--no-bodies",
-        action="store_true",
-        help="Never emit drawer bodies (always on — the model is body-free regardless)",
-    )
-
     args = parser.parse_args()
 
     if not args.command:
@@ -2945,7 +2900,6 @@ def main():
         "migrate": cmd_migrate,
         "status": cmd_status,
         "dashboard": cmd_dashboard,
-        "estate": cmd_estate,
     }
     dispatch[args.command](args)
 

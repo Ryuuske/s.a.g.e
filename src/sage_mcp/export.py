@@ -105,11 +105,7 @@ SHIP_FILES: tuple[str, ...] = (
     "docs/specs/virtual-line-numbering.md",
     "docs/specs/schema.sql",
     "docs/concepts/sage-persona.md",
-    # estate contract JSONs — required by the shipped ts-web CI job
-    # (render.test.ts drift guard); byte-identical to the src/ copies
-    "docs/projects/sage-estate-dashboard/estate-design-tokens.json",
-    "docs/projects/sage-estate-dashboard/estate-model.schema.json",
-    # docs/specs — current framework specs (historical design docs: internal/archive/specs/)
+    # docs/specs — current framework specs
     "docs/specs/verdict-schema.md",
     "docs/specs/telemetry.md",
     "docs/specs/manifest-schema.md",

@@ -63,8 +63,3 @@ docs/recovery/
 docs/vision/
 docs/governance/
 *:Zone.Identifier
-
-# Estate dashboard TS workspace deps + build outputs
-src/sage_mcp/estate/web/node_modules/
-src/sage_mcp/estate/web/dist/
-src/sage_mcp/estate/web/dist-demo/

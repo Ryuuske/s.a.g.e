@@ -129,7 +129,7 @@ if os.name == "posix" and _REAL_CRONTAB_BIN:
 #            10% of the snapshot FAILS (wipe signature, PMA-2); growth or
 #            mtime-only mutation tolerated.
 #   STATIC — install/incident-only files (config, identity, wing config,
-#            estate ledgers, people map): ANY change fails — creation,
+#            people map): ANY change fails — creation,
 #            deletion, or size+mtime mutation.
 #   UNKNOWN — any path in neither the snapshot nor a glob class: creation
 #            fails (STATIC semantics by default).

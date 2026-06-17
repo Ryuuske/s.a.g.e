@@ -96,11 +96,10 @@ dev = [
     # ``mypy src/sage_mcp/``; CI doesn't gate on it.
     "mypy>=1.0",
     # PyYAML type stubs — eliminates mypy import-untyped errors on
-    # sage.estate.adapter.workshop (which imports yaml directly).
+    # modules that import yaml directly (miner, room detector, skill exporter).
     "types-PyYAML>=6.0",
-    # Build frontend + this project's own backend — needed in-env so the
-    # estate schema-packaging test can build the real wheel OFFLINE
-    # (--no-isolation) and prove the schema ships inside the artifact.
+    # Build backend — needed in-env so the skill-registry packaging test can
+    # build the real wheel OFFLINE (--no-isolation) and prove assets ship.
     "build>=1.0",
     "hatchling>=1.0",
 ]
@@ -152,10 +151,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/sage_mcp"]
-# Ensure non-Python runtime assets ship in the wheel (the estate model schema is
-# loaded at runtime for validation; without this an installed user's estate build
-# fails — see ADR-0003 / PR #34 review).
-artifacts = ["src/sage_mcp/estate/*.schema.json"]
 
 [tool.ruff]
 line-length = 100

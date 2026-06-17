@@ -76,7 +76,6 @@ counts) live ONLY in generated docs.
 | statusline/README.md | statusline fields + samples (illustrative) | users | hand | statusline change |
 | .claude-plugin/README.md | plugin packaging notes | devs | hand | plugin change |
 | docs/agents/ (9 CHANGELOGs + README) | aidev shipped-change records | devs | hand (schema) | agent ship |
-| docs/projects/sage-estate-dashboard/ | estate-dashboard product docs (extraction earmark B-026) | devs | hand | dashboard change |
 | rules/*.md | work-type conventions (installed to ~/.claude/rules/) | agents | hand | convention change |
 
 ## Repo layout (key paths)

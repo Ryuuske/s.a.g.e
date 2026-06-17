@@ -84,7 +84,6 @@ _PYPI_WARN_WORDS = ("taken", "unrelated", "not on PyPI", "NOT on PyPI", "strange
 
 # -- check 5: reachability ----------------------------------------------------
 REACH_PREFIX_COVERED = (
-    "docs/projects/sage-estate-dashboard/",  # covered by its registry row
     "docs/agents/",  # covered by its registry row
     "docs/reference/",  # generated; registry row covers
 )

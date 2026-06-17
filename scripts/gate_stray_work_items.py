@@ -46,7 +46,7 @@ CHECKBOX_ALLOW = {
 }
 
 # Whole trees excluded until their disposition lands (ledger Entry 001 Q3).
-PREFIX_ALLOW = ("docs/projects/sage-estate-dashboard/",)
+PREFIX_ALLOW: tuple[str, ...] = ()
 
 
 def tracked_files() -> list[str]:
