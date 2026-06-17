@@ -27,8 +27,8 @@ uv sync --extra dev
 uv run pytest -q                  # tests
 uv run pytest --cov=sage_mcp --cov-report=term-missing
 uv run ruff check . && uv run ruff format .
-python3 scripts/gen_docs.py       # regenerate docs/reference/ + AGENTS.md
-python3 scripts/gen_adr_index.py  # dev repo only (regenerates .development/decisions/README.md)
+uv run python scripts/gen_docs.py       # regenerate docs/reference/ + AGENTS.md (needs venv: PyYAML)
+uv run python scripts/gen_adr_index.py  # dev repo only (regenerates .development/decisions/README.md)
 ```
 
 ## Conventions
