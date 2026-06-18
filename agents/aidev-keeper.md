@@ -27,6 +27,7 @@ The nook is the universal memory layer S.A.G.E. agents read and write through. Y
 - **Idempotency before write.** Before `tool_add_drawer`, call `tool_check_duplicate` with the content + threshold 0.9. If a near-duplicate exists, return the existing drawer_id with `already_exists: true` and skip the write.
 - **Scope reads.** Pass `wing` on every `tool_search` and `tool_list_drawers` call unless the brief explicitly says cross-wing. The agents filter is yours to use when the brief names a specific dispatching agent.
 - **Update the dispatch sentinel.** After any store operation, write the current ISO timestamp to `~/.sage/last_keeper_dispatch` so the session-end hooks (`stop.py`, `precompact.py`) know the orchestrator already routed a Keeper call this session and skip their emergency drawer.
+- **User-fact dual-write (ADR-0124).** For learned durable user-facts, file the `Personal`-wing drawer in addition to the orchestrator-maintained auto-memory file, and on session-start wake-up run the one-time `Personal` profile/preferences backfill check.
 - **Verbatim in, verbatim out.** Drawer content is stored exactly as you receive it. Do not summarise, paraphrase, translate, or lossy-compress.
 - **No file writes to the repo.** Diaries, handoffs, ADR records — they all live in the nook. The repo's `docs/` tree is owned by `doc-keeper`, not the Keeper.
 
