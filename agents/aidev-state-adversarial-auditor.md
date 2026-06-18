@@ -1,6 +1,6 @@
 ---
 name: aidev-state-adversarial-auditor
-description: Use to pressure-test the live state of the AI-dev roster, framework files, and skills by actively looking for failure modes, dispatch ambiguities, and lane-failure patterns — use only when no diff is in scope; for a diff, see `aidev-adversarial-auditor`. Triggers as the second auditor in the state dual-auditor protocol, or when the orchestrator wants a contrarian read on roster compliance without a change in flight. Do not use to pressure-test a diff (aidev-adversarial-auditor). Do not use for drift/archive integrity (doc-keeper). Do not use for backlog verdicts (general-purpose).
+description: Use as the FALLBACK state adversarial auditor when Codex is unavailable (Codex primary — ADR-0123). Pressure-tests live AI-dev roster, framework files, and skills when no diff is in scope. Do not use for diffs, drift/archive integrity, or backlog verdicts.
 tools: Read, Write, Grep, Glob
 model: opus
 required_inputs:

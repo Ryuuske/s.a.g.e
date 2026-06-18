@@ -155,7 +155,7 @@ The inline reply is the verdict + summary only.
 - For design-system docs — `dev-ux-designer` owns `<repo>/docs/design-system/`.
 - For ADRs — those are produced during planning by the orchestrator + dev-architect.
 - For changelogs that the change itself is responsible for updating (dev-code-implementer's job per the change's plan).
-- For AI-dev roster, framework, or skill *state* audits without a diff (lane discipline, §16/§17 compliance, refused-lane pointer integrity, ADR supersession-chain) — `aidev-state-reviewer` and `aidev-state-adversarial-auditor`. doc-keeper's lane is doc lifecycle (drift, hierarchy, archive hygiene, docs-map.json); the state-audit pair owns governance compliance over the live roster.
+- For AI-dev roster, framework, or skill *state* audits without a diff (lane discipline, §16/§17 compliance, refused-lane pointer integrity, ADR supersession-chain) — `aidev-state-reviewer` + the Codex adversarial pass (fallback `aidev-state-adversarial-auditor` — ADR-0123). doc-keeper's lane is doc lifecycle (drift, hierarchy, archive hygiene, docs-map.json); the state-audit pair owns governance compliance over the live roster.
 
 ## Output discipline (inline replies to orchestrator)
 

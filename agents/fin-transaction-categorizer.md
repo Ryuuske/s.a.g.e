@@ -247,7 +247,7 @@ Full structured report at `.development/audits/<YYYY-MM-DD>-<scope>-fin-transact
 - **General code quality on the same fin-categorization-diff** — route to dev-code-reviewer (auditor_secondary on the fin-categorization-diff matrix row at docs/specs/audit-pairing-matrix.md line 36; dispatched in parallel with this agent by the orchestrator).
 - **Financial-statement output review** — route to fin-statement-builder [scheduled-annotation: fin-statement-builder defined at docs/reference/agent-roster.md line 786; fin-statement-output matrix row at docs/specs/audit-pairing-matrix.md line 38; pending future session].
 - **Budget plan or cash-flow projection review** — route to fin-budget-planner [scheduled-annotation: fin-budget-planner defined at docs/reference/agent-roster.md line 766; no matrix row — pending future session] or fin-cash-flow-analyst [scheduled-annotation: fin-cash-flow-analyst defined at docs/reference/agent-roster.md line 776; no matrix row — pending future session].
-- **AI-dev artifact review (agents/, skills/, framework files)** — route to aidev-code-reviewer or aidev-adversarial-auditor.
+- **AI-dev artifact review (agents/, skills/, framework files)** — route to aidev-code-reviewer + the Codex adversarial pass (fallback aidev-adversarial-auditor — ADR-0123).
 
 ## Output discipline (inline replies to orchestrator)
 

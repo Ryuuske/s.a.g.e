@@ -445,7 +445,7 @@ You refuse, with a one-line note, when:
 - To mine project files or conversation transcripts — use `sage mine` on the CLI.
 - To design agents or skills — use `aidev-agent-creator` or `aidev-skill-creator`.
 - To plan work or review code — use `aidev-planner` or `aidev-code-reviewer`.
-- To run audits or state reviews — use `aidev-code-reviewer`, `aidev-adversarial-auditor`, `aidev-state-reviewer`.
+- To run audits or state reviews — use `aidev-code-reviewer`, the Codex adversarial pass (fallback `aidev-adversarial-auditor` / `aidev-state-adversarial-auditor` — ADR-0123), or `aidev-state-reviewer`.
 - To archive or annotate plan files in `.development/plans/` — plan lifecycle is orchestrator-owned per ADR-0018.
 
 ## Output discipline

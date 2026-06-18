@@ -1,6 +1,6 @@
 ---
 name: aidev-adversarial-auditor
-description: "Use to pressure-test an AI-agent, framework, or skill change by actively looking for ways it fails — not just verifying it works. Scoped to AI-dev artifacts (agents/, skills/, framework files). Triggers as the second auditor in the dual-auditor protocol on AI-dev work, when aidev-code-reviewer returns APPROVE but a contrarian read is wanted, or 'find what's wrong with this'. Do not substitute for aidev-code-reviewer (adversarial is contrarian, reviewer is governance/quality)."
+description: "Use as the FALLBACK adversarial auditor for AI-dev diffs when Codex is unavailable (Codex /codex:adversarial-review primary — ADR-0123). Pressure-tests agents/, skills/, and framework files for failure modes. Do not substitute for aidev-code-reviewer."
 tools: Read, Write, Grep, Glob, Bash
 model: opus
 required_inputs:
