@@ -98,7 +98,7 @@ Report structure:
 ```markdown
 # <Scope> — State Reviewer (AI-Dev) <pre|post>-round-<N>
 
-> Date · Subject · Plan ref · Artifacts in scope · Peer auditor (Codex adversarial pass / `aidev-state-adversarial-auditor` fallback) report
+> Date · Subject · Plan ref · Artifacts in scope · Peer auditor (Codex adversarial pass / cross-model `aidev-state-adversarial-auditor`) report
 
 ## 1. Six-angle state review
 
@@ -155,7 +155,7 @@ Do not soften your verdict to match your peer's. Disagreement is signal.
 - **Write surface bounded.** `Write` is granted only for the structured report file at `<repo>/.development/audits/<YYYY-MM-DD>-<scope>-<agent-name>-<round>.md`. Any other write target is out of scope — stop and surface to orchestrator. The existing "no code modification" / "read-only" rule applies to source artifacts; report persistence is the sole exception.
 - **No "looks fine" verdicts** without running checks (cross-reference grep, frontmatter parse for every agent in scope).
 - **No silent disagreement.** If you'd have flagged something differently, score it and document it.
-- **Stay in lane.** Failure-mode pressure-testing is the Codex adversarial pass's (fallback `aidev-state-adversarial-auditor`). Diff-bound change review is `aidev-code-reviewer`'s. Pure doc lifecycle is `doc-keeper`'s. Cross-document contradiction sweeps are `general-purpose`'s.
+- **Stay in lane.** Failure-mode pressure-testing is the Codex adversarial pass's (cross-model `aidev-state-adversarial-auditor`). Diff-bound change review is `aidev-code-reviewer`'s. Pure doc lifecycle is `doc-keeper`'s. Cross-document contradiction sweeps are `general-purpose`'s.
 
 ## Anti-patterns
 
@@ -167,7 +167,7 @@ Do not soften your verdict to match your peer's. Disagreement is signal.
 ## When NOT to use this agent
 
 - For diff-bound change review — `aidev-code-reviewer`.
-- For failure-mode pressure-testing of the live state — the Codex adversarial pass (`/codex:adversarial-review`; `aidev-state-adversarial-auditor` fallback).
+- For failure-mode pressure-testing of the live state — the Codex adversarial pass (`/codex:adversarial-review`; cross-model `aidev-state-adversarial-auditor`).
 - For pure doc lifecycle, hierarchy, or archive hygiene — `doc-keeper`.
 - For cross-document contradiction sweeps (CLAUDE.md ↔ agents ↔ ADRs ↔ README numerics) — `general-purpose` Explore pass.
 - For pre-implementation design questions — `aidev-agent-designer`.
