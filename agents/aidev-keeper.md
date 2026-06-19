@@ -146,7 +146,15 @@ Steps:
    print(json.dumps(result, default=str))
    "
    ```
-7. Touch the dispatch sentinel:
+7. **One-time `Personal`-wing dual-write backfill check (ADR-0124).** Only when the brief's wing resolves to `Personal` (or the orchestrator passes a `backfill=personal` hint), and only once per machine: if the sentinel `~/.sage/personal_backfill_done` is absent, read the orchestrator-maintained auto-memory user-fact files (`~/.claude/projects/*/memory/MEMORY.md` and the `*_profile.md` / `*preferences*.md` entries it indexes), and for each durable user-fact run it through the write-back dedup gate against the `Personal` wing (`core` for always-resident identity facts, `detail` at `confidence=1.0` for durable-but-retrieval-only facts — the §session-lifecycle classification rule). Store the missing ones; SKIP near-duplicates. Then write the sentinel:
+   ```bash
+   uv run python -c "
+   from pathlib import Path
+   Path('~/.sage/personal_backfill_done').expanduser().write_text('done')
+   "
+   ```
+   If the sentinel already exists, this step is a no-op. For non-`Personal` wings this step does not apply.
+8. Touch the dispatch sentinel:
    ```bash
    uv run python -c "
    from datetime import datetime, timezone
