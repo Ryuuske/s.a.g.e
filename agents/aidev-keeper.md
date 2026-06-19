@@ -146,7 +146,17 @@ Steps:
    print(json.dumps(result, default=str))
    "
    ```
-7. **One-time `Personal`-wing dual-write backfill (ADR-0124).** On EVERY wake-up, regardless of the session wing: query the `Personal` wing for a `backfill-complete` marker drawer (a `meta`-room drawer tagged `auto-memory-backfill`). If the marker is ABSENT, read the orchestrator-maintained auto-memory user-fact files (`~/.claude/projects/*/memory/MEMORY.md` and the `*_profile.md` / `*preferences*` entries it indexes), and for each durable user-fact run it through the write-back dedup gate against the `Personal` wing (`core` for always-resident identity facts, `detail` at `confidence=1.0` for durable-but-retrieval-only facts — the §session-lifecycle classification rule). Store the missing ones; SKIP near-duplicates. Then write the `backfill-complete` marker drawer to the `Personal` wing. The marker lives in the `Personal` wing alongside the data it guards, so a store-restore that loses `Personal` drawers also loses the marker and correctly re-triggers the backfill. If the marker is present, this step is a no-op (one cheap nook query). This writes to the `Personal` wing EXPLICITLY — it does NOT depend on the session wing being `Personal`, and it uses no filesystem sentinel.
+7. **One-time `Personal`-wing dual-write backfill (ADR-0124).** On EVERY wake-up, regardless of the session wing, check the `Personal` wing's `detail` room for a backfill-complete marker — list and scan for content beginning `AUTO-MEMORY-BACKFILL-COMPLETE`:
+   ```bash
+   uv run python -c "
+   import json
+   from sage_mcp.mcp_server import tool_list_drawers
+   rows = tool_list_drawers(wing='Personal', room='detail', limit=100).get('drawers', [])
+   done = any(str(d.get('content','')).startswith('AUTO-MEMORY-BACKFILL-COMPLETE') for d in rows)
+   print(json.dumps({'backfill_done': done}))
+   "
+   ```
+   If `backfill_done` is false, read the orchestrator-maintained auto-memory user-fact files (`~/.claude/projects/*/memory/MEMORY.md` and the `*_profile.md` / `*preferences*` entries it indexes), and write each durable user-fact to the `Personal` wing via the same `tool_check_duplicate` (threshold 0.9) → `tool_add_drawer` path the `write-back` operation uses (`room='core'` for always-resident identity facts; `room='detail'` at `confidence=1.0` for durable retrieval-only facts — the §session-lifecycle classification rule); `tool_check_duplicate` SKIPs near-duplicates. Then write the marker: `tool_add_drawer(wing='Personal', room='detail', content='AUTO-MEMORY-BACKFILL-COMPLETE <iso-date>', agents=['aidev-keeper'])`. The marker lives in `Personal` alongside the data it guards, so a store-restore that loses `Personal` drawers also loses the marker and correctly re-triggers the backfill. If `backfill_done` is true, this step is a no-op (one cheap list query). This writes to `Personal` EXPLICITLY — it does NOT depend on the session wing being `Personal`, and uses no filesystem sentinel.
 8. Touch the dispatch sentinel:
    ```bash
    uv run python -c "

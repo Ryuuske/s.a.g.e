@@ -130,7 +130,7 @@ The agent that produced the output runs a structured self-check before handoff t
 
 The `propagation-batch` row uses a two-phase protocol distinct from the others. This is intentional because the propagate operation produces both a roster-wide governance change (the batch as a whole, which needs state-level review) and a sequence of individual agent modifications (each of which needs per-agent diff review).
 
-**Phase 1 (batch-level)**: state-reviewer and the Codex adversarial pass (fallback `aidev-state-adversarial-auditor`) — model chosen cross-model to the batch implementer per ADR-0125 audit the `@@AGENT-PROPAGATE-BATCH` block as a unit, in parallel. They check:
+**Phase 1 (batch-level)**: state-reviewer and the §16 adversarial pass (model chosen cross-model to the batch implementer per ADR-0125 — Codex `/codex:adversarial-review`, or the Claude `aidev-state-adversarial-auditor` when Codex implemented, unknown/mixed, or unavailable) audit the `@@AGENT-PROPAGATE-BATCH` block as a unit, in parallel. They check:
 - Does the shape classification chain run for every agent? (CoT injection compliance)
 - Are the applicable anti-patterns correctly selected per shape?
 - Are any agents misclassified (e.g., a reviewer-shaped agent treated as implementer-shaped)?
