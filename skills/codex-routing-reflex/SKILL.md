@@ -13,7 +13,7 @@ This skill operationalizes ADR-0028 (`.development/decisions/0028-codex-dispatch
 
 Consult this skill at the moment the orchestrator is deciding whether to dispatch to Codex on any of:
 
-- A §6 third-opinion split-verdict (per CLAUDE.md §6 step 2: "invoke `/codex:adversarial-review` for an independent take")
+- A §6 third-opinion split-verdict (per CLAUDE.md §6 step 2) — but ONLY when Codex was not already an auditor on this change; if Codex was the §16 adversarial secondary, the third opinion must be a NON-Codex agent (ADR-0125)
 - A §13 large-diff review of non-framework code (per CLAUDE.md §13: "prefer Codex for 'review the whole repo' or large-codebase tasks")
 - A goal-shaped bulk-implementation brief in a non-AI-dev destination
 
@@ -74,7 +74,9 @@ Classify the brief surface:
   Codex routing: CLAUDE-ONLY — AI-dev exclusion (implementer/reviewer-primary lane).
   ```
 
-  **Exception — §6 third-opinion:** if the brief is for a §6 third-opinion split-verdict resolution (per CLAUDE.md §6 step 2, which explicitly names `/codex:adversarial-review`), the AI-dev exclusion does NOT apply. Proceed to Element 3 with the brief classified as a third-opinion surface.
+  **Exception — §6 third-opinion:** if the brief is for a §6 third-opinion split-verdict resolution (per CLAUDE.md §6 step 2), the AI-dev exclusion does NOT apply — PROVIDED Codex was not already an auditor on this change. If Codex was the §16 adversarial secondary on this change, reusing Codex is not an independent third opinion (ADR-0125): route the split to a NON-Codex third agent and emit CLAUDE-ONLY here. Otherwise proceed to Element 3 with the brief classified as a third-opinion surface.
+
+  **Exception — §16 adversarial-audit lane (ADR-0123, amended by ADR-0125 — cross-model guard):** the adversarial-auditor slot of every AI-dev dual-auditor pairing (matrix rows `aidev-diff`, `aidev-state`, `ai-dev-infra-diff`, `propagation-batch`) MUST run a contrarian read from a **different model family than the implementer of the change under audit** — the AI-dev exclusion does NOT apply to the adversarial lane, because a different model giving the contrarian read is the entire point. Default = Codex `/codex:adversarial-review`, because Claude is the usual implementer (Claude implements → Codex adversarial). **When Codex implemented the change under audit, the adversarial pass uses the Claude fallback auditor (`aidev-adversarial-auditor` / `aidev-state-adversarial-auditor`)** — this is the correct cross-model outcome, not a fallback degradation. If Codex is unavailable OR budget-refused for this lane, fall back to the Claude auditor; NEVER skip the adversarial lane. The reviewer-primary slot (`aidev-code-reviewer` / `aidev-state-reviewer`) stays CLAUDE-ONLY. **Fail-safe on unknown/mixed implementer:** if the implementer model is unknown or mixed across the change, default the adversarial pass to the Claude auditor — never assume Codex implemented.
 
   **Exception — scoped terminal pass on high-risk surfaces (ADR-0086):** if the brief is the single whole-change terminal Codex pass (run once at the end of a multi-phase AI-dev build, on the full `main...HEAD` diff, before the PR opens) AND the build touches at least one high-risk surface (install scripts — `install.sh`, `install.ps1`, `installer-assets/`; hooks — `hooks/scripts/`; or security-sensitive framework code), the AI-dev hard-refusal does NOT apply for this terminal pass. This is a §6-style third-opinion lane (not a per-phase reviewer-primary dispatch); the one-touch rule applies to the terminal pass as a whole. Pure agent/skill-prose builds with no high-risk surface contact do not qualify and remain CLAUDE-ONLY. Emit:
 
@@ -99,6 +101,8 @@ Per ADR-0028 clause (2) and ADR-0011 toolkit-not-enforcer: this rule is a recomm
   ```
   Codex routing: CLAUDE-ONLY — one-touch consumed (recommend refusing second touch per ADR-0028 clause 2).
   ```
+
+  **§16 adversarial-lane carve-out (ADR-0125):** the one-touch rule suppresses a *second* Codex touch on the same change — it NEVER suppresses the adversarial lane itself (§16: the lane always runs). When the prior Codex touch is the *implementer* of the change under audit, routing the adversarial pass to the Claude auditor is the CORRECT cross-model outcome (ADR-0125), not a one-touch collision. The carve-out also permits a §16 **fold-confirmation rerun**: when the prior Codex touch was the §16 adversarial pass itself (Claude implemented the change, Codex is the selected adversarial lane), re-running that same already-selected Codex adversarial lane to confirm a fold is allowed — the one-touch rule does NOT emit CLAUDE-ONLY for a fold-confirmation rerun of the already-selected §16 adversarial lane.
 
 - **No prior touch detected:** proceed to Element 4.
 
@@ -189,7 +193,7 @@ Note: if the scaffold step is separated from the review step, the review step al
 
 ## Anti-patterns
 
-- Routing an AI-dev implementer or reviewer-primary brief to Codex on the grounds that "the brief is goal-shaped." The AI-dev exclusion is a hard refusal regardless of brief shape; only §6 third-opinion is exempt.
+- Routing an AI-dev implementer or reviewer-primary brief to Codex on the grounds that "the brief is goal-shaped." The AI-dev exclusion is a hard refusal regardless of brief shape; only §6 third-opinion and the §16 adversarial-audit lane (ADR-0123, amended by ADR-0125) are exempt (the adversarial slot follows the cross-model guard — Codex when Claude implemented, Claude when Codex implemented; the reviewer-primary slot stays CLAUDE-ONLY).
 - Emitting ELIGIBLE without checking for a prior Codex touch on the same change. The one-touch rule applies even when the budget would allow more touches.
 - Treating the cache file as authoritative when its recorded signal path no longer exists. Stale presence cache produces phantom-Codex verdicts that fail at dispatch.
 - Narrating the decision tree to the User. Emit the verdict line only; the reasoning chain is internal.

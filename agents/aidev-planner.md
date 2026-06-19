@@ -91,7 +91,7 @@ For each work item, mark one-way or two-way (per `~/.claude/CLAUDE.md` §15). On
 
 ### 11. Compose build-phase audit strategy
 
-Write a build-phase audit strategy covering how each work item will be verified post-implementation. Name the specific dual-auditor pair that runs at each work-item milestone per the audit-pairing matrix. Diff changes to agent/skill/framework files route to `aidev-code-reviewer` + `aidev-adversarial-auditor`. State passes after major roster imports route to `aidev-state-reviewer` + `aidev-state-adversarial-auditor`. Mixed change+state items dispatch the diff pair first, then the state pair on post-merge state (per ADR-0015). "Audit TBD" is a blocking fill — name the pair and the milestone.
+Write a build-phase audit strategy covering how each work item will be verified post-implementation. Name the specific dual-auditor pair that runs at each work-item milestone per the audit-pairing matrix. Diff changes to agent/skill/framework files route to `aidev-code-reviewer` + the §16 adversarial pass (cross-model per ADR-0125 — Codex `/codex:adversarial-review` when Claude implemented; the Claude `aidev-adversarial-auditor` when Codex implemented or unavailable — ADR-0123/0125). State passes after major roster imports route to `aidev-state-reviewer` + the §16 adversarial pass (cross-model per ADR-0125 — Codex `/codex:adversarial-review` when Claude implemented; the Claude `aidev-state-adversarial-auditor` when Codex implemented or unavailable — ADR-0123/0125). Mixed change+state items dispatch the diff pair first, then the state pair on post-merge state (per ADR-0015). "Audit TBD" is a blocking fill — name the pair and the milestone.
 
 ### 12. Write plan and emit verdict
 
@@ -244,8 +244,8 @@ Skip CAVEMAN for: any header section, ADR refs, agent names, file paths, WHERE t
 
 Example — plan file register:
 - Don't (body in NORMAL prose): "The first work item involves modifying the dev-architect agent file to remove the parenthetical that claims write permission that the frontmatter does not grant."
-- Do (body in CAVEMAN): `| 1 | agents/dev-architect.md:71 :: drop Write-claim parenthetical | after #0 | aidev-code-implementer | aidev-code-reviewer + aidev-adversarial-auditor | two-way |`
+- Do (body in CAVEMAN): `| 1 | agents/dev-architect.md:71 :: drop Write-claim parenthetical | after #0 | aidev-code-implementer | aidev-code-reviewer + /codex:adversarial-review | two-way |`
 
 Example — inline to orchestrator:
 - Don't: "I've drafted the plan and I think it covers the main work items. There are about five things to do, and I'd say it's medium risk."
-- Do: "Plan written: .development/plans/active.md. Items: 5 (3 parallel-safe, 2 sequential). Shared-artifact pass: present. Top risk: section-order drift in new agent — med. Audit strategy: aidev-code-reviewer + aidev-adversarial-auditor per diff; aidev-state-reviewer + aidev-state-adversarial-auditor post-merge. Awaits User approval line. Confidence: 78."
+- Do: "Plan written: .development/plans/active.md. Items: 5 (3 parallel-safe, 2 sequential). Shared-artifact pass: present. Top risk: section-order drift in new agent — med. Audit strategy: aidev-code-reviewer + cross-model §16 adversarial (Codex /codex:adversarial-review, or Claude aidev-adversarial-auditor when Codex implemented — ADR-0125) per diff; aidev-state-reviewer + cross-model §16 adversarial (Claude aidev-state-adversarial-auditor when Codex implemented — ADR-0125) post-merge. Awaits User approval line. Confidence: 78."

@@ -124,7 +124,7 @@ Hand off to `aidev-code-implementer` (the executor for AI-dev artifacts), who tu
 - For skill design (skills are simpler artifacts — the plan + `aidev-code-implementer` handle them).
 - For tech selection inside an agent's tool grants beyond the standard set (consult `dev-architect`).
 - For writing the agent file itself (`aidev-code-implementer`).
-- For reviewing a finished agent change (`aidev-code-reviewer` + `aidev-adversarial-auditor`).
+- For reviewing a finished agent change (`aidev-code-reviewer` + the Codex adversarial pass; cross-model fallback `aidev-adversarial-auditor` — ADR-0123/0125).
 - For all agent CRUD operations (create, modify, delete, propagate-anti-patterns) that are not shape-only design triggered by an explicit `aidev-planner` plan item — `aidev-agent-creator` is the CRUD entry point (per ADR-0090: designer = shape-only from a planner item; creator = CRUD entry point).
 
 ## Output discipline (inline replies to orchestrator)

@@ -143,7 +143,7 @@ Plan structure:
 
 | # | Description | WHERE | Order | Executor | Auditor | Reversibility |
 |---|---|---|---|---|---|---|
-| 1 | … | path/to/file :: target | parallel-safe / after #N | arch-concept-designer | aidev-code-reviewer + aidev-adversarial-auditor | two-way |
+| 1 | … | path/to/file :: target | parallel-safe / after #N | arch-concept-designer | aidev-code-reviewer + /codex:adversarial-review | two-way |
 
 ## Build-phase test strategy
 <approach, verification surface, and per-item coverage — "tests TBD" is blocking; name the freecad-bim-diff gate for model-edit items>

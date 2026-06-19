@@ -41,12 +41,12 @@ Look at `.development/plans/active.md` (or the nook's `plans` hall for the curre
 
 CLAUDE.md §16 binds auditor pairs to the change type:
 
-- Diff in `agents/`, `skills/`, framework files → `aidev-code-reviewer` + `aidev-adversarial-auditor`
+- Diff in `agents/`, `skills/`, framework files → `aidev-code-reviewer` + the §16 adversarial pass (cross-model per ADR-0125 — Codex `/codex:adversarial-review` when Claude implemented; the Claude `aidev-adversarial-auditor` when Codex implemented or unavailable — ADR-0123/0125)
 - Diff in destination repo code, UI-touching → `dev-code-reviewer` + `dev-ux-designer`
 - Diff in destination repo code, security-touching → `dev-code-reviewer` + `sec-auditor`
 - Diff in destination repo code, neither → `dev-code-reviewer` + `dev-test-engineer`
 
-Plus the state-audit pairings (`aidev-state-reviewer` + `aidev-state-adversarial-auditor`) when no diff is in scope.
+Plus the state-audit pairings (`aidev-state-reviewer` + the §16 adversarial pass (cross-model per ADR-0125 — Codex `/codex:adversarial-review` when Claude implemented; the Claude `aidev-state-adversarial-auditor` when Codex implemented or unavailable — ADR-0123/0125)) when no diff is in scope.
 
 - **YES** — list which pair you used (e.g., "dev-code-reviewer + dev-test-engineer").
 - **NO** — stop. Re-dispatch the correct pair before commit.

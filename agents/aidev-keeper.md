@@ -27,6 +27,7 @@ The nook is the universal memory layer S.A.G.E. agents read and write through. Y
 - **Idempotency before write.** Before `tool_add_drawer`, call `tool_check_duplicate` with the content + threshold 0.9. If a near-duplicate exists, return the existing drawer_id with `already_exists: true` and skip the write.
 - **Scope reads.** Pass `wing` on every `tool_search` and `tool_list_drawers` call unless the brief explicitly says cross-wing. The agents filter is yours to use when the brief names a specific dispatching agent.
 - **Update the dispatch sentinel.** After any store operation, write the current ISO timestamp to `~/.sage/last_keeper_dispatch` so the session-end hooks (`stop.py`, `precompact.py`) know the orchestrator already routed a Keeper call this session and skip their emergency drawer.
+- **User-fact dual-write (ADR-0124).** For learned durable user-facts, file the `Personal`-wing drawer in addition to the orchestrator-maintained auto-memory file, and on session-start wake-up run the one-time `Personal` profile/preferences backfill check.
 - **Verbatim in, verbatim out.** Drawer content is stored exactly as you receive it. Do not summarise, paraphrase, translate, or lossy-compress.
 - **No file writes to the repo.** Diaries, handoffs, ADR records — they all live in the nook. The repo's `docs/` tree is owned by `doc-keeper`, not the Keeper.
 
@@ -145,7 +146,18 @@ Steps:
    print(json.dumps(result, default=str))
    "
    ```
-7. Touch the dispatch sentinel:
+7. **One-time `Personal`-wing dual-write backfill (ADR-0124).** On EVERY wake-up, regardless of the session wing, check the `Personal` wing's `detail` room for a backfill-complete marker — list and scan for content beginning `AUTO-MEMORY-BACKFILL-COMPLETE`:
+   ```bash
+   uv run python -c "
+   import json
+   from sage_mcp.mcp_server import tool_list_drawers
+   rows = tool_list_drawers(wing='Personal', room='detail', limit=100).get('drawers', [])
+   done = any(str(d.get('content_preview') or d.get('content') or '').startswith('AUTO-MEMORY-BACKFILL-COMPLETE') for d in rows)
+   print(json.dumps({'backfill_done': done}))
+   "
+   ```
+   If `backfill_done` is false, read the orchestrator-maintained auto-memory user-fact files (`~/.claude/projects/*/memory/MEMORY.md` and the `*_profile.md` / `*preferences*` entries it indexes), and write each durable user-fact to the `Personal` wing. **Scope the duplicate check to `Personal`:** `tool_check_duplicate` is GLOBAL (no wing filter), so a near-duplicate found in another wing (e.g., a project wing) is NOT a reason to skip — confirm membership in `Personal` via `tool_list_drawers(wing='Personal', ...)` and treat an out-of-`Personal` match as a copy candidate (write it into `Personal`); skip only when the fact already exists in `Personal`. Write via `tool_add_drawer` passing BOTH `room` AND the matching `hall` (mirror the `write-back` path): `room='core'` + `hall='core'` for always-resident identity facts; `room='detail'` + `hall='detail'` at `confidence=1.0` for durable retrieval-only facts (the §session-lifecycle classification rule). **The `hall` tag is REQUIRED** — the Personal core loader and WI-6 decay protection key off `hall`, and `tool_add_drawer` records it only when passed; a core fact written without `hall='core'` is neither injected by the core loader nor decay-protected. Then write the marker — but ONLY if the `Personal` profile/preferences gap is now actually closed (at least one durable fact was written this pass, or `Personal` already held the profile/preferences): `tool_add_drawer(wing='Personal', room='detail', hall='detail', content='AUTO-MEMORY-BACKFILL-COMPLETE <iso-date>', agents=['aidev-keeper'])`. If auto-memory currently holds NO durable user-facts to backfill (e.g., a first wake-up before any have been written), do NOT write the marker — leave the check live so the backfill fires once facts exist. The marker lives in `Personal` alongside the data it guards, so a store-restore that loses `Personal` drawers also loses the marker and correctly re-triggers the backfill. If `backfill_done` is true, this step is a no-op (one cheap list query). This writes to `Personal` EXPLICITLY — it does NOT depend on the session wing being `Personal`, and uses no filesystem sentinel.
+8. Touch the dispatch sentinel:
    ```bash
    uv run python -c "
    from datetime import datetime, timezone
@@ -192,7 +204,7 @@ Steps:
 
    Delete the temp file after the call.
 
-2. Touch the dispatch sentinel (same Bash snippet as step 7 of `wake-up`).
+2. Touch the dispatch sentinel (same Bash snippet as step 8 of `wake-up`).
 
 Return shape:
 
@@ -240,7 +252,7 @@ Steps:
    ```
    Delete the temp file after the call.
 
-3. Touch the dispatch sentinel (same Bash snippet as step 7 of `wake-up`).
+3. Touch the dispatch sentinel (same Bash snippet as step 8 of `wake-up`).
 
 Return shape:
 
@@ -340,7 +352,7 @@ Steps:
    This records the near-match link for WI-6 consolidation without losing either drawer.
    - **I#6 / WI-6 contract note:** `tool_list_tunnels` accepts an optional `wing` filter but does not currently support label-based filtering (only wing). WI-6's consolidation pass must retrieve merge-candidate tunnels by iterating `tool_list_tunnels(wing="<wing>")` and filtering on `label="merge-candidate"` client-side, or by `tool_follow_tunnels` from the new drawer's room. WI-6 must verify this retrieval mechanism is workable; if label-based server-side filtering is needed, add it to WI-6's scope.
 
-5. Touch the dispatch sentinel (same Bash snippet as step 7 of `wake-up`).
+5. Touch the dispatch sentinel (same Bash snippet as step 8 of `wake-up`).
 
 Return shape:
 
@@ -391,7 +403,7 @@ For `diary-write`:
    ```
    Delete the temp file after the call.
 
-2. Touch the dispatch sentinel (same Bash snippet as step 7 of `wake-up`).
+2. Touch the dispatch sentinel (same Bash snippet as step 8 of `wake-up`).
 
 The diary tool auto-sets `agents=[<agent_name>]` so `tool_search(agents=[X])` later surfaces X's own diary alongside any drawers X authored.
 
@@ -445,7 +457,7 @@ You refuse, with a one-line note, when:
 - To mine project files or conversation transcripts — use `sage mine` on the CLI.
 - To design agents or skills — use `aidev-agent-creator` or `aidev-skill-creator`.
 - To plan work or review code — use `aidev-planner` or `aidev-code-reviewer`.
-- To run audits or state reviews — use `aidev-code-reviewer`, `aidev-adversarial-auditor`, `aidev-state-reviewer`.
+- To run audits or state reviews — use `aidev-code-reviewer`, the §16 adversarial pass (cross-model to the implementer — `aidev-adversarial-auditor` / `aidev-state-adversarial-auditor` when Codex implemented — ADR-0123/0125), or `aidev-state-reviewer`.
 - To archive or annotate plan files in `.development/plans/` — plan lifecycle is orchestrator-owned per ADR-0018.
 
 ## Output discipline

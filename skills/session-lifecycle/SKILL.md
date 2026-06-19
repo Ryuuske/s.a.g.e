@@ -162,4 +162,10 @@ The nook and auto memory can coexist. Distinguishing roles:
 - **Auto memory** = Claude's per-project notes, written by Claude, no curation overhead, lives in `~/.claude/projects/<project>/memory/`.
 - **Nook (this skill's domain)** = wing-isolated structured memory with explicit drawers, halls, keeper-mediated access, idempotency checks, audit pairing recall, cross-session ADR tracking.
 
+### User-fact dual-write (ADR-0124)
+
+When a durable USER-FACT or preference is learned, auto memory alone is insufficient. Write it to both memory layers: the harness auto-memory file plus its `MEMORY.md` index line, and a Keeper-filed nook drawer in the `Personal` wing (`core` for always-resident identity, `detail` for retrievable personal context).
+
+During session-start wake-up, the Keeper runs a self-gating backfill check: if `Personal` has no profile/preferences drawer but auto memory contains durable user-facts, backfill those profile/preferences facts into `Personal`. This fires only while the gap exists and is idempotent.
+
 If your setup uses only auto memory, replace this skill's nook-specific procedures with auto memory equivalents (`/memory` for inspection, automatic loading at session start). The lifecycle structure (session start / mid-session / session end) holds either way.
