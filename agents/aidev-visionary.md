@@ -103,7 +103,7 @@ Confidence: <0–100>
 - The question is "which tech" → `dev-architect`.
 - The question is "what shape should this agent take" → `aidev-agent-designer`.
 - The change is trivial (one-line skill tweak) → skip framing, just do it.
-- State audit of the live AI-dev roster (governance compliance, lane discipline) → `aidev-state-reviewer` + the Codex adversarial pass (fallback `aidev-state-adversarial-auditor` — ADR-0123).
+- State audit of the live AI-dev roster (governance compliance, lane discipline) → `aidev-state-reviewer` + the Codex adversarial pass (cross-model fallback `aidev-state-adversarial-auditor` — ADR-0123/0125).
 
 ## Output discipline (inline replies to orchestrator)
 

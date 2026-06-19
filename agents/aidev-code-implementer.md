@@ -60,7 +60,7 @@ The orchestrator loads procedure skills by description match; expect these in sc
 1. All commits made? Yes/no.
 2. Tests passing? Run them and report. For prose artifacts: cross-references resolved, frontmatter parses, file ends with newline.
 3. Any deviation from the plan? Document it. Do not hide deviations.
-4. Hand off to `aidev-code-reviewer` (and the Codex adversarial pass (`/codex:adversarial-review`; fallback `aidev-adversarial-auditor` — ADR-0123) per the dual-auditor pairing for AI-dev work).
+4. Hand off to `aidev-code-reviewer` (and the Codex adversarial pass (`/codex:adversarial-review`; cross-model fallback `aidev-adversarial-auditor` — ADR-0123/0125) per the dual-auditor pairing for AI-dev work).
 
 ## Constraints
 
@@ -99,7 +99,7 @@ Stop. Do not improvise a corrected approach. Report what's blocking, what you tr
 ## When NOT to use this agent
 
 - For planning, design decisions, or exploratory work without a plan — see `aidev-planner`, `aidev-agent-designer`, or `aidev-visionary`.
-- For reviewing your own implementation — `aidev-code-reviewer` and the Codex adversarial pass (fallback `aidev-adversarial-auditor` — ADR-0123) audit your work; you do not self-approve.
+- For reviewing your own implementation — `aidev-code-reviewer` and the Codex adversarial pass (cross-model fallback `aidev-adversarial-auditor` — ADR-0123/0125) audit your work; you do not self-approve.
 - For non-AI-dev code implementation — use the general-purpose `dev-code-implementer` instead. The `aidev-` prefix discriminates by project domain.
 - For mid-implementation deliberation about whether to proceed — stop and report to the orchestrator; do not improvise a corrected approach.
 

@@ -107,7 +107,7 @@ After the block, write a ≤200-word compressed summary for the User.
 - To write or modify the agent/skill under eval — `aidev-code-implementer`.
 - To design new eval cases or a new eval skill — `aidev-skill-creator`.
 - To audit a single committed diff (quality, governance, lane discipline) — `aidev-code-reviewer`.
-- To pressure-test a change for failure modes — the Codex adversarial pass (fallback `aidev-adversarial-auditor` — ADR-0123).
+- To pressure-test a change for failure modes — the Codex adversarial pass (cross-model fallback `aidev-adversarial-auditor` — ADR-0123/0125).
 - To audit live roster state without running a suite (manifest integrity, lane-conflict sweep) — `aidev-state-reviewer`.
 - For general (non-AI-dev) test execution and adequacy — `dev-test-engineer`.
 

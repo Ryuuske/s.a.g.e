@@ -1,6 +1,6 @@
 ---
 name: aidev-adversarial-auditor
-description: "Use as the FALLBACK adversarial auditor for AI-dev diffs when Codex is unavailable (Codex /codex:adversarial-review primary — ADR-0123). Pressure-tests agents/, skills/, and framework files for failure modes. Do not substitute for aidev-code-reviewer."
+description: "Use as the cross-model adversarial auditor for AI-dev diffs — fires when Codex implemented the change, the implementer is unknown/mixed, or Codex is unavailable; Codex /codex:adversarial-review is the default when Claude implemented (ADR-0123/0125). Pressure-tests agents/, skills/, and framework files for failure modes. Do not substitute for aidev-code-reviewer."
 tools: Read, Write, Grep, Glob, Bash
 model: opus
 required_inputs:

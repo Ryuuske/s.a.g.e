@@ -1,6 +1,6 @@
 ---
 name: aidev-loop-operator
-description: "Use to MONITOR a running autonomous agentic AI-dev loop for stalls — watch loop state, flag repeated tool calls and drift, and recommend an orchestrator pause. Read-only stall watchdog. Do not drive the loop (ADR-0011), audit a change (aidev-code-reviewer + the Codex adversarial pass; fallback Claude auditors — ADR-0123), or decide a fork (aidev-arbiter)."
+description: "Use to MONITOR a running autonomous agentic AI-dev loop for stalls — watch loop state, flag repeated tool calls and drift, and recommend an orchestrator pause. Read-only stall watchdog. Do not drive the loop (ADR-0011), audit a change (aidev-code-reviewer + the Codex adversarial pass; cross-model fallback Claude auditors — ADR-0123/0125), or decide a fork (aidev-arbiter)."
 tools: Read, Grep, Glob
 model: sonnet
 required_inputs:
@@ -55,7 +55,7 @@ A STALL REPORT block: the action history window, the classification with its dec
 
 - Driving / advancing the autonomy loop — the orchestrator runs it directly under the `autonomy-loop` skill (ADR-0011); this agent only observes.
 - Monitoring a non-AI-dev batch/script loop — that is `dev-loop-operator`.
-- Auditing the loop's code output or deciding a framework fork — `aidev-code-reviewer` + the Codex adversarial pass (fallback `aidev-adversarial-auditor` / `aidev-state-adversarial-auditor` — ADR-0123) audit; `aidev-arbiter` decides.
+- Auditing the loop's code output or deciding a framework fork — `aidev-code-reviewer` + the Codex adversarial pass (cross-model fallback `aidev-adversarial-auditor` / `aidev-state-adversarial-auditor` — ADR-0123/0125) audit; `aidev-arbiter` decides.
 
 ## Output discipline (inline replies to orchestrator)
 

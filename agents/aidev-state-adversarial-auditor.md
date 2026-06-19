@@ -1,6 +1,6 @@
 ---
 name: aidev-state-adversarial-auditor
-description: Use as the FALLBACK state adversarial auditor when Codex is unavailable (Codex primary — ADR-0123). Pressure-tests live AI-dev roster, framework files, and skills when no diff is in scope. Do not use for diffs, drift/archive integrity, or backlog verdicts.
+description: Use as the cross-model state adversarial auditor — fires when Codex implemented the change, the implementer is unknown/mixed, or Codex is unavailable; Codex is the default when Claude implemented (ADR-0123/0125). Pressure-tests live AI-dev roster, framework files, and skills when no diff is in scope. Do not use for diffs, drift/archive integrity, or backlog verdicts.
 tools: Read, Write, Grep, Glob
 model: opus
 required_inputs:

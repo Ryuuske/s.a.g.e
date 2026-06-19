@@ -13,7 +13,7 @@ This skill operationalizes ADR-0028 (`.development/decisions/0028-codex-dispatch
 
 Consult this skill at the moment the orchestrator is deciding whether to dispatch to Codex on any of:
 
-- A §6 third-opinion split-verdict (per CLAUDE.md §6 step 2: "invoke `/codex:adversarial-review` for an independent take")
+- A §6 third-opinion split-verdict (per CLAUDE.md §6 step 2) — but ONLY when Codex was not already an auditor on this change; if Codex was the §16 adversarial secondary, the third opinion must be a NON-Codex agent (ADR-0125)
 - A §13 large-diff review of non-framework code (per CLAUDE.md §13: "prefer Codex for 'review the whole repo' or large-codebase tasks")
 - A goal-shaped bulk-implementation brief in a non-AI-dev destination
 
@@ -74,7 +74,7 @@ Classify the brief surface:
   Codex routing: CLAUDE-ONLY — AI-dev exclusion (implementer/reviewer-primary lane).
   ```
 
-  **Exception — §6 third-opinion:** if the brief is for a §6 third-opinion split-verdict resolution (per CLAUDE.md §6 step 2, which explicitly names `/codex:adversarial-review`), the AI-dev exclusion does NOT apply. Proceed to Element 3 with the brief classified as a third-opinion surface.
+  **Exception — §6 third-opinion:** if the brief is for a §6 third-opinion split-verdict resolution (per CLAUDE.md §6 step 2), the AI-dev exclusion does NOT apply — PROVIDED Codex was not already an auditor on this change. If Codex was the §16 adversarial secondary on this change, reusing Codex is not an independent third opinion (ADR-0125): route the split to a NON-Codex third agent and emit CLAUDE-ONLY here. Otherwise proceed to Element 3 with the brief classified as a third-opinion surface.
 
   **Exception — §16 adversarial-audit lane (ADR-0123, amended by ADR-0125 — cross-model guard):** the adversarial-auditor slot of every AI-dev dual-auditor pairing (matrix rows `aidev-diff`, `aidev-state`, `ai-dev-infra-diff`, `propagation-batch`) MUST run a contrarian read from a **different model family than the implementer of the change under audit** — the AI-dev exclusion does NOT apply to the adversarial lane, because a different model giving the contrarian read is the entire point. Default = Codex `/codex:adversarial-review`, because Claude is the usual implementer (Claude implements → Codex adversarial). **When Codex implemented the change under audit, the adversarial pass uses the Claude fallback auditor (`aidev-adversarial-auditor` / `aidev-state-adversarial-auditor`)** — this is the correct cross-model outcome, not a fallback degradation. If Codex is unavailable OR budget-refused for this lane, fall back to the Claude auditor; NEVER skip the adversarial lane. The reviewer-primary slot (`aidev-code-reviewer` / `aidev-state-reviewer`) stays CLAUDE-ONLY. **Fail-safe on unknown/mixed implementer:** if the implementer model is unknown or mixed across the change, default the adversarial pass to the Claude auditor — never assume Codex implemented.
 

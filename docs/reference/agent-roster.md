@@ -30,7 +30,7 @@ classification, shareability principle) lives at
 
 ### `aidev-adversarial-auditor`
 
-- **Description**: Use as the FALLBACK adversarial auditor for AI-dev diffs when Codex is unavailable (Codex /codex:adversarial-review primary — ADR-0123). Pressure-tests agents/, skills/, and framework files for failure modes. Do not substitute for aidev-code-reviewer.
+- **Description**: Use as the cross-model adversarial auditor for AI-dev diffs — fires when Codex implemented the change, the implementer is unknown/mixed, or Codex is unavailable; Codex /codex:adversarial-review is the default when Claude implemented (ADR-0123/0125). Pressure-tests agents/, skills/, and framework files for failure modes. Do not substitute for aidev-code-reviewer.
 - **Model**: opus · **Tools**: Read, Write, Grep, Glob, Bash
 
 ### `aidev-agent-creator`
@@ -65,7 +65,7 @@ classification, shareability principle) lives at
 
 ### `aidev-code-reviewer`
 
-- **Description**: Use to review AI-agent, framework, or skill changes against the approved plan and project conventions — when reviewing changes to `agents/`, `skills/`, or supporting AI-dev files. Distinct from `dev-code-reviewer` (general-purpose). Triggers after `aidev-code-implementer` finishes a change, before push to a protected branch, when the User asks for review, or as Auditor #1 paired with the Codex adversarial pass (ADR-0123). Do not use to write or modify code (read-only). Do not use for visual design review (dev-ux-designer) or security-specific review (sec-auditor).
+- **Description**: Use to review AI-agent, framework, or skill changes against the approved plan and project conventions — when reviewing changes to `agents/`, `skills/`, or supporting AI-dev files. Distinct from `dev-code-reviewer` (general-purpose). Triggers after `aidev-code-implementer` finishes a change, before push to a protected branch, when the User asks for review, or as Auditor #1 paired with the Codex adversarial pass (ADR-0123/0125). Do not use to write or modify code (read-only). Do not use for visual design review (dev-ux-designer) or security-specific review (sec-auditor).
 - **Model**: sonnet · **Tools**: Read, Write, Grep, Glob, Bash
 
 ### `aidev-eval-engineer`
@@ -80,7 +80,7 @@ classification, shareability principle) lives at
 
 ### `aidev-loop-operator`
 
-- **Description**: Use to MONITOR a running autonomous agentic AI-dev loop for stalls — watch loop state, flag repeated tool calls and drift, and recommend an orchestrator pause. Read-only stall watchdog. Do not drive the loop (ADR-0011), audit a change (aidev-code-reviewer + the Codex adversarial pass; fallback Claude auditors — ADR-0123), or decide a fork (aidev-arbiter).
+- **Description**: Use to MONITOR a running autonomous agentic AI-dev loop for stalls — watch loop state, flag repeated tool calls and drift, and recommend an orchestrator pause. Read-only stall watchdog. Do not drive the loop (ADR-0011), audit a change (aidev-code-reviewer + the Codex adversarial pass; cross-model fallback Claude auditors — ADR-0123/0125), or decide a fork (aidev-arbiter).
 - **Model**: sonnet · **Tools**: Read, Grep, Glob
 
 ### `aidev-planner`
@@ -95,7 +95,7 @@ classification, shareability principle) lives at
 
 ### `aidev-state-adversarial-auditor`
 
-- **Description**: Use as the FALLBACK state adversarial auditor when Codex is unavailable (Codex primary — ADR-0123). Pressure-tests live AI-dev roster, framework files, and skills when no diff is in scope. Do not use for diffs, drift/archive integrity, or backlog verdicts.
+- **Description**: Use as the cross-model state adversarial auditor — fires when Codex implemented the change, the implementer is unknown/mixed, or Codex is unavailable; Codex is the default when Claude implemented (ADR-0123/0125). Pressure-tests live AI-dev roster, framework files, and skills when no diff is in scope. Do not use for diffs, drift/archive integrity, or backlog verdicts.
 - **Model**: opus · **Tools**: Read, Write, Grep, Glob
 
 ### `aidev-state-reviewer`
