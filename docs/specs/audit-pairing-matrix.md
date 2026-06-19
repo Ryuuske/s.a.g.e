@@ -28,8 +28,8 @@ Agents themselves return verdicts in the `@@VERDICT BEGIN…END` format without 
 
 | change_type | Trigger (what fires this row) | auditor_primary | auditor_secondary | auditor_tertiary | Protocol |
 |---|---|---|---|---|---|
-| `aidev-diff` | Diff under `agents/`, `skills/`, or framework files | `aidev-code-reviewer` | `/codex:adversarial-review` *(Codex cross-model; fallback `aidev-adversarial-auditor` if Codex unavailable — ADR-0123)* | — | parallel |
-| `aidev-state` | Live roster audit; no diff in scope | `aidev-state-reviewer` | `/codex:adversarial-review` *(Codex cross-model; fallback `aidev-state-adversarial-auditor` — ADR-0123)* | — | parallel |
+| `aidev-diff` | Diff under `agents/`, `skills/`, or framework files | `aidev-code-reviewer` | `/codex:adversarial-review` *(cross-model to the implementer per ADR-0125: Codex /codex:adversarial-review when Claude implemented; the Claude aidev-adversarial-auditor when Codex implemented, unknown/mixed, or Codex unavailable/budget-refused — ADR-0123/0125)* | — | parallel |
+| `aidev-state` | Live roster audit; no diff in scope | `aidev-state-reviewer` | `/codex:adversarial-review` *(cross-model to the implementer per ADR-0125: Codex /codex:adversarial-review when Claude implemented; the Claude aidev-state-adversarial-auditor when Codex implemented, unknown/mixed, or Codex unavailable/budget-refused — ADR-0123/0125)* | — | parallel |
 | `dev-code-diff` | Diff under `src/`, `lib/`, or equivalent non-AI-dev source | `dev-code-reviewer` | `dev-test-engineer` | — | parallel |
 | `dev-security-diff` | Code-diff change touching auth, secrets, file I/O, network, subprocess, deserialization, crypto, or dependency manifests | `dev-code-reviewer` | `sec-auditor` | — | parallel |
 | `dev-ui-diff` | Code-diff change touching `src/components/`, `*.qml`, `*.tsx`, or other UI surface | `dev-code-reviewer` | `dev-ux-designer` | — | parallel |
@@ -46,8 +46,8 @@ Agents themselves return verdicts in the `@@VERDICT BEGIN…END` format without 
 | `biz-sop-output` | SOP / runbook / process document produced by `biz-process-builder`; before user-facing publication | `biz-process-reviewer` | `doc-keeper` | — | parallel |
 | `docs-diff` | Pure documentation change (`*.md` outside `agents/`, `skills/`) | `doc-keeper` | — | — | solo |
 | `release-gate` | Pre-merge to protected branch or pre-tag | `ops-release-readiness` | *(consults per-commit auditors via re-run)* | — | solo |
-| `ai-dev-infra-diff` | Change to the catalog, the audit matrix itself, or registry protocol | `aidev-code-reviewer` | `/codex:adversarial-review` *(Codex cross-model; fallback `aidev-adversarial-auditor` — ADR-0123)* | `aidev-state-reviewer` | parallel |
-| `propagation-batch` | `aidev-agent-creator` returns an `@@AGENT-PROPAGATE-BATCH` containing multiple embedded `@@AGENT-MODIFY` specs in response to an anti-patterns checklist update | `aidev-state-reviewer` | `/codex:adversarial-review` *(Codex cross-model; fallback `aidev-state-adversarial-auditor` — ADR-0123)* | `aidev-code-reviewer` | sequential: state-reviewer + the Codex adversarial pass audit the batch as a whole (parallel between them), then aidev-code-reviewer audits each embedded modify spec one-at-a-time as the orchestrator dispatches them through the normal modify-agent + audit chain |
+| `ai-dev-infra-diff` | Change to the catalog, the audit matrix itself, or registry protocol | `aidev-code-reviewer` | `/codex:adversarial-review` *(cross-model to the implementer per ADR-0125: Codex /codex:adversarial-review when Claude implemented; the Claude aidev-adversarial-auditor when Codex implemented, unknown/mixed, or Codex unavailable/budget-refused — ADR-0123/0125)* | `aidev-state-reviewer` | parallel |
+| `propagation-batch` | `aidev-agent-creator` returns an `@@AGENT-PROPAGATE-BATCH` containing multiple embedded `@@AGENT-MODIFY` specs in response to an anti-patterns checklist update | `aidev-state-reviewer` | `/codex:adversarial-review` *(cross-model to the implementer per ADR-0125: Codex /codex:adversarial-review when Claude implemented; the Claude aidev-state-adversarial-auditor when Codex implemented, unknown/mixed, or Codex unavailable/budget-refused — ADR-0123/0125)* | `aidev-code-reviewer` | sequential: state-reviewer + the Codex adversarial pass audit the batch as a whole (parallel between them), then aidev-code-reviewer audits each embedded modify spec one-at-a-time as the orchestrator dispatches them through the normal modify-agent + audit chain |
 | `freecad-bim-diff` | Diff to a parametric-IFC BIM model or its build/verify/render script (landed change) | `freecad-model-auditor` | `dev-test-engineer` | — | parallel |
 | `arch-dim-extract-output` | Dimension table extracted from an architectural PDF (read-only extraction output) | `arch-pdf-extractor` | — | — | solo |
 | `arch-structural-spec-output` | Structural spec / change-order from arch-structural-engineer (read-only, consumed by freecad-architect) | `arch-structural-engineer` | — | — | solo |
@@ -130,7 +130,7 @@ The agent that produced the output runs a structured self-check before handoff t
 
 The `propagation-batch` row uses a two-phase protocol distinct from the others. This is intentional because the propagate operation produces both a roster-wide governance change (the batch as a whole, which needs state-level review) and a sequence of individual agent modifications (each of which needs per-agent diff review).
 
-**Phase 1 (batch-level)**: state-reviewer and the Codex adversarial pass (fallback `aidev-state-adversarial-auditor`) audit the `@@AGENT-PROPAGATE-BATCH` block as a unit, in parallel. They check:
+**Phase 1 (batch-level)**: state-reviewer and the Codex adversarial pass (fallback `aidev-state-adversarial-auditor`) — model chosen cross-model to the batch implementer per ADR-0125 audit the `@@AGENT-PROPAGATE-BATCH` block as a unit, in parallel. They check:
 - Does the shape classification chain run for every agent? (CoT injection compliance)
 - Are the applicable anti-patterns correctly selected per shape?
 - Are any agents misclassified (e.g., a reviewer-shaped agent treated as implementer-shaped)?
