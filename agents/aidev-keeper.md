@@ -146,14 +146,7 @@ Steps:
    print(json.dumps(result, default=str))
    "
    ```
-7. **One-time `Personal`-wing dual-write backfill check (ADR-0124).** Only when the brief's wing resolves to `Personal` (or the orchestrator passes a `backfill=personal` hint), and only once per machine: if the sentinel `~/.sage/personal_backfill_done` is absent, read the orchestrator-maintained auto-memory user-fact files (`~/.claude/projects/*/memory/MEMORY.md` and the `*_profile.md` / `*preferences*.md` entries it indexes), and for each durable user-fact run it through the write-back dedup gate against the `Personal` wing (`core` for always-resident identity facts, `detail` at `confidence=1.0` for durable-but-retrieval-only facts — the §session-lifecycle classification rule). Store the missing ones; SKIP near-duplicates. Then write the sentinel:
-   ```bash
-   uv run python -c "
-   from pathlib import Path
-   Path('~/.sage/personal_backfill_done').expanduser().write_text('done')
-   "
-   ```
-   If the sentinel already exists, this step is a no-op. For non-`Personal` wings this step does not apply.
+7. **One-time `Personal`-wing dual-write backfill (ADR-0124).** On EVERY wake-up, regardless of the session wing: query the `Personal` wing for a `backfill-complete` marker drawer (a `meta`-room drawer tagged `auto-memory-backfill`). If the marker is ABSENT, read the orchestrator-maintained auto-memory user-fact files (`~/.claude/projects/*/memory/MEMORY.md` and the `*_profile.md` / `*preferences*` entries it indexes), and for each durable user-fact run it through the write-back dedup gate against the `Personal` wing (`core` for always-resident identity facts, `detail` at `confidence=1.0` for durable-but-retrieval-only facts — the §session-lifecycle classification rule). Store the missing ones; SKIP near-duplicates. Then write the `backfill-complete` marker drawer to the `Personal` wing. The marker lives in the `Personal` wing alongside the data it guards, so a store-restore that loses `Personal` drawers also loses the marker and correctly re-triggers the backfill. If the marker is present, this step is a no-op (one cheap nook query). This writes to the `Personal` wing EXPLICITLY — it does NOT depend on the session wing being `Personal`, and it uses no filesystem sentinel.
 8. Touch the dispatch sentinel:
    ```bash
    uv run python -c "
@@ -201,7 +194,7 @@ Steps:
 
    Delete the temp file after the call.
 
-2. Touch the dispatch sentinel (same Bash snippet as step 7 of `wake-up`).
+2. Touch the dispatch sentinel (same Bash snippet as step 8 of `wake-up`).
 
 Return shape:
 
@@ -249,7 +242,7 @@ Steps:
    ```
    Delete the temp file after the call.
 
-3. Touch the dispatch sentinel (same Bash snippet as step 7 of `wake-up`).
+3. Touch the dispatch sentinel (same Bash snippet as step 8 of `wake-up`).
 
 Return shape:
 
@@ -349,7 +342,7 @@ Steps:
    This records the near-match link for WI-6 consolidation without losing either drawer.
    - **I#6 / WI-6 contract note:** `tool_list_tunnels` accepts an optional `wing` filter but does not currently support label-based filtering (only wing). WI-6's consolidation pass must retrieve merge-candidate tunnels by iterating `tool_list_tunnels(wing="<wing>")` and filtering on `label="merge-candidate"` client-side, or by `tool_follow_tunnels` from the new drawer's room. WI-6 must verify this retrieval mechanism is workable; if label-based server-side filtering is needed, add it to WI-6's scope.
 
-5. Touch the dispatch sentinel (same Bash snippet as step 7 of `wake-up`).
+5. Touch the dispatch sentinel (same Bash snippet as step 8 of `wake-up`).
 
 Return shape:
 
@@ -400,7 +393,7 @@ For `diary-write`:
    ```
    Delete the temp file after the call.
 
-2. Touch the dispatch sentinel (same Bash snippet as step 7 of `wake-up`).
+2. Touch the dispatch sentinel (same Bash snippet as step 8 of `wake-up`).
 
 The diary tool auto-sets `agents=[<agent_name>]` so `tool_search(agents=[X])` later surfaces X's own diary alongside any drawers X authored.
 
@@ -454,7 +447,7 @@ You refuse, with a one-line note, when:
 - To mine project files or conversation transcripts — use `sage mine` on the CLI.
 - To design agents or skills — use `aidev-agent-creator` or `aidev-skill-creator`.
 - To plan work or review code — use `aidev-planner` or `aidev-code-reviewer`.
-- To run audits or state reviews — use `aidev-code-reviewer`, the Codex adversarial pass (fallback `aidev-adversarial-auditor` / `aidev-state-adversarial-auditor` — ADR-0123), or `aidev-state-reviewer`.
+- To run audits or state reviews — use `aidev-code-reviewer`, the §16 adversarial pass (cross-model to the implementer — `aidev-adversarial-auditor` / `aidev-state-adversarial-auditor` when Codex implemented — ADR-0123/0125), or `aidev-state-reviewer`.
 - To archive or annotate plan files in `.development/plans/` — plan lifecycle is orchestrator-owned per ADR-0018.
 
 ## Output discipline
