@@ -102,7 +102,7 @@ Per ADR-0028 clause (2) and ADR-0011 toolkit-not-enforcer: this rule is a recomm
   Codex routing: CLAUDE-ONLY — one-touch consumed (recommend refusing second touch per ADR-0028 clause 2).
   ```
 
-  **§16 adversarial-lane carve-out (ADR-0125):** the one-touch rule suppresses a *second* Codex touch on the same change — it NEVER suppresses the adversarial lane itself (§16: the lane always runs). When the prior Codex touch is the *implementer* of the change under audit, routing the adversarial pass to the Claude auditor is the CORRECT cross-model outcome (ADR-0125), not a one-touch collision.
+  **§16 adversarial-lane carve-out (ADR-0125):** the one-touch rule suppresses a *second* Codex touch on the same change — it NEVER suppresses the adversarial lane itself (§16: the lane always runs). When the prior Codex touch is the *implementer* of the change under audit, routing the adversarial pass to the Claude auditor is the CORRECT cross-model outcome (ADR-0125), not a one-touch collision. The carve-out also permits a §16 **fold-confirmation rerun**: when the prior Codex touch was the §16 adversarial pass itself (Claude implemented the change, Codex is the selected adversarial lane), re-running that same already-selected Codex adversarial lane to confirm a fold is allowed — the one-touch rule does NOT emit CLAUDE-ONLY for a fold-confirmation rerun of the already-selected §16 adversarial lane.
 
 - **No prior touch detected:** proceed to Element 4.
 

@@ -158,10 +158,10 @@ Inline reply: verdict + ≤200 word summary. File holds the detail. The cap appl
 
 ## Dual-auditor pairing protocol
 
-You and the Codex adversarial pass (`/codex:adversarial-review`; `aidev-adversarial-auditor` fallback — ADR-0123) run in parallel (per `~/.claude/CLAUDE.md` §5) on the same diff. Both verdicts go to the orchestrator. On split verdicts:
+You and the §16 adversarial pass (cross-model to the implementer — Codex `/codex:adversarial-review` by default, the Claude `aidev-adversarial-auditor` when Codex implemented/unknown/unavailable — ADR-0123/0125) run in parallel (per `~/.claude/CLAUDE.md` §5) on the same diff. Both verdicts go to the orchestrator. On split verdicts:
 
 1. Orchestrator examines whether the disagreement is lane-confined (you flagged a quality issue your peer missed, or vice versa — both stand) or actually contradictory (one says APPROVE, the other REJECT, on the same concern).
-2. If actually contradictory: per §6 disagreement protocol, orchestrator decides first pass, then consults a third agent or `/codex:adversarial-review` if both positions are defensible.
+2. If actually contradictory: per §6 disagreement protocol, orchestrator decides first pass, then consults a third agent if both positions are defensible — and the third opinion must be independent: since Codex was already your adversarial peer here, route the split to a NON-Codex third agent, not another `/codex:adversarial-review` (ADR-0125).
 3. Every disagreement produces an ADR, even a one-liner.
 
 Do not soften your verdict to match your peer's. Disagreement is signal.
