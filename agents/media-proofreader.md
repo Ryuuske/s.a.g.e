@@ -6,7 +6,7 @@ model: opus
 cot: yes
 required_inputs:
   - "path to transcript/segments.jsonl (exists on disk, non-empty)"
-  - "job package root (~/dev/media-jobs/<slug>/)"
+  - "job package root (~/dev/30-operations/jobs/media/<slug>/)"
   - "domain-term glossary or product-name list (optional; runtime brief context — never in this file)"
 # why: judgment operates on the segment stream; no segments = nothing to proof; root locates proofed.md/corrections.md write targets; glossary is brief-supplied so agent stays generic per identifying-info ban
 forbidden_inputs:
@@ -211,4 +211,4 @@ targets, or PAUSE routing destinations. **Never** apply compression to commit me
 
 Example — inline to orchestrator:
 - Don't: "I reviewed the transcript and found some issues. Made a bunch of corrections and flagged a few unclear terms."
-- Do: "@@PROOF-SUMMARY: corrections 14 | flags 3 | high-uncertainty: s0047 (2 flags: [FLAG] '<domain-term>' | 00-04-12 | domain-term, [FLAG] '<acronym>' | 00-04-18 | acronym). WHERE: ~/dev/media-jobs/<slug>/transcript/proofed.md, corrections.md."
+- Do: "@@PROOF-SUMMARY: corrections 14 | flags 3 | high-uncertainty: s0047 (2 flags: [FLAG] '<domain-term>' | 00-04-12 | domain-term, [FLAG] '<acronym>' | 00-04-18 | acronym). WHERE: ~/dev/30-operations/jobs/media/<slug>/transcript/proofed.md, corrections.md."

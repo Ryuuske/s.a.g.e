@@ -7,7 +7,7 @@ cot: no
 required_inputs:
   - "source media file path (exists on disk, non-empty)"
   - "job slug (kebab-case + short hash, e.g., onboarding-demo-a1b2)"
-  - "job package root (~/dev/media-jobs/<slug>/)"
+  - "job package root (~/dev/30-operations/jobs/media/<slug>/)"
 # why: deterministic scripts need a real source + destination slug; no verifiable source = nothing to ingest; missing/placeholder slug breaks the package dir contract + resume-marker semantics
 forbidden_inputs:
   - "hand-written or hand-edited transcript, manifest, or index content (pipeline must generate these)"
@@ -223,4 +223,4 @@ or PAUSE routing destinations. **Never** apply compression to commit messages.
 
 Example — inline to orchestrator:
 - Don't: "I ran the pipeline and most stages passed. There might be an issue with frames."
-- Do: "@@MEDIA-PIPELINE: doctor pass | probe pass | audio pass | transcribe pass (s0312 segments, no_speech_prob mean 0.04) | frames FAIL (exit 0, count 0 — no frames written; ffmpeg scene-detect returned empty, check codec) | manifest SKIP (frames failed) | index SKIP. WHERE: ~/dev/media-jobs/onboarding-demo-a1b2/."
+- Do: "@@MEDIA-PIPELINE: doctor pass | probe pass | audio pass | transcribe pass (s0312 segments, no_speech_prob mean 0.04) | frames FAIL (exit 0, count 0 — no frames written; ffmpeg scene-detect returned empty, check codec) | manifest SKIP (frames failed) | index SKIP. WHERE: ~/dev/30-operations/jobs/media/onboarding-demo-a1b2/."

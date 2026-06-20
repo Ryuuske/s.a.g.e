@@ -1,6 +1,6 @@
 {
   "name": "sage",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A single-user verbatim memory store with agent-keyed drawer metadata.",
   "author": {
     "name": "Ryuuske"
