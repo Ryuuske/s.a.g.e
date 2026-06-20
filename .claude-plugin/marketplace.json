@@ -9,7 +9,7 @@
       "name": "sage",
       "source": "./",
       "description": "Single-user verbatim memory system with agent-keyed drawer metadata.",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "author": {
         "name": "Ryuuske"
       }
