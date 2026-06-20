@@ -9,7 +9,7 @@ The single home for countable facts (no hand-written doc may state these).
 | Agents | 99 | `agents/*.md` |
 | Skills | 39 | `skills/*/SKILL.md` |
 | Command-skills | 5 | `commands/*.md` |
-| Hook events | 2 (PreCompact, Stop) | `hooks/hooks.json` |
+| Hook events | 3 (PreCompact, PreToolUse, Stop) | `hooks/hooks.json` |
 | Wing types | 6 (dev, knowledge, meta, ops, personal, project) | `wing_config.json` |
 | Package version | 1.2.0 | `pyproject.toml` |
 | Plugin version | 1.2.0 | `.claude-plugin/plugin.json` |
