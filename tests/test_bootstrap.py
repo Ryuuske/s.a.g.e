@@ -779,6 +779,8 @@ def test_default_bootstrap_roots_with_dev_layout(tmp_path, monkeypatch):
     """_default_bootstrap_roots walks ~/dev/github/<owner> and ~/dev/projects/."""
     from sage_mcp.cli import _default_bootstrap_roots
 
+    monkeypatch.delenv("SAGE_WORKSPACE_ROOT", raising=False)
+
     # Build a fake home with dev/github/owner1/ and dev/projects/
     fake_home = tmp_path / "fakehome"
     owner1 = fake_home / "dev" / "github" / "owner1"
@@ -799,6 +801,23 @@ def test_default_bootstrap_roots_with_dev_layout(tmp_path, monkeypatch):
     assert any(str(owner1) in p for p in paths), f"owner1 not in roots: {paths}"
     assert "dev" in types
     assert "project" in types
+
+
+def test_default_bootstrap_roots_honors_workspace_root_env(tmp_path, monkeypatch):
+    """SAGE_WORKSPACE_ROOT overrides the default ~/dev discovery root."""
+    from sage_mcp.cli import _default_bootstrap_roots
+
+    workspace_root = tmp_path / "workspace"
+    owner = workspace_root / "github" / "owner"
+    projects = workspace_root / "projects"
+    owner.mkdir(parents=True)
+    projects.mkdir()
+    monkeypatch.setenv("SAGE_WORKSPACE_ROOT", str(workspace_root))
+
+    assert _default_bootstrap_roots() == [
+        (str(owner), "dev"),
+        (str(projects), "project"),
+    ]
 
 
 # ── FIX 1: only successfully-registered repos passed to mine ─────────────────
