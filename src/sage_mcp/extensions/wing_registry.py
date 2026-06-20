@@ -138,7 +138,7 @@ def _resolve_write_path() -> Path:
             # Seed the taxonomy + ONLY framework-internal wings (those whose path
             # lives under ``~/.sage`` — e.g. the Personal user-facts wing and the
             # telemetry wing). NEVER seed maintainer-specific project/dev wings
-            # (paths under ``~/dev`` etc.): their presence in a fresh user config
+            # (paths under ``~/sage`` etc.): their presence in a fresh user config
             # leaks names and skips the user's own repos on slug collision. The
             # user registers their own project/dev wings via ``sage bootstrap``.
             sage_root = str(Path.home() / ".sage")

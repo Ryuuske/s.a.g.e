@@ -26,8 +26,8 @@ S.A.G.E. is distributed via GitHub (plugin marketplace + git install;
 decision record 0097). Install from a local clone via the bundled installer:
 
 ```bash
-git clone https://github.com/Ryuuske/s.a.g.e ~/dev/github/Ryuuske/s.a.g.e
-cd ~/dev/github/Ryuuske/s.a.g.e
+git clone https://github.com/Ryuuske/s.a.g.e ~/sage/github/Ryuuske/s.a.g.e
+cd ~/sage/github/Ryuuske/s.a.g.e
 bash install.sh
 ```
 

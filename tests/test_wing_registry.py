@@ -203,7 +203,7 @@ def test_resolve_write_path_seeds_empty_wings_not_maintainer_wings(tmp_path, mon
 
     fake_home = tmp_path / "home"
     fake_home.mkdir()
-    # A repo-root-style template carrying a maintainer project wing (under ~/dev)
+    # A repo-root-style template carrying a maintainer project wing (under ~/sage)
     # AND a framework-generic wing (under ~/.sage). The seed must drop the former
     # and keep the latter.
     template = tmp_path / "repo" / "wing_config.json"

@@ -39,7 +39,7 @@ sage bootstrap --dry-run   # preview: which wings get registered + which repos g
 sage bootstrap             # do it (prompts before mining; add --yes to skip the prompt)
 ```
 
-By default it scans `~/dev/github/<owner>/<repo>` and `~/dev/projects/<name>`; pass
+By default it scans `~/sage/github/<owner>/<repo>` and `~/sage/projects/<name>`; pass
 `--root <path>` (repeatable) to point it elsewhere, or `--no-mine` to register wings
 without mining yet.
 

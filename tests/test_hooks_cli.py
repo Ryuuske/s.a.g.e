@@ -431,9 +431,9 @@ def test_wing_from_transcript_path_lowercases():
 
 
 def test_wing_from_transcript_path_non_projects_layout():
-    # Linux user with code under ~/dev/. The encoded form ``dev-foo-bar``
-    # is ambiguous between ``~/dev/foo/bar/`` (project = bar) and
-    # ``~/dev/foo-bar/`` (hyphenated single-name project). With no JSONL
+    # Linux user with code under ~/sage/. The encoded form ``dev-foo-bar``
+    # is ambiguous between ``~/sage/foo/bar/`` (project = bar) and
+    # ``~/sage/foo-bar/`` (hyphenated single-name project). With no JSONL
     # cwd to disambiguate, we preserve all post-``dev-`` segments rather
     # than silently truncating to the last token (which would drop ``foo``
     # here and collide with any other ``-bar`` leaf elsewhere on the

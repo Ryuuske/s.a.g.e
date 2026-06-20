@@ -51,7 +51,7 @@ def folder_label(cwd: str) -> str:
         return "?"
     path = Path(cwd)
     parts = path.parts
-    # Render "user/repo" if under ~/dev/github/<user>/<repo>/...
+    # Render "user/repo" if under ~/sage/github/<user>/<repo>/...
     try:
         idx = parts.index("github")
         if idx + 2 < len(parts):

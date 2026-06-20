@@ -7,7 +7,7 @@ cot: yes
 required_inputs:
   - "path to index.md (exists on disk; build_index.py first-pass output)"
   - "path to manifest.json (chapter↔segment↔frame join; exists, validates)"
-  - "job package root (~/dev/30-operations/jobs/media/<slug>/)"
+  - "job package root (~/sage/30-operations/jobs/media/<slug>/)"
 # why: chapter refinement is judgment over the deterministic first-pass map; index.md is the artifact; manifest.json provides the join boundaries must stay consistent with; without both the coverage/no-gap invariant cannot be checked
 forbidden_inputs:
   - "source media file or audio.wav (boundary judgment from segments + manifest, not re-listening)"
@@ -210,4 +210,4 @@ commit messages.
 
 Example — inline to orchestrator:
 - Don't: "Refined the chapters. Fixed a few boundaries and updated some titles. Looks good now."
-- Do: "@@INDEX-REFINE: chapters 8 | boundaries changed 2 (c03: moved t_start 00:04:12→00:04:08 per segment evidence; c06: merged with c07, too thin) | titles touched 3 | coverage: full. WHERE: ~/dev/30-operations/jobs/media/onboarding-demo-a1b2/index.md."
+- Do: "@@INDEX-REFINE: chapters 8 | boundaries changed 2 (c03: moved t_start 00:04:12→00:04:08 per segment evidence; c06: merged with c07, too thin) | titles touched 3 | coverage: full. WHERE: ~/sage/30-operations/jobs/media/onboarding-demo-a1b2/index.md."

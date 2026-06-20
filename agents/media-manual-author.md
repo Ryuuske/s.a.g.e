@@ -8,7 +8,7 @@ required_inputs:
   - "topic (concrete string, not 'everything')"
   - "output type (quick-ref or full-manual) and render format (md, pdf, or docx)"
   - "path to index.md (exists on disk; read-first map)"
-  - "job package root (~/dev/30-operations/jobs/media/<slug>/)"
+  - "job package root (~/sage/30-operations/jobs/media/<slug>/)"
 # why: author selects content by topic against the index, so concrete topic + index path mandatory; type+format set composition depth + render command; root locates segments/frames/output; loading whole transcript without a topic violates read-index-first
 forbidden_inputs:
   - "'read the whole transcript' as the default approach (read-index-first; full transcript only if topic spans most content)"
@@ -262,4 +262,4 @@ targets, or PAUSE routing destinations. **Never** apply compression to commit me
 
 Example — inline to orchestrator:
 - Don't: "Wrote the quick reference. Used some chapters and embedded a few screenshots. Rendered to PDF."
-- Do: "@@MANUAL-BUILD: topic 'user login flow' | quick-ref | chapters c01,c02 | frames 4 (scene-change x3, ui-cue x1) | render pdf | exit 0. Output: ~/dev/30-operations/jobs/media/onboarding-demo-a1b2/output/quick-ref-user-login-flow.pdf (284 KB). WHERE: ~/dev/30-operations/jobs/media/onboarding-demo-a1b2/output/quick-ref-user-login-flow.pdf."
+- Do: "@@MANUAL-BUILD: topic 'user login flow' | quick-ref | chapters c01,c02 | frames 4 (scene-change x3, ui-cue x1) | render pdf | exit 0. Output: ~/sage/30-operations/jobs/media/onboarding-demo-a1b2/output/quick-ref-user-login-flow.pdf (284 KB). WHERE: ~/sage/30-operations/jobs/media/onboarding-demo-a1b2/output/quick-ref-user-login-flow.pdf."

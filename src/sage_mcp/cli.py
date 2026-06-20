@@ -1658,8 +1658,8 @@ def discover_repos(roots: list[tuple[str, str]]) -> list:
     are candidate wings.  Applies the CLAUDE.md §9 dev-layout convention
     when called with the defaults:
 
-    - ``~/dev/github/<owner>/<repo>/`` → each ``<repo>`` dir, type ``dev``.
-    - ``~/dev/projects/<name>/`` → each ``<name>`` dir, type ``project``.
+    - ``~/sage/github/<owner>/<repo>/`` → each ``<repo>`` dir, type ``dev``.
+    - ``~/sage/projects/<name>/`` → each ``<name>`` dir, type ``project``.
 
     When ``--root`` overrides are supplied, every given path is treated as
     a parent of ``dev``-type candidates (simple, predictable contract for
@@ -1750,20 +1750,24 @@ def discover_repos(roots: list[tuple[str, str]]) -> list:
 
 
 def _default_bootstrap_roots() -> list:
-    """Return the default root list following CLAUDE.md §9 dev-layout.
+    """Return bootstrap roots discovered beneath ``SAGE_WORKSPACE_ROOT``.
+
+    ``SAGE_WORKSPACE_ROOT`` defaults to ``~/sage``. The expected layout is
+    ``<root>/github/<owner>/<repo>`` for dev wings and
+    ``<root>/projects/<name>`` for project wings.
 
     Returns a list of (path, wing_type) tuples consumed by discover_repos.
     """
-    home = Path.home()
+    root = Path(os.environ.get("SAGE_WORKSPACE_ROOT", str(Path.home() / "sage"))).expanduser()
     roots = []
-    # ~/dev/github/<owner>/<repo>/ — two-level: walk github children as owners
-    github_root = home / "dev" / "github"
+    # <root>/github/<owner>/<repo>/ — two-level: walk github children as owners
+    github_root = root / "github"
     if github_root.is_dir():
         for owner_dir in sorted(github_root.iterdir()):
             if owner_dir.is_dir() and not owner_dir.name.startswith("."):
                 roots.append((str(owner_dir), "dev"))
-    # ~/dev/projects/<name>/
-    projects_root = home / "dev" / "projects"
+    # <root>/projects/<name>/
+    projects_root = root / "projects"
     if projects_root.is_dir():
         roots.append((str(projects_root), "project"))
     return roots
@@ -2484,8 +2488,9 @@ def main():
         metavar="PATH",
         help=(
             "Parent directory whose immediate child dirs are candidate dev-type wings "
-            "(repeatable). Replaces the default ~/dev/github/<owner>/ + ~/dev/projects/ "
-            "layout when given. Expand ~ automatically."
+            "(repeatable). Replaces the SAGE_WORKSPACE_ROOT layout "
+            "(<root>/github/<owner>/ + <root>/projects/; <root> defaults to ~/sage) "
+            "when given. Expand ~ automatically."
         ),
     )
     p_bootstrap.add_argument(

@@ -101,7 +101,7 @@ def test_discover_repos_warns_on_framework_wing_collision(tmp_path, monkeypatch,
     NOT be silently skipped — bootstrap warns with an actionable message.
 
     Regression for the codex Phase-8 collision finding: the cleaned template ships
-    Personal + telemetry (under ~/.sage); a fresh user's ~/dev/projects/Personal
+    Personal + telemetry (under ~/.sage); a fresh user's ~/sage/projects/Personal
     collides on slug and was silently dropped. Now it warns.
     """
     projects = tmp_path / "projects"
@@ -776,14 +776,16 @@ def test_discover_repos_nonexistent_root_continue(monkeypatch):
 
 
 def test_default_bootstrap_roots_with_dev_layout(tmp_path, monkeypatch):
-    """_default_bootstrap_roots walks ~/dev/github/<owner> and ~/dev/projects/."""
+    """_default_bootstrap_roots walks ~/sage/github/<owner> and ~/sage/projects/."""
     from sage_mcp.cli import _default_bootstrap_roots
 
-    # Build a fake home with dev/github/owner1/ and dev/projects/
+    monkeypatch.delenv("SAGE_WORKSPACE_ROOT", raising=False)
+
+    # Build a fake home with sage/github/owner1/ and sage/projects/
     fake_home = tmp_path / "fakehome"
-    owner1 = fake_home / "dev" / "github" / "owner1"
+    owner1 = fake_home / "sage" / "github" / "owner1"
     owner1.mkdir(parents=True)
-    (fake_home / "dev" / "projects").mkdir(parents=True)
+    (fake_home / "sage" / "projects").mkdir(parents=True)
 
     with patch("sage_mcp.cli.Path") as mock_path_cls:
         # Let Path() calls through but intercept Path.home()
@@ -799,6 +801,23 @@ def test_default_bootstrap_roots_with_dev_layout(tmp_path, monkeypatch):
     assert any(str(owner1) in p for p in paths), f"owner1 not in roots: {paths}"
     assert "dev" in types
     assert "project" in types
+
+
+def test_default_bootstrap_roots_honors_workspace_root_env(tmp_path, monkeypatch):
+    """SAGE_WORKSPACE_ROOT overrides the default ~/sage discovery root."""
+    from sage_mcp.cli import _default_bootstrap_roots
+
+    workspace_root = tmp_path / "workspace"
+    owner = workspace_root / "github" / "owner"
+    projects = workspace_root / "projects"
+    owner.mkdir(parents=True)
+    projects.mkdir()
+    monkeypatch.setenv("SAGE_WORKSPACE_ROOT", str(workspace_root))
+
+    assert _default_bootstrap_roots() == [
+        (str(owner), "dev"),
+        (str(projects), "project"),
+    ]
 
 
 # ── FIX 1: only successfully-registered repos passed to mine ─────────────────

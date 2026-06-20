@@ -20,9 +20,9 @@ If the User's first message is a generic opener with no concrete task ("Let's ge
 
 1. Acknowledge briefly (one short line, NORMAL prose).
 2. Ask: "What are we working on?" Offer three options:
-   - **GitHub** — repos cloned locally under `~/dev/github/`. When chosen, run `ls -1d ~/dev/github/*/*/ 2>/dev/null` and present the repos to the User as a numbered list. Wait for selection.
-   - **Projects** — local-only projects under `~/dev/projects/`. When chosen, run `ls -1d ~/dev/projects/*/ 2>/dev/null` and present them. If the directory doesn't exist or is empty, say so and offer to create the directory or start a new project.
-   - **Other** — free-text task (research, brainstorming, general questions, exploration). No repo context needed; stay in `~/dev` or follow the User's lead.
+   - **GitHub** — repos cloned locally under `~/sage/github/`. When chosen, run `ls -1d ~/sage/github/*/*/ 2>/dev/null` and present the repos to the User as a numbered list. Wait for selection.
+   - **Projects** — local-only projects under `~/sage/projects/`. When chosen, run `ls -1d ~/sage/projects/*/ 2>/dev/null` and present them. If the directory doesn't exist or is empty, say so and offer to create the directory or start a new project.
+   - **Other** — free-text task (research, brainstorming, general questions, exploration). No repo context needed; stay in `~/sage` or follow the User's lead.
 3. Once destination is chosen, `cd` to it. Confirm with `pwd`. Then state, in one line: `Session focus: <repo or scope>.` This biases the claude.ai auto-titler toward a meaningful name and helps with sidebar grouping.
 4. Then proceed to the per-repo session-start steps below.
 

@@ -545,7 +545,7 @@ Say '  4. To inspect Codex budget directly, run:'
 Say ("       $($Python -join ' ') `"$StatuslineDst\bin\sage-codex-budget.py`" --pretty")
 Say '  5. Run "sage --version" to verify the Python package installed.'
 Say '  6. Run "sage wing list" to inspect the 17-wing taxonomy.'
-Say '  7. Run "sage bootstrap" to discover repos under ~/dev/, register wings,'
+Say '  7. Run "sage bootstrap" to discover repos under ~/sage/, register wings,'
 Say '     mine them into the nook, and build the registry in one step.'
 Say '     Preview first with: sage bootstrap --dry-run'
 Say '     Skip mining:        sage bootstrap --no-mine'
