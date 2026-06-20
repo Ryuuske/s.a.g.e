@@ -402,3 +402,204 @@ class TestScriptSubprocess:
         )
         assert r.returncode == 0
         assert r.stdout.strip() == "{}"
+
+
+# ── Round post-1 audit fixes: new required tests ──────────────────────────────
+
+
+class TestSubagentKeyVariants:
+    """Both agent_id (snake_case) and agentId (camelCase) must trigger allow.
+
+    Covers audit finding #1 (sev 88): the exact field name emitted by Claude
+    Code was not verified at authoring time.  Until sandbox proof (work item 7)
+    asserts with a REAL captured payload, both key forms are accepted so that a
+    camelCase/snake_case mismatch cannot silently block all implementer writes.
+    """
+
+    # Realistic Claude Code subagent PreToolUse payload shapes.
+    # These mirror what the docs describe but have NOT been verified against a
+    # live captured payload — that verification is work item 7 (sandbox proof).
+    _SNAKE_PAYLOAD = {
+        "tool_name": "Write",
+        "tool_input": {"file_path": "/repo/agents/foo.md", "content": "# Foo\n"},
+        "agent_id": "agent-abc-001",
+        "session_id": "session-xyz-999",
+        "hook_event_name": "PreToolUse",
+    }
+    _CAMEL_PAYLOAD = {
+        "tool_name": "Write",
+        "tool_input": {"file_path": "/repo/agents/foo.md", "content": "# Foo\n"},
+        "agentId": "agent-abc-001",
+        "sessionId": "session-xyz-999",
+        "hookEventName": "PreToolUse",
+    }
+
+    @pytest.mark.parametrize(
+        "payload",
+        [_SNAKE_PAYLOAD, _CAMEL_PAYLOAD],
+        ids=["snake_case_agent_id", "camelCase_agentId"],
+    )
+    def test_realistic_subagent_payload_allowed(self, payload, monkeypatch):
+        """Realistic subagent payloads (both key variants) must be allowed."""
+        _reload(monkeypatch)
+        result = role_guard.decide(payload)
+        assert result == _allow(), (
+            f"Expected allow for subagent payload (key variant), got {result}"
+        )
+
+    def test_snake_case_agent_id_allow(self, monkeypatch):
+        """agent_id (snake_case) → allow."""
+        _reload(monkeypatch)
+        result = role_guard.decide({"tool_name": "Write", "agent_id": "sub-001"})
+        assert result == _allow()
+
+    def test_camel_case_agentId_allow(self, monkeypatch):
+        """agentId (camelCase) → allow."""
+        _reload(monkeypatch)
+        result = role_guard.decide({"tool_name": "Write", "agentId": "sub-001"})
+        assert result == _allow()
+
+    def test_both_keys_absent_is_orchestrator(self, monkeypatch):
+        """Neither agent_id nor agentId → orchestrator → deny Write."""
+        _reload(monkeypatch)
+        result = role_guard.decide({"tool_name": "Write"})
+        assert result == _deny()
+
+    @pytest.mark.parametrize("tool", ["Write", "Edit", "MultiEdit", "NotebookEdit"])
+    def test_camel_agent_id_allows_all_write_tools(self, tool, monkeypatch):
+        """camelCase agentId must allow every write-tool variant."""
+        _reload(monkeypatch)
+        result = role_guard.decide({"tool_name": tool, "agentId": "sub-xyz"})
+        assert result == _allow(), f"Expected allow for camelCase agentId + {tool}"
+
+    def test_camel_agent_id_allows_bash_write(self, monkeypatch):
+        """camelCase agentId must also allow Bash write patterns."""
+        _reload(monkeypatch)
+        payload = {
+            "tool_name": "Bash",
+            "tool_input": {"command": "echo x > /repo/file.txt"},
+            "agentId": "sub-xyz",
+        }
+        result = role_guard.decide(payload)
+        assert result == _allow()
+
+
+class TestBashChainedBypassDenied:
+    """Chaining operators cannot be used to hide a write after a git/gh command.
+
+    Covers audit finding #2 (sev 85): the old prefix-only carve-out allowed
+    ``git --version && echo x > f`` to slip through.
+    """
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            # && chain: git prefix then write segment
+            "git --version && echo x > /repo/file.txt",
+            "git status && cat <<EOF > /path/config.json",
+            # ; chain
+            "git fetch; echo y > /repo/out.txt",
+            # || chain: write in fallback branch
+            "git pull || echo fallback > /repo/fallback.txt",
+            # | pipe: write in rhs
+            "git log | tee /repo/output.log",
+            # gh + chain
+            "gh pr view && cp source.py dest.py",
+            # multiple segments, write buried in middle
+            "git status; echo x > /f; git diff",
+        ],
+    )
+    def test_chained_git_write_denied(self, command, monkeypatch):
+        """Chained commands where any segment writes to a file → deny."""
+        _reload(monkeypatch)
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _deny(), (
+            f"Expected deny for chained bypass attempt {command!r}, got {result}"
+        )
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            # Pure git chain — no write — must allow
+            "git fetch && git pull",
+            "git add -A; git commit -m 'msg'",
+            # gh + git chain — no write
+            "gh pr view 42 && git log --oneline -5",
+        ],
+    )
+    def test_pure_git_chain_allowed(self, command, monkeypatch):
+        """Chains of only git/gh commands (no writes) must be allowed."""
+        _reload(monkeypatch)
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _allow(), f"Expected allow for pure git/gh chain {command!r}, got {result}"
+
+
+class TestTeeAppendDenied:
+    """tee -a (append mode) must be caught — covers audit finding #3."""
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "tee -a /var/log/myapp.log",
+            "tee -a output.txt",
+            "some_command | tee -a logfile.log",
+        ],
+    )
+    def test_tee_append_denied(self, command, monkeypatch):
+        """tee -a <file> → deny (append is still a write)."""
+        _reload(monkeypatch)
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _deny(), f"Expected deny for tee -a command {command!r}, got {result}"
+
+
+class TestFdRedirectFalsePositives:
+    """fd-number redirects and /dev/null must not trigger false-positive denies.
+
+    Covers audit finding #5: ``echo x >&2``, ``pytest 2> err.txt``, and
+    ``tee /dev/null`` were incorrectly denied.
+    """
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            # stderr to terminal fd
+            "echo x >&2",
+            "echo error >&2",
+            # stderr redirect to file (fd-number redirect: 2> is N>, excluded)
+            "pytest 2> err.txt",
+            "make build 2> /dev/stderr",
+            # stdout to /dev/null — already allowed in original; kept as regression
+            "echo something > /dev/null",
+            # combined: stdout to /dev/null, stderr to fd
+            "cmd > /dev/null 2>&1",
+            # fd swap
+            "cmd 2>&1",
+        ],
+    )
+    def test_fd_redirect_allowed(self, command, monkeypatch):
+        """fd-number redirects and /dev/null writes must not be denied."""
+        _reload(monkeypatch)
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _allow(), (
+            f"Expected allow for fd-redirect command {command!r}, got {result}"
+        )
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "tee /dev/null",
+            "some_command | tee /dev/null",
+        ],
+    )
+    def test_tee_dev_null_allowed(self, command, monkeypatch):
+        """tee /dev/null must not be denied — writing to the bit-bucket is safe."""
+        _reload(monkeypatch)
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _allow(), (
+            f"Expected allow for tee /dev/null command {command!r}, got {result}"
+        )
