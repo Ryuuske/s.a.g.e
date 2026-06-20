@@ -58,7 +58,7 @@ A rerun skips any stage whose marker is already `done`. Stages are idempotent.
 | Quick-ref output | `quick-ref-<topic-slug>.<ext>` |
 | Full-manual output | `manual-<topic-slug>.<ext>` |
 
-Job packages live at `~/dev/30-operations/jobs/media/<slug>/`. They are local-only and must never be committed or pushed.
+Job packages live at `~/sage/30-operations/jobs/media/<slug>/`. They are local-only and must never be committed or pushed.
 
 ## Read-index-first discipline (load-bearing)
 
@@ -94,7 +94,7 @@ Decision rule: if the matched chapter(s) cover the topic, load only their segmen
 
 ## Job-home reminder
 
-All job packages are at `~/dev/30-operations/jobs/media/<slug>/`, outside the framework repo. The framework repo never contains media files, audio, frames, or job-package artifacts. Nothing under `~/dev/30-operations/jobs/media/` is ever pushed (this path is outside the GitHub publication gate at `~/dev/github/Ryuuske/`).
+All job packages are at `~/sage/30-operations/jobs/media/<slug>/`, outside the framework repo. The framework repo never contains media files, audio, frames, or job-package artifacts. Nothing under `~/sage/30-operations/jobs/media/` is ever pushed (this path is outside the GitHub publication gate at `~/sage/github/Ryuuske/`).
 
 ## Anti-patterns
 
@@ -104,7 +104,7 @@ All job packages are at `~/dev/30-operations/jobs/media/<slug>/`, outside the fr
 - **Interval frames over scene/ui when alternatives exist.** Interval frames are fallback only. Always prefer `scene-change` or `ui-cue` frames when they are available in the manifest.
 - **Silent proofread edits.** Every correction to proofed.md must be logged in corrections.md with timecode + reason-code. Editing without logging breaks the audit trail.
 - **Reimplementing pipeline logic in an agent.** Deterministic work (audio extraction, transcription, frame extraction, manifest/index generation) belongs in scripts/media/. Agents invoke those scripts; they do not reimplement them.
-- **Committing ~/dev/30-operations/jobs/media/ content.** Job packages are local-only. A commit that includes media artifacts or job-package output is a publication-gate violation.
+- **Committing ~/sage/30-operations/jobs/media/ content.** Job packages are local-only. A commit that includes media artifacts or job-package output is a publication-gate violation.
 - **Duplicating schema shapes in prose.** The authoritative contracts are the schema JSON files. Prose paraphrases of the segment or manifest schema drift over time.
 
 ## Output guidance
@@ -141,4 +141,4 @@ All job packages are at `~/dev/30-operations/jobs/media/<slug>/`, outside the fr
 - Debugging or modifying scripts/media/ Python/shell code → general code lane + `systematic-debugging`.
 - PDF dimension or vector extraction → `pdf-vector-extraction-discipline`.
 - SOP body writing or auditing → `biz-sop-discipline`.
-- Any work that does not involve a `~/dev/30-operations/jobs/media/<slug>/` package or the scripts/media/ pipeline.
+- Any work that does not involve a `~/sage/30-operations/jobs/media/<slug>/` package or the scripts/media/ pipeline.

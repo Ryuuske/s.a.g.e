@@ -59,68 +59,68 @@
   "wings": {
     "sage": {
       "type": "dev",
-      "path": "~/dev/github/Ryuuske/s.a.g.e"
+      "path": "~/sage/github/Ryuuske/s.a.g.e"
     },
     "Acme-Addon": {
       "type": "dev",
-      "path": "~/dev/github/example/Acme-Addon"
+      "path": "~/sage/github/example/Acme-Addon"
     },
     "Acme-Ops": {
       "type": "dev",
-      "path": "~/dev/github/example/Acme-Ops"
+      "path": "~/sage/github/example/Acme-Ops"
     },
     "Acme-Ops.V3": {
       "type": "dev",
-      "path": "~/dev/github/example/Acme-Ops.V3"
+      "path": "~/sage/github/example/Acme-Ops.V3"
     },
     "Team-Wiki": {
       "type": "dev",
-      "path": "~/dev/github/example/Team-Wiki",
+      "path": "~/sage/github/example/Team-Wiki",
       "obsidian_aware": true
     },
     "Work": {
       "type": "project",
-      "path": "~/dev/projects/Work"
+      "path": "~/sage/projects/Work"
     },
     "Budget-App": {
       "type": "project",
-      "path": "~/dev/projects/example/Budget-App"
+      "path": "~/sage/projects/example/Budget-App"
     },
     "Shop-Store": {
       "type": "project",
-      "path": "~/dev/projects/example/Shop-Store"
+      "path": "~/sage/projects/example/Shop-Store"
     },
     "Art-Gen": {
       "type": "project",
-      "path": "~/dev/projects/example/Art-Gen"
+      "path": "~/sage/projects/example/Art-Gen"
     },
     "ZiSaStudios": {
       "type": "project",
-      "path": "~/dev/projects/ZiSaStudios"
+      "path": "~/sage/projects/ZiSaStudios"
     },
     "learning": {
       "type": "knowledge",
-      "path": "~/dev/other/learning"
+      "path": "~/sage/other/learning"
     },
     "reference": {
       "type": "knowledge",
-      "path": "~/dev/other/reference"
+      "path": "~/sage/other/reference"
     },
     "research": {
       "type": "knowledge",
-      "path": "~/dev/other/research"
+      "path": "~/sage/other/research"
     },
     "archives": {
       "type": "knowledge",
-      "path": "~/dev/other/archives"
+      "path": "~/sage/other/archives"
     },
     "ops": {
       "type": "ops",
-      "path": "~/dev/scripts"
+      "path": "~/sage/scripts"
     },
     "scratchpad": {
       "type": "ops",
-      "path": "~/dev/other/scratch"
+      "path": "~/sage/other/scratch"
     },
     "a": {
       "type": "ops"

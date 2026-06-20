@@ -27,7 +27,7 @@ C / Cwk — Claude 5h + weekly session quota (same data as /status, delivered vi
 X / Xwk — Codex 5h + weekly rate-limit window (from codex app-server).
 ```
 
-- `Ryuuske/s.a.g.e` — `<user>/<repo>` if cwd is under `~/dev/github/`; otherwise the folder basename.
+- `Ryuuske/s.a.g.e` — `<user>/<repo>` if cwd is under `~/sage/github/`; otherwise the folder basename.
 - `⎇ main` — current git branch (dropped outside a repo).
 - `<model>` — the model name as reported by the Claude Code statusline payload (whatever is current at runtime).
 - `C / Cwk` — % used and time-to-reset for Claude session and weekly windows.
