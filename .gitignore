@@ -50,3 +50,6 @@ venv/
 # one ignore rule, enforced by the CI leak-guard (.github/workflows/leak-guard.yml).
 .development/
 *:Zone.Identifier
+
+# Local-AI workspace context (per-directory map); local-only, never published
+/CONTEXT.md
