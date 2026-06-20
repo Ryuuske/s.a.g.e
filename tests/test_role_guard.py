@@ -603,3 +603,131 @@ class TestFdRedirectFalsePositives:
         assert result == _allow(), (
             f"Expected allow for tee /dev/null command {command!r}, got {result}"
         )
+
+
+# ── Round post-2: shlex-based structural rewrite tests ───────────────────────
+
+
+class TestNewlineStatementSplit:
+    """Newline-separated statements are each evaluated independently.
+
+    Covers post-2 blocking finding #1 (sev 85): the prior chain-split omitted
+    ``\\n``, so ``git status\\necho x > /repo/evil`` was one git-prefixed
+    segment that swallowed the trailing write.
+    """
+
+    def test_newline_write_after_git_denied(self, monkeypatch):
+        """Newline-separated write after a git command → deny."""
+        _reload(monkeypatch)
+        command = "git status\necho x > /repo/evil"
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _deny(), f"Expected deny for newline-separated write, got {result}"
+
+    def test_newline_pure_git_allowed(self, monkeypatch):
+        """Newline-separated git commands with no write → allow."""
+        _reload(monkeypatch)
+        command = "git fetch\ngit pull\ngit log --oneline -5"
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _allow(), (
+            f"Expected allow for newline-separated git commands, got {result}"
+        )
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "git status\necho x > /repo/file",
+            "git log\ntee output.log",
+            "git fetch\nsed -i 's/a/b/' file.py",
+        ],
+    )
+    def test_newline_write_in_any_line_denied(self, command, monkeypatch):
+        """Write in any newline-separated line → deny."""
+        _reload(monkeypatch)
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _deny(), f"Expected deny for {command!r}, got {result}"
+
+
+class TestGitGhInSegmentWriteDenied:
+    """A git/gh-prefixed segment that contains a write idiom is DENIED.
+
+    Covers post-2 blocking finding #2 (sev 84): the old implementation
+    exempted the entire segment if it started with git/gh, regardless of
+    a trailing redirect.  Write-idiom check now runs FIRST.
+    """
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            # git command followed by redirect in same segment
+            "git commit -m x > f.txt",
+            "git log --oneline > commits.txt",
+            "git show HEAD > patch.diff",
+            # gh command followed by redirect in same segment
+            "gh pr view > out.txt",
+            "gh api repos/owner/repo > response.json",
+        ],
+    )
+    def test_git_gh_segment_with_redirect_denied(self, command, monkeypatch):
+        """git/gh segment with a trailing redirect → deny."""
+        _reload(monkeypatch)
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _deny(), f"Expected deny for git/gh+redirect {command!r}, got {result}"
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            # Pure git commands with no write — must still be allowed
+            "git commit -m 'feat: add role guard'",
+            "git log --oneline -10",
+            "git show HEAD",
+            "gh pr view 42",
+            "gh api repos/owner/repo",
+        ],
+    )
+    def test_git_gh_no_redirect_allowed(self, command, monkeypatch):
+        """Pure git/gh commands without any redirect → allow."""
+        _reload(monkeypatch)
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _allow(), f"Expected allow for pure git/gh {command!r}, got {result}"
+
+
+class TestQuotedOperatorsAllowed:
+    """Quoted ``>`` characters must not trigger false-positive denies.
+
+    Covers post-2 non-blocking finding #3: the prior regex-on-raw-string
+    approach was quote-blind and incorrectly denied commands like
+    ``grep '>' file`` where ``>`` is a shell argument, not a redirect.
+
+    Uses shlex (posix=False) so quoted ``'>'`` retains quote wrappers
+    and is distinguishable from a bare ``>`` redirect token.
+    """
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            # '>' as a grep pattern argument — NOT a redirect
+            "grep '>' file",
+            "grep -n '>' /repo/agents/foo.md",
+            # '>' embedded in a larger quoted string — NOT a redirect
+            "echo 'a > b'",
+            "echo 'input > output'",
+            # '>' inside awk single-quoted program — NOT a redirect
+            "awk '$1 > 5' f",
+            "awk '{if ($2 > 0) print}' data.csv",
+            # bash test expression — [ ... > ... ] treated as comparison idiom
+            "[ 5 > 3 ]",
+        ],
+    )
+    def test_quoted_operator_not_denied(self, command, monkeypatch):
+        """Quoted ``>`` in a shell argument must not be denied as a redirect."""
+        _reload(monkeypatch)
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _allow(), (
+            f"Expected allow for quoted-operator command {command!r}, got {result}"
+        )
