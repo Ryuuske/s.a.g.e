@@ -20,8 +20,9 @@ HOOK_CONFIG = REPO_ROOT / "hooks" / "hooks.json"
 # keeps the inner bound from being truncated, and the ceiling of 90
 # bounds the worst case at ~30s above that.
 EVENT_TIMEOUT_BOUNDS: dict[str, tuple[int, int]] = {
-    "Stop": (10, 30),
     "PreCompact": (60, 90),
+    "PreToolUse": (3, 10),
+    "Stop": (10, 30),
 }
 
 # Per-event AGGREGATE freeze ceiling (seconds): sequential hook commands within
@@ -32,8 +33,9 @@ EVENT_TIMEOUT_BOUNDS: dict[str, tuple[int, int]] = {
 # future command addition cannot silently balloon the worst-case Stop freeze.
 # Stop = keeper stop.py (30) + reporting evaluator (10) = 40 <= 45.
 EVENT_AGGREGATE_CEILING: dict[str, int] = {
-    "Stop": 45,
     "PreCompact": 90,
+    "PreToolUse": 10,
+    "Stop": 45,
 }
 
 
