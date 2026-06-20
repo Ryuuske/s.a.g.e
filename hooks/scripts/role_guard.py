@@ -42,10 +42,7 @@ Accepted residuals (NOT caught by this guard — documented in ADR-0126):
   - Backtick command substitution (e.g. `` `cmd > f` ``)
   - ``eval`` with a dynamically constructed write command
   - Decode-pipe-shell (``base64 -d | bash``, ``python -c "exec(...)"`` etc.)
-  - Explicit fd redirects to files (``cmd 1>file`` — the ``1`` prefix
-    triggers the fd-number heuristic; accepted residual for best-effort)
-  - ``&>file`` bash combined redirect (not a ``>`` or ``>>`` token)
-  These are exotic or edge-case constructs.  The four edit tools
+  These are genuinely static-undetectable constructs.  The four edit tools
   (Write, Edit, MultiEdit, NotebookEdit) are the total hard guarantee.
 
 See ADR-0126 for the full policy rationale and the Bash residual
@@ -109,8 +106,29 @@ _CONTROL_OPS = frozenset({"&&", "||", ";", "|"})
 # Tokens that indicate in-place editing when following "sed" (bare, unquoted).
 _SED_INPLACE_FLAGS = frozenset({"-i", "--in-place"})
 
-# Bare redirect tokens (unquoted, as produced by posix=False shlex).
-_REDIRECT_TOKENS = frozenset({">", ">>"})
+# Bare redirect tokens that produce a file write (unquoted, as produced by
+# posix=False shlex).  This is the COMPLETE set of file-creating redirect
+# operators (per ADR-0126 Round post-3):
+#
+#   >      — redirect stdout, overwrite
+#   >>     — redirect stdout, append
+#   >|     — redirect stdout, force overwrite (noclobber override)
+#   &>     — redirect stdout+stderr, overwrite (bash combined redirect)
+#   &>>    — redirect stdout+stderr, append (bash combined redirect)
+#
+# ``1>`` / ``1>>`` (explicit stdout fd) are NOT separate tokens in shlex output:
+# shlex(posix=False, punctuation_chars=True) splits ``echo 1> f`` into the
+# token sequence ``['echo', '1', '>', 'f']``.  The leading ``'1'`` is caught
+# by the fd-digit logic in _statement_has_write_idiom (which exempts ONLY ``'2'``
+# for the stderr-diagnostic carve-out; all other digit prefixes → DENY).
+#
+# ``N>`` / ``N>>`` where N ≥ 3 work the same way — the digit precedes a bare
+# ``>`` or ``>>`` token, and since the digit is not ``'2'``, it is not exempt.
+#
+# Fd-swap tokens (``>&``, ``>>&``) are excluded by _FD_SWAP_RE and are NOT in
+# this set.  ``2>`` to a file (stderr-diagnostic) is allowed via the
+# prev_tok == "2" carve-out in _statement_has_write_idiom.
+_REDIRECT_TOKENS = frozenset({">", ">>", ">|", "&>", "&>>"})
 
 # Fd-swap redirect tokens: start with > and followed by & (not a file write).
 # e.g. ">&" produced by shlex from ">&2".
@@ -135,7 +153,10 @@ def _is_quoted_token(token: str) -> bool:
 
 
 def _is_bare_redirect(token: str) -> bool:
-    """Return True if *token* is a bare (unquoted) ``>`` or ``>>`` token.
+    """Return True if *token* is a bare (unquoted) file-creating redirect token.
+
+    Checked against the complete ``_REDIRECT_TOKENS`` set: ``>``, ``>>``,
+    ``>|``, ``&>``, ``&>>``.
 
     Excludes:
       - Quoted forms (``'>'``, ``">"``).
@@ -209,9 +230,10 @@ def _statement_has_write_idiom(tokens: list[str]) -> bool:
 
     Checks (in order):
 
-    1. A bare ``>`` or ``>>`` token that is:
-         - Not preceded by an all-digits token (fd-number prefix like
-           ``2``, ``1`` — indicates fd-number redirect, not a real write).
+    1. A bare file-creating redirect token (``>``, ``>>``, ``>|``, ``&>``,
+       ``&>>``) that is:
+         - Not preceded by the token ``"2"`` (fd 2 = stderr-diagnostic carve-out;
+           all other digit prefixes including ``"1"`` are NOT exempt and → DENY).
          - Not a fd-swap form (``>&``, ``>>&``).
          - Not followed by ``/dev/null``.
 
@@ -239,17 +261,25 @@ def _statement_has_write_idiom(tokens: list[str]) -> bool:
         # Skip fd-swap forms like >&, >>&
         if _FD_SWAP_RE.match(tok):
             continue
-        # Skip if preceded by an all-digits token (fd-number redirect)
-        # e.g. ["pytest", "2", ">", "err.txt"] → "2" precedes ">"
+        # Skip if preceded by the token "2" (stderr fd — diagnostic carve-out).
+        # e.g. ["pytest", "2", ">", "err.txt"] → prev is "2" → allow.
+        # Any other digit (including "1") is NOT exempt: "1>" is stdout-to-file
+        # (a real write) and must DENY.  This also prevents "2>&1 >" masking:
+        # in "cmd 2>&1 > real" the ">" at the end has prev "1" (the dup target)
+        # which is not "2", so the final redirect is correctly caught.
         prev_tok = tokens[i - 1] if i > 0 else ""
-        if prev_tok.isdigit() or (prev_tok and prev_tok.isdigit()):
+        if prev_tok == "2":
             continue
-        # Generalise: any token consisting entirely of digits is an fd number.
-        if re.fullmatch(r"\d+", prev_tok):
+        # Compute the redirect target (next token) once for the remaining checks.
+        next_tok = tokens[i + 1] if i + 1 < n else ""
+        # Skip if the target is a bare digit — indicates a numeric comparison
+        # operator (e.g. ``[ 5 > 3 ]``) rather than a file redirect.
+        # Redirecting to a file whose name is a bare digit is exotic and accepted
+        # as a residual per the fail-open principle (ADR-0126 §residuals).
+        if re.fullmatch(r"\d+", next_tok):
             continue
         # Skip if target is /dev/null (bit-bucket, not a real write)
         # or /tmp/* (scratch space; accepted residual per spec).
-        next_tok = tokens[i + 1] if i + 1 < n else ""
         if next_tok in ("/dev/null", "'/dev/null'", '"/dev/null"'):
             continue
         if next_tok.startswith("/tmp/"):

@@ -731,3 +731,87 @@ class TestQuotedOperatorsAllowed:
         assert result == _allow(), (
             f"Expected allow for quoted-operator command {command!r}, got {result}"
         )
+
+
+# ── Round post-3: redirect-operator completeness ─────────────────────────────
+
+
+class TestRedirectOperatorCompleteness:
+    """The complete set of file-creating redirect operators is denied.
+
+    Covers post-3 non-blocking findings:
+      1. (sev 78) ``1>`` / ``&>`` / ``&>>`` were ALLOWED — must DENY.
+      2. (sev 62) ``2>&1 >real`` — the fd-digit heuristic swallowed the
+         trailing real write.  With the narrowed carve-out (only fd ``2``
+         exempted), the final ``>`` is no longer masked.
+      3. (sev 30) ADR-0126 residual list relabelled — only genuinely
+         static-undetectable constructs remain listed.
+
+    The stderr-diagnostic carve-out (``pytest 2> err.txt`` → allow) and all
+    quoted-operator allow rows from post-2 remain green.
+    """
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            # 1> — explicit stdout-to-file (fd 1 is NOT exempt)
+            "echo x 1> f",
+            "echo x 1>> f",
+            # &> / &>> — bash combined (stdout+stderr) redirect
+            "echo x &> f",
+            "echo x &>> /var/log/app.log",
+            # >| — force overwrite (bypasses noclobber)
+            "echo x >| f",
+            # 2>&1 followed by a real > — the dup target must not mask the write
+            "cmd 2>&1 > real",
+            "cmd 2>&1 > /repo/output.txt",
+        ],
+    )
+    def test_redirect_operator_denied(self, command, monkeypatch):
+        """Each member of the complete redirect-operator set → deny."""
+        _reload(monkeypatch)
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _deny(), (
+            f"Expected deny for redirect operator command {command!r}, got {result}"
+        )
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            # stderr-to-file diagnostic: 2> stays ALLOWED
+            "pytest 2> err.txt",
+            "make build 2> /tmp/build_errors.txt",
+            # fd-swap: 2>&1 alone (no following file redirect) stays ALLOWED
+            "cmd > /dev/null 2>&1",
+            "cmd 2>&1",
+        ],
+    )
+    def test_stderr_diagnostic_and_fd_swap_allowed(self, command, monkeypatch):
+        """Stderr-to-file (``2>``) and fd-swap (``2>&1``) remain allowed."""
+        _reload(monkeypatch)
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _allow(), (
+            f"Expected allow for stderr/fd-swap command {command!r}, got {result}"
+        )
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            # Quoted &> — not a redirect
+            "echo '&> not a redirect'",
+            # Quoted >| — not a redirect
+            "echo '>| not a redirect'",
+            # &> inside a larger quoted string
+            "echo 'cmd &> file is a redirect pattern'",
+        ],
+    )
+    def test_quoted_new_operators_allowed(self, command, monkeypatch):
+        """Quoted forms of the new operators must not be denied."""
+        _reload(monkeypatch)
+        payload = _orchestrator_payload("Bash", {"command": command})
+        result = role_guard.decide(payload)
+        assert result == _allow(), (
+            f"Expected allow for quoted new-operator command {command!r}, got {result}"
+        )
