@@ -52,7 +52,7 @@ def test_tracked_template_ships_only_framework_generic_wings():
     """The tracked wing_config.json template ships ONLY framework-generic wings.
 
     Codex Phase-8 HIGH fix: the template must NOT carry the maintainer's
-    project/dev wings (Acme-*, Shop-Store, ZiSaStudios, Work, etc. under ~/dev) —
+    project/dev wings (Acme-*, Shop-Store, ZiSaStudios, Work, etc. under ~/sage) —
     those are operator-specific and leak names into a shipped/exported tree and
     into every seeded fresh-user config. Only the framework-internal wings under
     ~/.sage (Personal for WI-5 user-facts, telemetry for the telemetry stream)
