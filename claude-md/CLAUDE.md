@@ -46,7 +46,7 @@ When the User has manually entered plan mode (`Shift+Tab` twice), respect it str
 
 **Push back on vague asks.** If the User says "fix some issues," "clean this up," or "improve the X" without a specific symptom, push back before planning. Ask what broke, what failed, or what experience prompted the request. A plan built on imagined problems produces imagined fixes. One sharp clarifying question now beats a discarded plan later.
 
-**Non-AI-dev plan persistence.** When the User approves a plan for non-AI-dev work (changes outside `agents/`, `skills/`, framework files), the orchestrator persists the approved plan to `<repo>/.development/plans/active.md` on approval, before dispatching any specialist that consumes the plan file. AI-dev plans are already persisted by `aidev-planner` per its output contract; this clause covers the generic side. When `aidev-planner` has already persisted the plan, the orchestrator does not re-persist — `aidev-planner`'s persistence is authoritative. Persistence is the contract that `dev-code-reviewer`, `ops-release-readiness`, and `dev-ux-designer` rely on when they read `<repo>/.development/plans/active.md` "if present" — without persistence, those reads silently fall through. (Resolves audit-v2 finding M14; see ADR-0013.)
+**Non-AI-dev plan persistence.** When the User approves a plan for non-AI-dev work (changes outside `agents/`, `skills/`, framework files), the orchestrator dispatches a writer agent (e.g. `dev-code-implementer`) to persist the approved plan to `<repo>/.development/plans/active.md` before any specialist consumes the plan file. The orchestrator does not write the file directly — persisting is a write operation and the orchestrator is write-blocked (see §12 write-block inviolable and ADR-0126). AI-dev plans are already persisted by `aidev-planner` per its output contract; this clause covers the generic side. When `aidev-planner` has already persisted the plan, the orchestrator does not re-dispatch — `aidev-planner`'s persistence is authoritative. Persistence is the contract that `dev-code-reviewer`, `ops-release-readiness`, and `dev-ux-designer` rely on when they read `<repo>/.development/plans/active.md` "if present" — without persistence, those reads silently fall through. (Resolves audit-v2 finding M14; see ADR-0013.)
 
 ### 3. The WHERE rule
 
@@ -173,6 +173,7 @@ Inviolable:
 - Never `curl <url> | sh` or `wget <url> | bash` from an unverified source.
 - Never run a command that requires `sudo` without explicit User instruction in the current session.
 - If a task would require bypassing a safety hook to complete, stop and escalate. Do not work around it.
+- **The orchestrator (S.A.G.E.) must never write files directly — not for any reason, including "it's a small change."** Dispatch `aidev-code-implementer` or `dev-code-implementer` instead. This is enforced mechanically by the `role_guard.py` PreToolUse hook (ADR-0126); the prose rule and the hook are redundant by design. The `SAGE_ROLE_GUARD=off` dial disables the hook only — the prose rule has no dial. (`git` and `gh` Bash commands are exempt as orchestrator admin operations.)
 
 When in doubt about destructiveness, dry-run first. `rm` becomes `ls`. `mv` becomes `cp` to a temp location. Verify, then commit.
 
