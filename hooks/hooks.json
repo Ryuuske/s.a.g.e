@@ -1,6 +1,18 @@
 {
-  "description": "sage session-end and pre-compact hooks: orchestrator-gated emergency drawer fallback (~/.sage/current_wing + last_keeper_dispatch sentinels) + non-blocking autonomy reporting-contract evaluator (ADR-0066, in-flight runs only).",
+  "description": "sage session-end and pre-compact hooks: orchestrator-gated emergency drawer fallback (~/.sage/current_wing + last_keeper_dispatch sentinels) + non-blocking autonomy reporting-contract evaluator (ADR-0066, in-flight runs only) + PreToolUse orchestrator write-block (ADR-0126, SAGE_ROLE_GUARD=off to disable).",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/role_guard.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [

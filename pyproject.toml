@@ -57,6 +57,10 @@ dependencies = [
     "orjson>=3.11.6",
     "urllib3>=2.7.0",
     "idna>=3.15",
+    # GHSA-4xgf-cpjx-pc3j (pydantic-settings ReDoS, fixed 2.14.2); pulled
+    # transitively via chromadb→pydantic-settings. Pin the floor until
+    # chromadb's own constraint catches up.
+    "pydantic-settings>=2.14.2",
 ]
 
 [project.urls]
